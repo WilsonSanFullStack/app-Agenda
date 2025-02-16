@@ -1,5 +1,6 @@
-const { app, BrowserWindow } = require("electron");
+const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
+const {Mes, Quincena, Dias}= require('./db.js')
 
 let mainWindow;
 
@@ -11,10 +12,14 @@ app.whenReady().then(() => {
       nodeIntegration: true,
       contextIsolation: false,
       spellcheck: false, // 🔹 Desactiva el autocompletado
+      preload: path.join(__dirname, "preload.js"),
     },
   });
 
+  ipcMain.handle()
+
   mainWindow.loadURL(`file://${path.join(__dirname, "../dist/index.html")}`);
+  // mainWindow.loadFile('index.html')
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
