@@ -43,10 +43,12 @@ export const Home = () => {
             return <div key={dia}>{dia}</div>;
           })}
         </div>
-      ) : (<div className="grid grid-cols-7 w-96 border-2 border-slate-400">
-        {quincenas.primeraQuincena.map((dia) => {
-          return <div key={dia}>{dia}</div>;
-        })}</div>
+      ) : (
+        <div className="grid grid-cols-7 w-96 border-2 border-slate-400">
+          {quincenas.primeraQuincena.map((dia) => {
+            return <div key={dia}>{dia}</div>;
+          })}
+        </div>
       )}
     </div>
   );

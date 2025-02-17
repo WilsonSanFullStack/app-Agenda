@@ -1,5 +1,19 @@
 @import "tailwindcss";
+@import "react-calendar/dist/Calendar.css";
 
 :root {
-  @apply m-2 bg-black p-0 text-white
+  @apply m-2 bg-black p-0 text-white;
+}
+.react-calendar {
+  background: black;
+  color: rgb(152, 152, 214);
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.1);
+}
+.sunday {
+  @apply text-red-500 font-bold;
+}
+.week {
+  @apply text-slate-500 /*Puedes cambiar el color a tu gusto*/;
 }
