@@ -1,6 +1,7 @@
 const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("api", {
-  getUsers: () => ipcRenderer.invoke("get-users"),
-  addUser: (name, email) => ipcRenderer.invoke("add-user", name, email),
+  getQuincena: () => ipcRenderer.invoke("get-quincena"),
+  addQuincena: (name) => ipcRenderer.invoke("add-quincena", name),
+  deleteQuincena: (id) => ipcRenderer.invoke("delete-quincena", id),
 });

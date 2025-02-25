@@ -36,9 +36,17 @@ const Dias = sequelize.define("Dias", {
 });
 
 // Sincronizar base de datos
-sequelize
-  .sync()
-  .then(() => console.log("Base de datos sincronizada"))
-  .catch((err) => console.error("Error al sincronizar DB:", err));
+async function db(){
+  try {
+    await sequelize.sync({force: false})//sincroniza la db sin eliminar datos
+    console.log("🔹 Base de datos lista")
+  } catch (error) {
+    console.log("❌ Error al configurar la base de datos:", error)
+  }
+}
+// sequelize
+//   .sync()
+//   .then(() => console.log("Base de datos sincronizada"))
+//   .catch((err) => console.error("Error al sincronizar DB:", err));
 
-module.exports = { sequelize, User };
+module.exports = { Quincena, db };
