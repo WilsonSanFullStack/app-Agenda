@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require("electron");
+const { app, BrowserWindow, ipcMain, Menu } = require("electron");
 const path = require("path");
 const { Mes, Quincena, Dias, db } = require("./db.cjs");
 const { error } = require("console");
@@ -12,31 +12,85 @@ app.whenReady().then(async () => {
     height: 700,
     webPreferences: {
       nodeIntegration: true,
-      contextIsolation: false,
-      spellcheck: false, // 🔹 Desactiva el autocompletado
-      preload: path.join(__dirname, "preload.js"),
+      contextIsolation: true,
+      enableRemoteModule: false,
+      spellcheck: true, // 🔹 Desactiva el autocompletado
+      preload: path.join(__dirname, "preload.cjs"),
     },
   });
 
-  ipcMain.handle();
+  // ipcMain.handle();
 
   mainWindow.loadURL(`file://${path.join(__dirname, "../dist/index.html")}`);
+  // mainWindow.loadURL("http://localhost:5173");
   // mainWindow.loadFile('index.html')
+  // Crear y establecer el menú
+  const menu = Menu.buildFromTemplate([
+    {
+      label: "Archivo",
+      submenu: [
+        {
+          label: "Registro",
+          submenu: [
+            {
+              label: "Quincena",
+              click: () => {
+                mainWindow.webContents.send("abrir-registro-quincena")
+              },
+            },
+          ],
+        },
+        {
+          label: "Salir",
+          role: "quit", // Cierra la aplicación
+        },
+      ],
+    },
+    {
+      label: "Editar",
+      submenu: [
+        { role: "undo", label: "Deshacer" },
+        { role: "redo", label: "Rehacer" },
+        { type: "separator" },
+        { role: "cut", label: "Cortar" },
+        { role: "copy", label: "Copiar" },
+        { role: "paste", label: "Pegar" },
+      ],
+    },
+    {
+      label: "Ver",
+      submenu: [
+        { role: "reload", label: "Recargar" },
+        { role: "toggleDevTools", label: "Herramientas de desarrollo" },
+      ],
+    },
+  ]);
+
+  Menu.setApplicationMenu(menu); // 🔹 Establecer el menú en la ventana
 
   //manejar IPC para obtener datos desde el frontend
   ipcMain.handle("get-quincena", async () => {
     return await Quincena.findAll();
   });
 
-  ipcMain.handle("add-quincena", async (_, name) => {
-    const q = await Quincena.findAll({ where: { name: name } });
-    if (q) {
-      console.log(error);
-    } else {
-      const quin = await Quincena.create({ where: { name: name } });
-    }
+  ipcMain.handle("add-quincena", async (_, data) => {
+    try {
+      const [nuevaQuincena, created] = await Quincena.findOrCreate({
+        where: { name: data.name },
+        defaults: {
+          name: data.name,
+          inicio: data.inicio,
+          fin: data.fin,
+        },
+      });
 
-    return quin;
+      if (!created) {
+        return { error: "La quincena ya existe" };
+      }
+      return nuevaQuincena;
+    } catch (error) {
+      console.log(error);
+    }
   });
 
   ipcMain.handle("delete-quincena", async (_, quincenaId) => {

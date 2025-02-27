@@ -1,8 +1,19 @@
 import { Routes, Route } from "react-router-dom";
 import { Home } from "./components/Home";
-import { RegisterQ } from "./components/RegisterQ.jsx";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { RegisterQ } from "./components/registerQ.jsx";
 
 function App() {
+  
+    const navigate = useNavigate();
+  
+    useEffect(() => {
+      window.Electron.onAbrirRegistroQuincena(() => {
+        console.log("Cambiando vista a Registro Quincena");
+        navigate("/register/quincena"); // 🔹 Cambia la vista
+      });
+    }, []);
   return (
     <div>
       <Routes>

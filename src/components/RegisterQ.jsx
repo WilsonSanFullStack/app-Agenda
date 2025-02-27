@@ -1,7 +1,16 @@
-import React, { useState } from "react";
-import Calendar from "react-calendar";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
 
 export const RegisterQ = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    window.Electron.onAbrirRegistroQuincena(() => {
+      console.log("Cambiando vista a Registro Quincena");
+      navigate("/register/quincena"); // 🔹 Cambia la vista
+    });
+  }, []);
   const [q, setQ] = useState({ name: "", inicio: "", fin: "", creada: "" });
   const handleQuincena = (event) => {
     setQ({
@@ -13,7 +22,7 @@ export const RegisterQ = () => {
 
   const [yearS, setYearS] = useState(currentYear);
   const handleYearS = (y) => {
-    console.log('vista', y)
+    console.log("vista", y);
     setYearS(y);
   };
   // const yeah = handleYear()
@@ -25,7 +34,8 @@ export const RegisterQ = () => {
       new Date(2000, i, 1).toLocaleString("es-ES", { month: "long" })
     );
     meses.forEach((mes, index) => {
-      const year = yearC!==undefined & yearC !== currentYear?yearC:currentYear;
+      const year =
+        (yearC !== undefined) & (yearC !== currentYear) ? yearC : currentYear;
       console.log(year);
       const ultimoDiaMes = new Date(year, index + 1, 0).getDate(); //ultimo dia del mes
       //primera quincena 1 al 15
@@ -49,21 +59,37 @@ export const RegisterQ = () => {
 
   const quincenas = nombres(yearS);
   console.log(quincenas);
+console.log(window.Electron)
+  const crearQuincena = async (data) => {
+    try {
+      
+      const respuesta = await window.Electron("add-quincena", data);
+      if (respuesta.error) {
+        console.log(respuesta.error);
+      } else {
+        console.log(respuesta);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div>
       <form className="">
         <div className="flex justify-between items-center mx-2 px-1">
-        {years?.map((y) => {
-          return (
-                <button
+          {years?.map((y) => {
+            return (
+              <button
                 key={y}
-                  className="bg-gray-500 m-1 p-1 rounded-lg cursor-pointer"
-                  onClick={() => handleYearS(y)}
-                >
-                  {`${y}`}{" "}
-                </button>
-          );
-        })}</div>
+                className="bg-gray-500 m-1 p-1 rounded-lg cursor-pointer"
+                onClick={() => handleYearS(y)}
+              >
+                {`${y}`}{" "}
+              </button>
+            );
+          })}
+        </div>
         <section className="text-center text-white">
           <h1>quincenas para {yearS}</h1>
           <section className="text-white">
@@ -77,6 +103,7 @@ export const RegisterQ = () => {
                     <button
                       key={q.name + 1}
                       onChange={handleQuincena}
+                      onClick={() => crearQuincena(q)}
                       className=" focus:bg-red-500 active:bg-amber-700 hover:bg-emerald-500 border-2 border-amber-400 w-fit m-0.5 p-0.5 text-white"
                     >
                       Crear

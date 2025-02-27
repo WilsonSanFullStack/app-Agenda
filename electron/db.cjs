@@ -15,7 +15,7 @@ const Mes = sequelize.define("Mes", {
   name: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true
+    unique: true,
   },
 });
 // Definir modelo
@@ -23,7 +23,15 @@ const Quincena = sequelize.define("Quincena", {
   name: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true
+    unique: true,
+  },
+  inicio: {
+    type: DataTypes.DATE,
+    allowNull: false,
+  },
+  fin: {
+    type: DataTypes.DATE,
+    allowNull: false,
   },
 });
 // Definir modelo
@@ -31,17 +39,17 @@ const Dias = sequelize.define("Dias", {
   name: {
     type: DataTypes.NUMBER,
     allowNull: false,
-    unique: true
+    unique: true,
   },
 });
 
 // Sincronizar base de datos
-async function db(){
+async function db() {
   try {
-    await sequelize.sync({force: false})//sincroniza la db sin eliminar datos
-    console.log("🔹 Base de datos lista")
+    await sequelize.sync({ force: false }); //sincroniza la db sin eliminar datos
+    console.log("🔹 Base de datos lista");
   } catch (error) {
-    console.log("❌ Error al configurar la base de datos:", error)
+    console.log("❌ Error al configurar la base de datos:", error);
   }
 }
 // sequelize

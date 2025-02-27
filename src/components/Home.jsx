@@ -293,7 +293,7 @@ export const Home = () => {
                   </div>
                 </section> */}
 
-                <div className="w-full bg-slate-600 shadow-md rounded-lg">
+                {/* <div className="w-full bg-slate-600 shadow-md rounded-lg">
                   <h2 className="text-xl font-semibold text-center ">
                     Gráfico de Créditos y Pesos
                   </h2>
@@ -306,7 +306,7 @@ export const Home = () => {
                       <Bar dataKey="creditos" fill="#10b981" name="Créditos" />
                     </BarChart>
                   </ResponsiveContainer>
-                </div>
+                </div> */}
               </div>
             );
           })}
