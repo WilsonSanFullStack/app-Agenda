@@ -70,7 +70,9 @@ app.whenReady().then(async () => {
 
   //manejar IPC para obtener datos desde el frontend
   ipcMain.handle("get-quincena", async () => {
-    return await Quincena.findAll();
+    const respuesta = await Quincena.findAll();
+    const res = respuesta.map((x) => x.dataValues)
+    return res
   });
 
   ipcMain.handle("add-quincena", async (_, data) => {
@@ -87,6 +89,10 @@ app.whenReady().then(async () => {
       if (!created) {
         return { error: "La quincena ya existe" };
       }
+      // 🔹 Enviar evento a React para actualizar la lista
+    BrowserWindow.getAllWindows().forEach((win) => {
+      win.webContents.send("quincenaActualizada", nuevaQuincena);
+    });
       return nuevaQuincena;
     } catch (error) {
       console.log(error);
