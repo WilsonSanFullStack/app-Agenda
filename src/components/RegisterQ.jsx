@@ -25,8 +25,8 @@ export const RegisterQ = () => {
   };
   const getAllQuincena = async () => {
     try {
-      const respuesta = await window.Electron.getQuincena();
-      return respuesta;
+       const respuesta = await window.Electron.getQuincena();
+       return respuesta;
     } catch (error) {
       console.log(error);
     }
@@ -38,6 +38,7 @@ export const RegisterQ = () => {
   const handleQuincena = async () => {
     const creadas = await getAllQuincena();
     setQ(creadas);
+    nombres(yearS);
   };
 
   useEffect(() => {
@@ -48,11 +49,10 @@ export const RegisterQ = () => {
       getAllQuincena();
     });
 
-    nombres(yearS);
     return () => {
       window.Electron.removeQuincenaActualizada();
     };
-  }, []);
+  }, [quincenas, q]);
   // useEffect(() => {
   //   getAllQuincena();
 
@@ -99,17 +99,18 @@ export const RegisterQ = () => {
     setQuincenas(quincena)
   };
   //ejecucion de la creacion de nombres de quincenas
-
-  console.log(quincenas);
+  // useEffect(()=>{
+  //   nombres(yearS)
+  // },[yearS, quincenas, ])
   return (
     <div>
       <form className="">
-        <div className="flex justify-between items-center mx-2 px-1">
+        <div className="flex justify-justify items-center mx-2 px-1">
           {years?.map((y) => {
             return (
               <button
                 key={y}
-                className="bg-gray-500 m-1 p-1 rounded-lg cursor-pointer"
+                className="bg-gray-500 m-1 p-1 rounded-lg cursor-pointer w-full"
                 onClick={() => handleYearS(y)}
               >
                 {`${y}`}{" "}
@@ -119,10 +120,10 @@ export const RegisterQ = () => {
         </div>
         <section className="text-center text-white">
           <h1>quincenas para {yearS}</h1>
-          <section className="text-white">
+          <section className="text-white grid grid-cols-6">
             {quincenas?.map((q) => {
               return (
-                <div key={q.name}>
+                <div key={q.name} className="border-2 w-48 m-1 p-1 border-slate-500 rounded-lg">
                   <h1 key={q.name}>{q.name}</h1>
                   {q?.creada ? (
                     <></>
@@ -131,7 +132,7 @@ export const RegisterQ = () => {
                       key={q.name + 1}
                       onChange={handleQuincena}
                       onClick={() => crearQuincena(q)}
-                      className=" focus:bg-red-500 active:bg-amber-700 hover:bg-emerald-500 border-2 border-amber-400 w-fit m-0.5 p-0.5 text-white"
+                      className=" focus:bg-red-500 active:bg-amber-700 hover:bg-emerald-500 border-2 border-amber-400 w-fit m-0.5 p-0.5 text-white rounded-md"
                     >
                       Crear
                     </button>

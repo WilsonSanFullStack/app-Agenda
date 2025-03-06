@@ -46,7 +46,7 @@ const Dias = sequelize.define("Dias", {
 // Sincronizar base de datos
 async function db() {
   try {
-    await sequelize.sync({ force: true }); //sincroniza la db sin eliminar datos
+    await sequelize.sync({ force: false }); //sincroniza la db sin eliminar datos
     console.log("🔹 Base de datos lista");
   } catch (error) {
     console.log("❌ Error al configurar la base de datos:", error);

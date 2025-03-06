@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, Menu } = require("electron");
+const { app, BrowserWindow, ipcMain, Menu, nativeImage } = require("electron");
 const path = require("path");
 const { Mes, Quincena, Dias, db } = require("./db.cjs");
 const { error } = require("console");
@@ -8,8 +8,9 @@ let mainWindow;
 app.whenReady().then(async () => {
   await db();
   mainWindow = new BrowserWindow({
-    width: 1000,
-    height: 700,
+    width: 1280,
+    height: 720,
+    frame: false,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: true,
@@ -25,54 +26,70 @@ app.whenReady().then(async () => {
   // mainWindow.loadURL("http://localhost:5173");
   // mainWindow.loadFile('index.html')
   // Crear y establecer el menú
-  const menu = Menu.buildFromTemplate([
-    {
-      label: "Archivo",
-      submenu: [
-        {
-          label: "Registro",
-          submenu: [
-            {
-              label: "Quincena",
-              click: () => {
-                mainWindow.webContents.send("abrir-registro-quincena")
-              },
-            },
-          ],
-        },
-        {
-          label: "Salir",
-          role: "quit", // Cierra la aplicación
-        },
-      ],
-    },
-    {
-      label: "Editar",
-      submenu: [
-        { role: "undo", label: "Deshacer" },
-        { role: "redo", label: "Rehacer" },
-        { type: "separator" },
-        { role: "cut", label: "Cortar" },
-        { role: "copy", label: "Copiar" },
-        { role: "paste", label: "Pegar" },
-      ],
-    },
-    {
-      label: "Ver",
-      submenu: [
-        { role: "reload", label: "Recargar" },
-        { role: "toggleDevTools", label: "Herramientas de desarrollo" },
-      ],
-    },
-  ]);
+  // const iconPath = __dirname + "../public/notebook.png";
+  // const iconImage = nativeImage.createFromPath(iconPath).resize({width: 16, height: 16})
+  // const menu = Menu.buildFromTemplate([
+  //   // {
+  //   // },
+  //   {
+  //     label: "Archivo",
+  //     icon: iconImage,
+  //     submenu: [
+  //       {
+  //         label: "Registro",
+  //         submenu: [
+  //           {
+  //             label: "Quincena",
+  //             click: () => {
+  //               mainWindow.webContents.send("abrir-registro-quincena");
+  //             },
+  //           },
+  //         ],
+  //       },
+  //       {
+  //         label: "Salir",
+  //         role: "quit", // Cierra la aplicación
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     label: "Registro",
+  //     submenu: [
+  //       {
+  //         label: "Quincena",
+  //         click: () => {
+  //           mainWindow.webContents.send("abrir-registro-quincena");
+  //         },
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     label: "Editar",
+  //     submenu: [
+  //       { role: "undo", label: "Deshacer" },
+  //       { role: "redo", label: "Rehacer" },
+  //       { type: "separator" },
+  //       { role: "cut", label: "Cortar" },
+  //       { role: "copy", label: "Copiar" },
+  //       { role: "paste", label: "Pegar" },
+  //     ],
+  //   },
+  //   {
+  //     label: "Ver",
+  //     submenu: [
+  //       { role: "reload", label: "Recargar" },
+  //       { role: "toggleDevTools", label: "Herramientas de desarrollo" },
+  //     ],
+  //   },
+  // ]);
 
-  Menu.setApplicationMenu(menu); // 🔹 Establecer el menú en la ventana
+  // Menu.setApplicationMenu(menu); // 🔹 Establecer el menú en la ventana
 
   //manejar IPC para obtener datos desde el frontend
   ipcMain.handle("get-quincena", async () => {
     const respuesta = await Quincena.findAll();
-    const res = respuesta.map((x) => x.dataValues)
-    return res
+    const res = respuesta.map((x) => x.dataValues);
+    return res;
   });
 
   ipcMain.handle("add-quincena", async (_, data) => {
@@ -90,9 +107,9 @@ app.whenReady().then(async () => {
         return { error: "La quincena ya existe" };
       }
       // 🔹 Enviar evento a React para actualizar la lista
-    BrowserWindow.getAllWindows().forEach((win) => {
-      win.webContents.send("quincenaActualizada", nuevaQuincena);
-    });
+      BrowserWindow.getAllWindows().forEach((win) => {
+        win.webContents.send("quincenaActualizada", nuevaQuincena);
+      });
       return nuevaQuincena;
     } catch (error) {
       console.log(error);

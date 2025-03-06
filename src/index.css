@@ -2,7 +2,7 @@
 @import "react-calendar/dist/Calendar.css";
 
 :root {
-  @apply m-2 bg-black p-0 text-white;
+  @apply bg-black text-white;
 }
 .react-calendar {
   background: black;
