@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain, Menu, nativeImage } = require("electron");
 const path = require("path");
 const { Mes, Quincena, Dias, db } = require("./db.cjs");
 const { error } = require("console");
+const chokidar = require("chokidar");
 
 let mainWindow;
 
@@ -21,69 +22,38 @@ app.whenReady().then(async () => {
   });
 
   // ipcMain.handle();
+  if (process.env.NODE_ENV === "development") {
+    mainWindow.loadURL("http://localhost:5173"); // 🔥 Carga desde Vite en dev
+  } else {
+    // mainWindow.loadFile("dist/index.html"); // 📦 Carga el archivo en producción
+    mainWindow.loadURL(`file://${path.join(__dirname, "../dist/index.html")}`);
+  }
 
-  mainWindow.loadURL(`file://${path.join(__dirname, "../dist/index.html")}`);
-  // mainWindow.loadURL("http://localhost:5173");
-  // mainWindow.loadFile('index.html')
-  // Crear y establecer el menú
-  // const iconPath = __dirname + "../public/notebook.png";
-  // const iconImage = nativeImage.createFromPath(iconPath).resize({width: 16, height: 16})
-  // const menu = Menu.buildFromTemplate([
-  //   // {
-  //   // },
-  //   {
-  //     label: "Archivo",
-  //     icon: iconImage,
-  //     submenu: [
-  //       {
-  //         label: "Registro",
-  //         submenu: [
-  //           {
-  //             label: "Quincena",
-  //             click: () => {
-  //               mainWindow.webContents.send("abrir-registro-quincena");
-  //             },
-  //           },
-  //         ],
-  //       },
-  //       {
-  //         label: "Salir",
-  //         role: "quit", // Cierra la aplicación
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     label: "Registro",
-  //     submenu: [
-  //       {
-  //         label: "Quincena",
-  //         click: () => {
-  //           mainWindow.webContents.send("abrir-registro-quincena");
-  //         },
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     label: "Editar",
-  //     submenu: [
-  //       { role: "undo", label: "Deshacer" },
-  //       { role: "redo", label: "Rehacer" },
-  //       { type: "separator" },
-  //       { role: "cut", label: "Cortar" },
-  //       { role: "copy", label: "Copiar" },
-  //       { role: "paste", label: "Pegar" },
-  //     ],
-  //   },
-  //   {
-  //     label: "Ver",
-  //     submenu: [
-  //       { role: "reload", label: "Recargar" },
-  //       { role: "toggleDevTools", label: "Herramientas de desarrollo" },
-  //     ],
-  //   },
-  // ]);
+  mainWindow.webContents.openDevTools(); // 🔥 Abre DevTools para depurar
 
-  // Menu.setApplicationMenu(menu); // 🔹 Establecer el menú en la ventana
+  // 🔄 Detectar cambios en la carpeta de Vite y recargar Electron
+  chokidar.watch("./dist").on("change", () => {
+    if (mainWindow) {
+      console.log("🔄 Recargando ventana...");
+      mainWindow.reload();
+    }
+  });
+ // Eventos para manejar acciones de la ventana desde el frontend
+ipcMain.on("window:minimize", () => {
+  mainWindow.minimize();
+});
+
+ipcMain.on("window:maximize", () => {
+  if (mainWindow.isMaximized()) {
+    mainWindow.unmaximize();
+  } else {
+    mainWindow.maximize();
+  }
+});
+
+ipcMain.on("window:close", () => {
+  mainWindow.close();
+});
 
   //manejar IPC para obtener datos desde el frontend
   ipcMain.handle("get-quincena", async () => {

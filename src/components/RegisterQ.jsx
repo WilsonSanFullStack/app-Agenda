@@ -25,8 +25,8 @@ export const RegisterQ = () => {
   };
   const getAllQuincena = async () => {
     try {
-       const respuesta = await window.Electron.getQuincena();
-       return respuesta;
+      const respuesta = await window.Electron.getQuincena();
+      return respuesta;
     } catch (error) {
       console.log(error);
     }
@@ -96,7 +96,7 @@ export const RegisterQ = () => {
         });
       }
     });
-    setQuincenas(quincena)
+    setQuincenas(quincena);
   };
   //ejecucion de la creacion de nombres de quincenas
   // useEffect(()=>{
@@ -105,12 +105,12 @@ export const RegisterQ = () => {
   return (
     <div>
       <form className="">
-        <div className="flex justify-justify items-center mx-2 px-1">
+        <div className="grid grid-cols-21 mx-2 px-1">
           {years?.map((y) => {
             return (
               <button
                 key={y}
-                className="bg-gray-500 m-1 p-1 rounded-lg cursor-pointer w-full"
+                className="bg-gray-500 m-1 p-1 rounded-lg cursor-pointer w-12"
                 onClick={() => handleYearS(y)}
               >
                 {`${y}`}{" "}
@@ -123,7 +123,10 @@ export const RegisterQ = () => {
           <section className="text-white grid grid-cols-6">
             {quincenas?.map((q) => {
               return (
-                <div key={q.name} className="border-2 w-48 m-1 p-1 border-slate-500 rounded-lg">
+                <div
+                  key={q.name}
+                  className="border-2 w-48 m-1 p-1 border-slate-500 rounded-lg"
+                >
                   <h1 key={q.name}>{q.name}</h1>
                   {q?.creada ? (
                     <></>
