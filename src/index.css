@@ -4,6 +4,14 @@
 :root {
   @apply bg-black text-white;
 }
+.mover {
+  cursor: pointer;
+  user-select: none; /* Evita que se seleccione el texto */
+  -webkit-app-region: drag; /* Permite arrastrar la ventana */
+}
+.noMover {
+  -webkit-app-region: no-drag; /* Permite arrastrar la ventana */
+}
 .react-calendar {
   background: black;
   color: rgb(152, 152, 214);

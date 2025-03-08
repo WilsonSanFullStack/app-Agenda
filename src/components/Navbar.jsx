@@ -1,35 +1,99 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import notebook from "../assets/notebook.png";
 import { useNavigate } from "react-router-dom";
+import { BsZoomIn, BsZoomOut, BsXCircle } from "react-icons/bs";
 
 export const Navbar = () => {
   const navigate = useNavigate();
-  // const handleWindowAction =(action) => {
-  //   console.log(action)
-  //   window.Electron.send("Window-action", action)
-  // }
+  const [openMenu, setOpenMenu] = useState(null);
+  const menuRef = useRef(null);
+  const optionMenu = {
+    Archivo: [
+      {name: "opcion 1", path: '/'},
+      {name: "opcion 2", path: '/'},
+      {name: "opcion 3", path: '/'},
+    ],
+    Editar: [
+      {name: "opcion 4", path: '/'},
+    ],
+    Registrar: [
+      {name: "quincena", path: '/register/quincena'},
+      {name: "option 5", path: '/'},
+    ],
+    Ayuda: [
+      {name: "option 6", path: '/'},
+    ]
+  }
+  const listMenu = ["Archivo", "Editar", "Registrar", "Ayuda"];
+  const desplegable = {
+    Archivo: ["option 1", "option 2", "option 3"],
+    Editar: ["option 4"],
+    Registrar: ["quincena", "option 5"],
+    Ayuda: ["option 6"],
+  };
+
+  // Cerrar menú si se hace clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setOpenMenu(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
   return (
-    <nav className="flex justify-center items-center">
-      <ul className="bg-gray-950 flex list-none justify-between items-center w-full h-14 text-white px-2">
-        <li>
-          <img
-            src={notebook}
-            alt="logo"
-            className="w-12 h-12"
-            onClick={() => navigate("/")}
-          />
-        </li>
-        <li>archivo</li>
-        <li>archivos</li>
-        <li>estadisiticas</li>
-        <li onClick={() => navigate("/register/quincena")}>registro</li>
-        <li>otros</li>
-        <li>
-        <button onClick={() => window.Electron.minimize()}>➖</button>
-  <button onClick={() => window.Electron.maximize()}>🗖</button>
-  <button onClick={() => window.Electron.close()}>❌</button>
-        </li>
-      </ul>
+    <nav className="flex justify-between bg-slate-900 mover">
+      <div className="p-1">
+        <img
+          src={notebook}
+          alt="logo"
+          className=" cursor-progress noMover hover:w-10 hover:h-7"
+          onClick={() => navigate("/")}
+          width={28}
+        />
+      </div>
+      <div className="flex bg-slate-900 p-0.5 space-x-4 relative" ref={menuRef}>
+        {Object.keys(optionMenu).map((menu) => (
+          <div key={menu} className="relative">
+            {/* boton del menu */}
+            <button
+              className="px-4 py-1 hover:bg-slate-800 hover:rounded-lg noMover"
+              onMouseEnter={() => openMenu && setOpenMenu(menu)} // Cambia al pasar el mouse
+              onClick={() => setOpenMenu(openMenu === menu ? null : menu)}
+            >
+              {menu}
+            </button>
+            {/* menu deplegable */}
+            {openMenu === menu && (
+              <div className="absolute left-0 mt-1 w-24 bg-slate-950 shadow-lg rounded-md border border-slate-500">
+                <ul>
+                  {optionMenu[menu].map((option) => (
+                    <li
+                      key={option.name}
+                      className="px-4 py-2 hover:bg-slate-700 cursor-pointer"
+                      onClick={() => {setOpenMenu(null); navigate(option.path)}}
+                    >
+                      {option.name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+      <div className="w-fit p-1">
+        <button onClick={() => window.Electron.minimize()} className="p-1 hover:bg-slate-500 hover:rounded-md">
+          <BsZoomOut className="text-lg cursor-zoom-out noMover " />
+        </button>
+        <button onClick={() => window.Electron.maximize()} className="p-1 hover:bg-slate-500 hover:rounded-md">
+          <BsZoomIn className="text-lg cursor-zoom-in noMover" />
+        </button>
+        <button onClick={() => window.Electron.close()} className="p-1 hover:bg-slate-500 hover:rounded-md">
+          <BsXCircle className="text-lg cursor-pointer noMover" />
+        </button>
+      </div>
     </nav>
   );
 };
