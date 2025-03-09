@@ -53,10 +53,7 @@ export const RegisterQ = () => {
       window.Electron.removeQuincenaActualizada();
     };
   }, [quincenas, q]);
-  // useEffect(() => {
-  //   getAllQuincena();
-
-  // }, []);
+  
   //vemos cual es el year actual
   const currentYear = new Date().getFullYear(); //year actual
   //estado para guardar el year actual y luego seleccionar el deseado
@@ -98,10 +95,7 @@ export const RegisterQ = () => {
     });
     setQuincenas(quincena);
   };
-  //ejecucion de la creacion de nombres de quincenas
-  // useEffect(()=>{
-  //   nombres(yearS)
-  // },[yearS, quincenas, ])
+
   return (
     <div>
       <form className="">

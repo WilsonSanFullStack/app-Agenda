@@ -50055,7 +50055,12 @@ function requireMain() {
     ipcMain.handle("get-quincena", async () => {
       const respuesta = await Quincena.findAll();
       const res = respuesta.map((x) => x.dataValues);
-      return res;
+      const sortedData = res.sort((a, b) => {
+        const dateA = a.inicio.split("/").reverse().join("-");
+        const dateB = b.inicio.split("/").reverse().join("-");
+        return new Date(dateA) - new Date(dateB);
+      });
+      return sortedData;
     });
     ipcMain.handle("add-quincena", async (_, data) => {
       try {

@@ -18,19 +18,13 @@ export const Navbar = () => {
     ],
     Registrar: [
       {name: "quincena", path: '/register/quincena'},
+      {name: "dia", path: '/register/dia'},
       {name: "option 5", path: '/'},
     ],
     Ayuda: [
       {name: "option 6", path: '/'},
     ]
   }
-  const listMenu = ["Archivo", "Editar", "Registrar", "Ayuda"];
-  const desplegable = {
-    Archivo: ["option 1", "option 2", "option 3"],
-    Editar: ["option 4"],
-    Registrar: ["quincena", "option 5"],
-    Ayuda: ["option 6"],
-  };
 
   // Cerrar menú si se hace clic fuera
   useEffect(() => {

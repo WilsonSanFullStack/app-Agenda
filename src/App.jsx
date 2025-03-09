@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { RegisterQ } from "./components/registerQ.jsx";
 import { Navbar } from "./components/Navbar.jsx";
+import { Dia } from "./components/Dia.jsx";
 
 function App() {
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/register/quincena" element={<RegisterQ />} />
-        {/* <Route path="/algo" element={<RegisterQ />} /> */}
+        <Route path="/register/dia" element={<Dia />} />
       </Routes>
     </div>
   );

@@ -57,9 +57,13 @@ ipcMain.on("window:close", () => {
 
   //manejar IPC para obtener datos desde el frontend
   ipcMain.handle("get-quincena", async () => {
-    const respuesta = await Quincena.findAll();
+    const respuesta = await Quincena.findAll();// Ordenar por "inicio" de mayor a menor
     const res = respuesta.map((x) => x.dataValues);
-    return res;
+    const sortedData = res.sort((a, b) => {
+      const dateA = a.inicio.split('/').reverse().join('-'); // Convierte '01/01/2025' a '2025-01-01'
+      const dateB = b.inicio.split('/').reverse().join('-'); // Convierte '16/01/2025' a '2025-01-16'
+      return new Date(dateA) - new Date(dateB);
+    });    return sortedData;
   });
 
   ipcMain.handle("add-quincena", async (_, data) => {
