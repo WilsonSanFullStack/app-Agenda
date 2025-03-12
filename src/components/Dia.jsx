@@ -22,22 +22,22 @@ export const Dia = () => {
     handleQ();
   }, []);
 
+  const months = [
+    "enero",
+    "febrero",
+    "marzo",
+    "abril",
+    "mayo",
+    "junio",
+    "julio",
+    "agosto",
+    "septiembre",
+    "octubre",
+    "noviembre",
+    "diciembre",
+  ];
   useEffect(() => {
     if (q.length === 0) return; // No ejecutar hasta que `q` tenga datos
-    const months = [
-      "enero",
-      "febrero",
-      "marzo",
-      "abril",
-      "mayo",
-      "junio",
-      "julio",
-      "agosto",
-      "septiembre",
-      "octubre",
-      "noviembre",
-      "diciembre",
-    ];
 
     // Obtener fecha actual
     const today = new Date();
@@ -69,21 +69,6 @@ export const Dia = () => {
     const quincena = parts[1]; // '1' o '2'
     const year = parseInt(parts[2]); // Año en número
 
-    const months = [
-      "enero",
-      "febrero",
-      "marzo",
-      "abril",
-      "mayo",
-      "junio",
-      "julio",
-      "agosto",
-      "septiembre",
-      "octubre",
-      "noviembre",
-      "diciembre",
-    ];
-
     const monthIndex = months.indexOf(monthName);
     if (monthIndex === -1) return;
 
@@ -91,11 +76,35 @@ export const Dia = () => {
 
     const newDays =
       quincena === "1"
-        ? Array.from({ length: 15 }, (_, i) => i + 1)
-        : Array.from({ length: lastDay - 15 }, (_, i) => i + 16);
+        ? Array.from(
+            { length: 15 },
+            (_, i) =>
+              `${i + 1}-${monthName.slice(0, 3)}-${year.toString().slice(2, 4)}`
+          )
+        : Array.from(
+            { length: lastDay - 15 },
+            (_, i) =>
+              `${i + 16}-${monthName.slice(0, 3)}-${year
+                .toString()
+                .slice(2, 4)}`
+          );
 
     setDays(newDays);
   }, [selectedQuincena]);
+
+  const CreateDay = async(data) => {
+    try {
+      console.log("data", typeof(data) )
+      const respuesta = await window.Electron.addDay(data)
+      if (respuesta.error) {
+        console.log("respuesta negativa", respuesta.error)
+      }else {
+        console.log("respuesta positiva", respuesta)
+      }
+    } catch (error) {
+      console.log("error en create day", error)
+    }
+  }
   return (
     <div>
       <form>
@@ -108,11 +117,7 @@ export const Dia = () => {
           >
             {q?.map((x) => {
               return (
-                <option
-                  key={x.name}
-                  value={x.name}
-                  className="m-0.5"
-                >
+                <option key={x.name} value={x.name} className="m-0.5">
                   {x.name}
                 </option>
               );
@@ -128,7 +133,10 @@ export const Dia = () => {
                 className="text-center border border-slate-300 m-1 p-1 hover:bg-slate-950"
               >
                 <h1>{x}</h1>
-                <button className="border border-slate-400 rounded-lg p-1 hover:bg-emerald-500 hover:uppercase">
+                <button
+                className="border border-slate-400 rounded-lg p-1 hover:bg-emerald-500 hover:uppercase"
+                onClick={()=> CreateDay(x)}
+                >
                   crear
                 </button>
               </div>

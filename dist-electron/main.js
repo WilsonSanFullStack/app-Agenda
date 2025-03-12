@@ -48251,9 +48251,9 @@ function requireDb() {
       allowNull: false
     }
   });
-  sequelize2.define("Dias", {
+  const Dias = sequelize2.define("Dias", {
     name: {
-      type: DataTypes.NUMBER,
+      type: DataTypes.STRING,
       allowNull: false,
       unique: true
     }
@@ -48266,7 +48266,7 @@ function requireDb() {
       console.log("❌ Error al configurar la base de datos:", error);
     }
   }
-  db_1 = { Quincena, db };
+  db_1 = { Quincena, db, Dias };
   return db_1;
 }
 var chokidar = {};
@@ -50011,6 +50011,7 @@ function requireMain() {
   const { Mes, Quincena, Dias, db } = requireDb();
   const { error } = require$$3;
   const chokidar2 = /* @__PURE__ */ requireChokidar();
+  const { where } = requireLib();
   let mainWindow;
   app.whenReady().then(async () => {
     await db();
@@ -50032,7 +50033,11 @@ function requireMain() {
     } else {
       mainWindow.loadURL(`file://${path.join(__dirname, "../dist/index.html")}`);
     }
-    mainWindow.webContents.openDevTools();
+    ipcMain.on("open-devtools", () => {
+      if (mainWindow) {
+        mainWindow.webContents.openDevTools();
+      }
+    });
     chokidar2.watch("./dist").on("change", () => {
       if (mainWindow) {
         console.log("🔄 Recargando ventana...");
@@ -50085,6 +50090,35 @@ function requireMain() {
     });
     ipcMain.handle("delete-quincena", async (_, quincenaId) => {
       return await Quincena.destroy({ where: { id: quincenaId } });
+    });
+    ipcMain.handle("add-day", async (_, data) => {
+      try {
+        console.log(data);
+        const [nuevoDia, created] = await Dias.findOrCreate({
+          where: { name: data },
+          defaults: {
+            name: data.name
+          }
+        });
+        if (!created) {
+          return { error: "El dia ya existe" };
+        }
+        BrowserWindow.getAllWindows().forEach((win) => {
+          win.webContents.send("dayActualizado", nuevoDia);
+        });
+        return nuevoDia;
+      } catch (error2) {
+        console.log(error2);
+      }
+    });
+    ipcMain.handle("get-day", async () => {
+      try {
+        const respuesta = await Dias.findAll();
+        const res = respuesta.map((x) => x.dataValues);
+        return res;
+      } catch (error2) {
+        console.log(error2);
+      }
     });
     app.on("activate", () => {
       if (BrowserWindow.getAllWindows().length === 0) {

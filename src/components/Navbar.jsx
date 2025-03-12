@@ -9,22 +9,28 @@ export const Navbar = () => {
   const menuRef = useRef(null);
   const optionMenu = {
     Archivo: [
-      {name: "opcion 1", path: '/'},
-      {name: "opcion 2", path: '/'},
-      {name: "opcion 3", path: '/'},
+      { name: "opcion 1", path: "/" },
+      { name: "opcion 2", path: "/" },
+      { name: "opcion 3", path: "/" },
     ],
-    Editar: [
-      {name: "opcion 4", path: '/'},
-    ],
+    Editar: [{ name: "opcion 4", path: "/" }],
     Registrar: [
-      {name: "quincena", path: '/register/quincena'},
-      {name: "dia", path: '/register/dia'},
-      {name: "option 5", path: '/'},
+      { name: "quincena", path: "/register/quincena" },
+      { name: "dia", path: "/register/dia" },
+      { name: "option 5", path: "/" },
     ],
     Ayuda: [
-      {name: "option 6", path: '/'},
-    ]
-  }
+      { name: "option 6", path: "/" },
+      {
+        name: "Abrir Consola",
+        action: () => {
+          if (window.Electron && window.Electron.openDevTools) {
+            window.Electron.openDevTools();
+          }
+        },
+      },
+    ],
+  };
 
   // Cerrar menú si se hace clic fuera
   useEffect(() => {
@@ -66,7 +72,10 @@ export const Navbar = () => {
                     <li
                       key={option.name}
                       className="px-4 py-2 hover:bg-slate-700 cursor-pointer"
-                      onClick={() => {setOpenMenu(null); navigate(option.path)}}
+                      onClick={() => {
+                        setOpenMenu(null);
+                        option.path ? navigate(option.path) : option.action?.();
+                      }}
                     >
                       {option.name}
                     </li>
@@ -78,13 +87,22 @@ export const Navbar = () => {
         ))}
       </div>
       <div className="w-fit p-1">
-        <button onClick={() => window.Electron.minimize()} className="p-1 hover:bg-slate-500 hover:rounded-md">
+        <button
+          onClick={() => window.Electron.minimize()}
+          className="p-1 hover:bg-slate-500 hover:rounded-md"
+        >
           <BsZoomOut className="text-lg cursor-zoom-out noMover " />
         </button>
-        <button onClick={() => window.Electron.maximize()} className="p-1 hover:bg-slate-500 hover:rounded-md">
+        <button
+          onClick={() => window.Electron.maximize()}
+          className="p-1 hover:bg-slate-500 hover:rounded-md"
+        >
           <BsZoomIn className="text-lg cursor-zoom-in noMover" />
         </button>
-        <button onClick={() => window.Electron.close()} className="p-1 hover:bg-slate-500 hover:rounded-md">
+        <button
+          onClick={() => window.Electron.close()}
+          className="p-1 hover:bg-slate-500 hover:rounded-md"
+        >
           <BsXCircle className="text-lg cursor-pointer noMover" />
         </button>
       </div>

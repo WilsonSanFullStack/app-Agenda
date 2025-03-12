@@ -37,7 +37,7 @@ const Quincena = sequelize.define("Quincena", {
 // Definir modelo
 const Dias = sequelize.define("Dias", {
   name: {
-    type: DataTypes.NUMBER,
+    type: DataTypes.STRING,
     allowNull: false,
     unique: true,
   },
@@ -57,4 +57,4 @@ async function db() {
 //   .then(() => console.log("Base de datos sincronizada"))
 //   .catch((err) => console.error("Error al sincronizar DB:", err));
 
-module.exports = { Quincena, db };
+module.exports = { Quincena, db, Dias };
