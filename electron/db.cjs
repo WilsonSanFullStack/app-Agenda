@@ -1,6 +1,6 @@
-const { Sequelize, DataTypes } = require("sequelize");
+const { Sequelize } = require("sequelize");
 const path = require("path");
-
+const fs = require("fs");
 // Ruta de la base de datos SQLite
 const dbPath = path.join(__dirname, "database.sqlite");
 
@@ -10,51 +10,37 @@ const sequelize = new Sequelize({
   logging: false, // Desactiva logs de SQL
 });
 
-// Definir modelo
-const Mes = sequelize.define("Mes", {
-  name: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: true,
-  },
-});
-// Definir modelo
-const Quincena = sequelize.define("Quincena", {
-  name: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: true,
-  },
-  inicio: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  fin: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-});
-// Definir modelo
-const Dias = sequelize.define("Dias", {
-  name: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: true,
-  },
-});
+const basename = path.basename(__filename);
 
+const modelDefiners = [];
+
+fs.readdirSync(path.join(__dirname, "/models"))
+  .filter(
+    (file) =>
+      file.indexOf(".") !== 0 && file !== basename && file.slice(-4) === ".cjs"
+  )
+  .forEach((file) => {
+    modelDefiners.push(require(path.join(__dirname, "/models", file)));
+  });
+console.log(modelDefiners);
+modelDefiners.forEach((model) => model(sequelize));
+
+let entries = Object.entries(sequelize.models);
+let capsEntries = entries.map((entry) => [
+  entry[0][0].toUpperCase() + entry[0].slice(1),
+  entry[1],
+]);
+sequelize.models = Object.fromEntries(capsEntries);
+console.log(sequelize.models);
+const { Quincena, Day } = sequelize.models;
+
+//! relaciones entre modelos
+Quincena.hasMany(Day, { as: "modenas", foreignKey: "quincena" });
+Day.belongsTo(Quincena, { foreignKey: "quincena" });
 // Sincronizar base de datos
-async function db() {
-  try {
-    await sequelize.sync({ force: false }); //sincroniza la db sin eliminar datos
-    console.log("🔹 Base de datos lista");
-  } catch (error) {
-    console.log("❌ Error al configurar la base de datos:", error);
-  }
-}
-// sequelize
-//   .sync()
-//   .then(() => console.log("Base de datos sincronizada"))
-//   .catch((err) => console.error("Error al sincronizar DB:", err));
 
-module.exports = { Quincena, db, Dias };
+module.exports = {
+  sequelize,
+  Quincena,
+  Day
+};

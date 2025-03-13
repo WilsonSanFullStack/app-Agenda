@@ -71,11 +71,33 @@ export const Home = () => {
       <h2>
         {fecha.day}/{fecha.month}/{fecha.year}
       </h2>
-      <section>
-        {days?.map((dia) => {
+      <section className="grid grid-cols-7 m-2 p-2">
+        {!days.error && days?.map((dia) => {
           return (
-            <div key={dia.id}>
+            <div key={dia.id} className="w-32 border m-2">
               <h1>{dia.name}</h1>
+              <section className="">
+                <div className="grid grid-cols-2 border-b">
+                  <h1>sender</h1>
+                  <h1>100</h1>
+                </div>
+                <div className="grid grid-cols-2 border-b">
+                  <h1>adult</h1>
+                  <h1>200</h1>
+                </div>
+                <div className="grid grid-cols-2 border-b">
+                  <h1>dirty</h1>
+                  <h1>300</h1>
+                </div>
+                <div className="grid grid-cols-2 border-b">
+                  <h1>7live</h1>
+                  <h1>400</h1>
+                </div>
+                <div className="grid grid-cols-2 border-b">
+                  <h1>xv</h1>
+                  <h1>500</h1>
+                </div>
+              </section>
             </div>
           );
         })}

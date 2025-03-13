@@ -37,7 +37,7 @@ export const RegisterQ = () => {
   //traemos de la db las quincenas creadas para no mostrarlas
   const handleQuincena = async () => {
     const creadas = await getAllQuincena();
-    setQ(creadas);
+    setQ(creadas || []);
     nombres(yearS);
   };
 
@@ -52,7 +52,7 @@ export const RegisterQ = () => {
     return () => {
       window.Electron.removeQuincenaActualizada();
     };
-  }, [quincenas, q]);
+  }, []);
   
   //vemos cual es el year actual
   const currentYear = new Date().getFullYear(); //year actual
@@ -76,7 +76,7 @@ export const RegisterQ = () => {
         (yearC !== undefined) & (yearC !== currentYear) ? yearC : currentYear;
       const ultimoDiaMes = new Date(year, index + 1, 0).getDate(); //ultimo dia del mes
       //primera quincena 1 al 15
-      if (!q?.some((x) => x.name === `${mes}-1-${year}`)) {
+      if (Array.isArray(q) && q !== undefined || null && !q?.some((x) => x.name === `${mes}-1-${year}`)) {
         quincena.push({
           name: `${mes}-1-${year}`,
           inicio: `01/${String(index + 1).padStart(2, "0")}/${year}`,
@@ -85,7 +85,7 @@ export const RegisterQ = () => {
       }
 
       //segunda quincena 16 al ultimo dia del mes
-      if (!q?.some((x) => x.name === `${mes}-2-${year}`)) {
+      if (Array.isArray(q) && q !== undefined || null && !q?.some((x) => x.name === `${mes}-2-${year}`)) {
         quincena.push({
           name: `${mes}-2-${year}`,
           inicio: `16/${String(index + 1).padStart(2, "0")}/${year}`,
@@ -96,6 +96,7 @@ export const RegisterQ = () => {
     setQuincenas(quincena);
   };
 
+console.log(quincenas)
   return (
     <div>
       <form className="">
