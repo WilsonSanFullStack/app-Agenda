@@ -1,17 +1,19 @@
-const {Day} = require("../db.cjs")
+const {Day, Quincena} = require("../db.cjs")
 const { BrowserWindow } = require("electron");
 
 const postDay = async (data) => {
   try {
+    const quince = await Quincena.findByPk(data.q)
     const [nuevoDia, created] = await Day.findOrCreate({
-      where: { name: data },
+      where: { name: data.dia },
       defaults: {
-        name: data.name,
+        name: data.dia,
       },
     });
     if (!created) {
       return { error: "El dia ya existe" };
     }
+    await nuevoDia.setQuincena(quince);
     // 🔹 Enviar evento a React para actualizar la lista
     BrowserWindow.getAllWindows().forEach((win) => {
       win.webContents.send("dayActualizado", nuevoDia);

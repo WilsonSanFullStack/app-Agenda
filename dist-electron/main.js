@@ -49969,7 +49969,6 @@ function requireDb() {
   ).forEach((file) => {
     modelDefiners.push(commonjsRequire(path.join(__dirname, "/models", file)));
   });
-  console.log(modelDefiners);
   modelDefiners.forEach((model2) => model2(sequelize2));
   let entries = Object.entries(sequelize2.models);
   let capsEntries = entries.map((entry) => [
@@ -49977,10 +49976,9 @@ function requireDb() {
     entry[1]
   ]);
   sequelize2.models = Object.fromEntries(capsEntries);
-  console.log(sequelize2.models);
   const { Quincena, Day } = sequelize2.models;
   //! relaciones entre modelos
-  Quincena.hasMany(Day, { as: "modenas", foreignKey: "quincena" });
+  Quincena.hasMany(Day, { as: "dias", foreignKey: "quincena" });
   Day.belongsTo(Quincena, { foreignKey: "quincena" });
   db = {
     sequelize: sequelize2,
@@ -50064,19 +50062,21 @@ var hasRequiredDay;
 function requireDay() {
   if (hasRequiredDay) return day;
   hasRequiredDay = 1;
-  const { Day } = requireDb();
+  const { Day, Quincena } = requireDb();
   const { BrowserWindow } = require$$1$5;
   const postDay = async (data) => {
     try {
+      const quince = await Quincena.findByPk(data.q);
       const [nuevoDia, created] = await Day.findOrCreate({
-        where: { name: data },
+        where: { name: data.dia },
         defaults: {
-          name: data.name
+          name: data.dia
         }
       });
       if (!created) {
         return { error: "El dia ya existe" };
       }
+      await nuevoDia.setQuincena(quince);
       BrowserWindow.getAllWindows().forEach((win) => {
         win.webContents.send("dayActualizado", nuevoDia);
       });

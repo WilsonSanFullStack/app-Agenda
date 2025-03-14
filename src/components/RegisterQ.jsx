@@ -3,6 +3,18 @@ import { useNavigate } from "react-router-dom";
 
 export const RegisterQ = () => {
   const navigate = useNavigate();
+  const [quincenas, setQuincenas] = useState([]);
+  //estado para almacenas las quincenas ya creadas
+  const [q, setQ] = useState([]);
+  //estado para guardar el year actual y luego seleccionar el deseado
+  //vemos cual es el year actual
+  const currentYear = new Date().getFullYear(); //year actual
+  const [yearS, setYearS] = useState(currentYear);
+  //para cambiar el year actual y mostrar las quincenas de ese year
+  const handleYearS = (y) => {
+    setYearS(y);
+  };
+
   //use effect para navegar a la creacion de quincenas
   useEffect(() => {
     window.Electron.onAbrirRegistroQuincena(() => {
@@ -14,10 +26,9 @@ export const RegisterQ = () => {
     try {
       const respuesta = await window.Electron.addQuincena(data);
       if (respuesta.error) {
-        console.log(respuesta.error);
       } else {
-        console.log(respuesta);
-        await getAllQuincena();
+        const nuevasQuincenas = await getAllQuincena();
+        setQ(nuevasQuincenas || []);
       }
     } catch (error) {
       console.log(error);
@@ -31,16 +42,15 @@ export const RegisterQ = () => {
       console.log(error);
     }
   };
-  const [quincenas, setQuincenas] = useState([]);
-  //estado para almacenas las quincenas ya creadas
-  const [q, setQ] = useState([]);
+  //seleccion de los years que vamos a mostrar para crear quincenas
+  const years = Array.from({ length: 21 }, (_, i) => currentYear - 10 + i); //rango de 10 years atras y adelante
+
   //traemos de la db las quincenas creadas para no mostrarlas
   const handleQuincena = async () => {
     const creadas = await getAllQuincena();
     setQ(creadas || []);
     nombres(yearS);
   };
-
   useEffect(() => {
     handleQuincena();
     // 📌 Escuchar evento de Electron para actualizar quincenas
@@ -53,18 +63,7 @@ export const RegisterQ = () => {
       window.Electron.removeQuincenaActualizada();
     };
   }, []);
-  
-  //vemos cual es el year actual
-  const currentYear = new Date().getFullYear(); //year actual
-  //estado para guardar el year actual y luego seleccionar el deseado
-  const [yearS, setYearS] = useState(currentYear);
-  //para cambiar el year actual y mostrar las quincenas de ese year
-  const handleYearS = (y) => {
-    setYearS(y);
-  };
 
-  //seleccion de los years que vamos a mostrar para crear quincenas
-  const years = Array.from({ length: 21 }, (_, i) => currentYear - 10 + i); //rango de 10 years atras y adelante
   //creacion de nombres de la quincenas y el resto de propiedades
   const nombres = (yearC) => {
     const quincena = [];
@@ -73,10 +72,15 @@ export const RegisterQ = () => {
     );
     meses.forEach((mes, index) => {
       const year =
-        (yearC !== undefined) & (yearC !== currentYear) ? yearC : currentYear;
+        yearC !== undefined && yearC !== currentYear ? yearC : currentYear;
       const ultimoDiaMes = new Date(year, index + 1, 0).getDate(); //ultimo dia del mes
       //primera quincena 1 al 15
-      if (Array.isArray(q) && q !== undefined || null && !q?.some((x) => x.name === `${mes}-1-${year}`)) {
+      if (
+        Array.isArray(q) &&
+        q !== undefined &&
+        q !== null &&
+        !q?.some((x) => x.name === `${mes}-1-${year}`)
+      ) {
         quincena.push({
           name: `${mes}-1-${year}`,
           inicio: `01/${String(index + 1).padStart(2, "0")}/${year}`,
@@ -85,7 +89,12 @@ export const RegisterQ = () => {
       }
 
       //segunda quincena 16 al ultimo dia del mes
-      if (Array.isArray(q) && q !== undefined || null && !q?.some((x) => x.name === `${mes}-2-${year}`)) {
+      if (
+        Array.isArray(q) &&
+        q !== undefined &&
+        q !== null &&
+        !q?.some((x) => x.name === `${mes}-2-${year}`)
+      ) {
         quincena.push({
           name: `${mes}-2-${year}`,
           inicio: `16/${String(index + 1).padStart(2, "0")}/${year}`,
@@ -95,8 +104,10 @@ export const RegisterQ = () => {
     });
     setQuincenas(quincena);
   };
+  useEffect(() => {
+    nombres(yearS);
+  }, [q, yearS]);
 
-console.log(quincenas)
   return (
     <div>
       <form className="">

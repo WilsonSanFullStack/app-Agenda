@@ -22,7 +22,6 @@ fs.readdirSync(path.join(__dirname, "/models"))
   .forEach((file) => {
     modelDefiners.push(require(path.join(__dirname, "/models", file)));
   });
-console.log(modelDefiners);
 modelDefiners.forEach((model) => model(sequelize));
 
 let entries = Object.entries(sequelize.models);
@@ -31,11 +30,11 @@ let capsEntries = entries.map((entry) => [
   entry[1],
 ]);
 sequelize.models = Object.fromEntries(capsEntries);
-console.log(sequelize.models);
+
 const { Quincena, Day } = sequelize.models;
 
 //! relaciones entre modelos
-Quincena.hasMany(Day, { as: "modenas", foreignKey: "quincena" });
+Quincena.hasMany(Day, { as: "dias", foreignKey: "quincena" });
 Day.belongsTo(Quincena, { foreignKey: "quincena" });
 // Sincronizar base de datos
 

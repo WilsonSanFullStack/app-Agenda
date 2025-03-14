@@ -10,7 +10,7 @@ contextBridge.exposeInMainWorld("Electron", {
   addQuincena: (data) => ipcRenderer.invoke("add-quincena", data),
   deleteQuincena: (id) => ipcRenderer.invoke("delete-quincena", id),
   //eventos para dias
-  addDay: (data) => ipcRenderer.invoke("add-day", data),
+  addDay: (data) => ipcRenderer.invoke("add-day",data),
   getDay: ()=>ipcRenderer.invoke("get-day"),
 
   //eventos para actualizar quincenas en react
