@@ -49993,7 +49993,7 @@ var hasRequiredQuincena;
 function requireQuincena() {
   if (hasRequiredQuincena) return quincena;
   hasRequiredQuincena = 1;
-  const { Quincena } = requireDb();
+  const { Quincena, Day } = requireDb();
   const { BrowserWindow } = require$$1$5;
   const postQuincena = async (data) => {
     try {
@@ -50039,6 +50039,34 @@ function requireQuincena() {
       };
     }
   };
+  const getQuincenaById = async (id) => {
+    try {
+      console.log(id);
+      const res = await Quincena.findByPk(id, {
+        include: [{ model: Day, as: "dias", attributes: ["id", "name"] }],
+        attributes: ["id", "name", "inicio", "fin"]
+      });
+      if (!res) {
+        return { error: "La quincena no existe" };
+      }
+      return {
+        id: res.id,
+        name: res.name,
+        inicio: res.inicio,
+        fin: res.fin,
+        dias: res.dias.map((dia) => ({
+          id: dia.id,
+          name: dia.name
+        }))
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: "Error al obtener Quincena",
+        error
+      };
+    }
+  };
   const deleteQuincena = async (quincenaId) => {
     try {
       return await Quincena.destroy({ where: { id: quincenaId } });
@@ -50053,6 +50081,7 @@ function requireQuincena() {
   quincena = {
     postQuincena,
     getAllQuincenas,
+    getQuincenaById,
     deleteQuincena
   };
   return quincena;
@@ -50105,11 +50134,15 @@ function requireIpcMain() {
   const {
     postQuincena,
     getAllQuincenas,
+    getQuincenaById,
     deleteQuincena
   } = requireQuincena();
   const { postDay, getAllDay } = requireDay();
   ipcMain$1.handle("get-quincena", async () => {
     return await getAllQuincenas();
+  });
+  ipcMain$1.handle("get-quincena-By-Id", async (_, id) => {
+    return await getQuincenaById(id);
   });
   ipcMain$1.handle("add-quincena", async (_, data) => {
     return await postQuincena(data);

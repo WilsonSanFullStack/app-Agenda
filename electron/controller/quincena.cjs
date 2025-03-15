@@ -1,4 +1,4 @@
-const { Quincena } = require("../db.cjs");
+const { Quincena, Day } = require("../db.cjs");
 const { BrowserWindow } = require("electron");
 
 const postQuincena = async (data) => {
@@ -48,6 +48,36 @@ const getAllQuincenas = async () => {
   }
 };
 
+const getQuincenaById = async (id) => {
+  try {
+    console.log(id)
+    const res = await Quincena.findByPk(id, {
+      include: [{model: Day, as: "dias", attributes: ["id", "name"]}],
+      attributes: ["id", "name", "inicio", "fin"]
+    })
+    if (!res) {
+      return {error: "La quincena no existe"}
+    }
+     // 🔹 Formatear el objeto para quitar dataValues
+     return {
+      id: res.id,
+      name: res.name,
+      inicio: res.inicio,
+      fin: res.fin,
+      dias: res.dias.map((dia) => ({
+        id: dia.id,
+        name: dia.name,
+      })),
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: "Error al obtener Quincena",
+      error: error,
+    };
+  }
+}
+
 const deleteQuincena = async (quincenaId) => {
   try {
     return await Quincena.destroy({ where: { id: quincenaId } });
@@ -63,5 +93,6 @@ const deleteQuincena = async (quincenaId) => {
 module.exports = {
   postQuincena,
   getAllQuincenas,
+  getQuincenaById,
   deleteQuincena,
 };

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import notebook from "../assets/notebook.png";
+import notebook from "../../assets/notebook.png";
 import { useNavigate } from "react-router-dom";
 import { BsZoomIn, BsZoomOut, BsXCircle } from "react-icons/bs";
 
@@ -17,6 +17,7 @@ export const Navbar = () => {
     Registrar: [
       { name: "quincena", path: "/register/quincena" },
       { name: "dia", path: "/register/dia" },
+      { name: "creditos", path: "/register/creditos" },
       { name: "option 5", path: "/" },
     ],
     Ayuda: [

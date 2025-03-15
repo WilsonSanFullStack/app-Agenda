@@ -1,10 +1,12 @@
 import { Routes, Route } from "react-router-dom";
-import { Home } from "./components/Home";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { RegisterQ } from "./components/registerQ.jsx";
-import { Navbar } from "./components/Navbar.jsx";
-import { Dia } from "./components/Dia.jsx";
+
+import { Navbar } from "./components/plugin/Navbar.jsx";
+import { Home } from "./components/view/Home.jsx";
+import { Dia } from "./components/utils/Dia.jsx";
+import { Quincena } from "./components/utils/Quincena.jsx";
+import { Creditos } from "./components/utils/Creditos.jsx";
 
 function App() {
   const navigate = useNavigate();
@@ -20,8 +22,9 @@ function App() {
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/register/quincena" element={<RegisterQ />} />
+        <Route path="/register/quincena" element={<Quincena />} />
         <Route path="/register/dia" element={<Dia />} />
+        <Route path="/register/creditos" element={<Creditos />} />
       </Routes>
     </div>
   );
