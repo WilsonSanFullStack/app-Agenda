@@ -12,6 +12,8 @@ cache:
 
 before_script:
   - npm install
+  - apt-get update && apt-get install -y libnss3
+
 
 build:
   stage: build
