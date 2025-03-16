@@ -1,0 +1,38 @@
+image: node:20
+
+stages:
+  - install
+  - build
+  - release
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - node_modules/
+
+before_script:
+  - npm install
+
+build:
+  stage: build
+  script:
+    - npm run build  # Construye el frontend con Vite
+    - npm run electron-dev  # Ejecuta Electron para verificar que funciona
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 7 days
+
+package:
+  stage: release
+  image: electronuserland/builder:wine
+  script:
+    - npm run electron-pack  # Asegúrate de tener este script en package.json
+  artifacts:
+    paths:
+      - "dist/*.exe"
+      - "dist/*.dmg"
+      - "dist/*.AppImage"
+    expire_in: 30 days
+  only:
+    - main

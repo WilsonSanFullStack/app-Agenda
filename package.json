@@ -10,7 +10,8 @@
     "start": "vite",
     "electron-dev": "vite && electron .",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "electrom-pack": "electron-builder"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.0.6",
