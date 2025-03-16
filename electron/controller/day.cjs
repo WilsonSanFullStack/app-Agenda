@@ -20,7 +20,7 @@ const postDay = async (data) => {
     });
     return nuevoDia;
   } catch (error) {
-    return { success: false, message: "Error al crear la Day", error: error  };
+    return { success: false, message: "Error al crear el Day", error: error  };
 
   }
 }

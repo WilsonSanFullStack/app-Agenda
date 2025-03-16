@@ -31,7 +31,7 @@ let capsEntries = entries.map((entry) => [
 ]);
 sequelize.models = Object.fromEntries(capsEntries);
 
-const { Quincena, Day } = sequelize.models;
+const { Quincena, Day, Page } = sequelize.models;
 
 //! relaciones entre modelos
 Quincena.hasMany(Day, { as: "dias", foreignKey: "quincena" });
@@ -41,5 +41,6 @@ Day.belongsTo(Quincena, { foreignKey: "quincena" });
 module.exports = {
   sequelize,
   Quincena,
-  Day
+  Day,
+  Page
 };

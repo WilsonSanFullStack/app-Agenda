@@ -11,8 +11,11 @@ contextBridge.exposeInMainWorld("Electron", {
   getQuincenaById: (id) => ipcRenderer.invoke("get-quincena-By-Id", id),
   deleteQuincena: (id) => ipcRenderer.invoke("delete-quincena", id),
   //eventos para dias
-  addDay: (data) => ipcRenderer.invoke("add-day",data),
-  getDay: ()=>ipcRenderer.invoke("get-day"),
+  addDay: (data) => ipcRenderer.invoke("add-day", data),
+  getDay: () => ipcRenderer.invoke("get-day"),
+  //eventos para pages
+  addPage: (data) => ipcRenderer.invoke("add-page", data),
+  getPage: () => ipcRenderer.invoke("get-page"),
 
   //eventos para actualizar quincenas en react
   onAbrirRegistroQuincena: (callback) =>
@@ -22,7 +25,7 @@ contextBridge.exposeInMainWorld("Electron", {
   removeQuincenaActualizada: () =>
     ipcRenderer.removeAllListeners("quincenaActualizada"),
   //eventos para actualizar dias en react
-  onDayActualizado: (callback) =>
-    ipcRenderer.on("dayActualizado", callback),
-
+  onDayActualizado: (callback) => ipcRenderer.on("dayActualizado", callback),
+  //eventos para actualizar pages en react
+  onDayActualizado: (callback) => ipcRenderer.on("pageActualizado", callback),
 });
