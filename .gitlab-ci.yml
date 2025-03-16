@@ -12,13 +12,13 @@ cache:
 
 before_script:
   - npm install
-  - apt-get update && apt-get install -y libnss3 libdbus-1-3 libatk1.0-0 libatk-bridge-2-0
+  - apt-get update && apt-get install -y libnss3 libdbus-1-3 libatk1.0-0 libatk-bridge2.0-0
 
 build:
   stage: build
   script:
-    - npm run build  # Construye el frontend con Vite
-    - npm run electron-dev  # Ejecuta Electron para verificar que funciona
+    - npm run build # Construye el frontend con Vite
+    - npm run electron-dev # Ejecuta Electron para verificar que funciona
   artifacts:
     paths:
       - dist/
@@ -28,7 +28,7 @@ package:
   stage: release
   image: electronuserland/builder:wine
   script:
-    - npm run electron-pack  # Asegúrate de tener este script en package.json
+    - npm run electron-pack # Asegúrate de tener este script en package.json
   artifacts:
     paths:
       - "dist/*.exe"
