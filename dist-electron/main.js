@@ -49976,14 +49976,21 @@ function requireDb() {
     entry[1]
   ]);
   sequelize2.models = Object.fromEntries(capsEntries);
-  const { Quincena, Day } = sequelize2.models;
+  const { Quincena, Day, Page, Sender, Vx } = sequelize2.models;
   //! relaciones entre modelos
   Quincena.hasMany(Day, { as: "dias", foreignKey: "quincena" });
   Day.belongsTo(Quincena, { foreignKey: "quincena" });
+  Day.hasMany(Sender, { as: "Senders", foreignKey: "dayId" });
+  Sender.belongsTo(Day, { foreignKey: "dayId" });
+  Sender.hasMany(Page, { as: "pages", foreignKey: "pageId" });
+  Page.belongsTo(Sender, { foreignKey: "pageId" });
   db = {
     sequelize: sequelize2,
     Quincena,
-    Day
+    Day,
+    Page,
+    Sender,
+    Vx
   };
   return db;
 }
@@ -50111,7 +50118,7 @@ function requireDay() {
       });
       return nuevoDia;
     } catch (error) {
-      return { success: false, message: "Error al crear la Day", error };
+      return { success: false, message: "Error al crear el Day", error };
     }
   };
   const getAllDay = async () => {
@@ -50126,6 +50133,105 @@ function requireDay() {
   day = { postDay, getAllDay };
   return day;
 }
+var page;
+var hasRequiredPage;
+function requirePage() {
+  if (hasRequiredPage) return page;
+  hasRequiredPage = 1;
+  const { Page } = requireDb();
+  const { BrowserWindow } = require$$1$5;
+  const postPage = async ({ name, coins, moneda, mensual, valor, tope }) => {
+    try {
+      const [nuevaPage, created] = await Page.findOrCreate({
+        where: { name },
+        defaults: {
+          name,
+          coins,
+          moneda,
+          mensual,
+          valor,
+          tope
+        }
+      });
+      if (!created) {
+        return { error: "La pagina ya existe" };
+      }
+      BrowserWindow.getAllWindows().forEach((win) => {
+        win.webContents.send("pageActualizado", nuevaPage);
+      });
+      return nuevaPage;
+    } catch (error) {
+      return {
+        success: false,
+        message: "Error al crear la Pagina",
+        error
+      };
+    }
+  };
+  const getAllPage = async () => {
+    try {
+      const pages = await Page.findAll({
+        attributes: ["name", "id", "coins", "moneda", "mensual", "valor", "tope"]
+      });
+      const res = pages.map((x) => x.dataValues);
+      return res;
+    } catch (error) {
+      return {
+        success: false,
+        message: "Error al obtener las Paginas",
+        error
+      };
+    }
+  };
+  page = { postPage, getAllPage };
+  return page;
+}
+var Sender_1;
+var hasRequiredSender;
+function requireSender() {
+  if (hasRequiredSender) return Sender_1;
+  hasRequiredSender = 1;
+  const { Day, Sender, Page } = requireDb();
+  const { BrowserWindow } = require$$1$5;
+  const postSender = async ({ coins, page: page2, day: day2 }) => {
+    try {
+      const dayId = await Day.findByPk(day2);
+      const pageId = await Page.findByPk(page2);
+      const sender = await Sender.create({
+        coins
+      });
+      if (sender) {
+        await sender.setDay(dayId);
+        await sender.setPage(pageId);
+      }
+      BrowserWindow.getAllWindows().forEach((win) => {
+        win.webContents.send("senderaActualizado", sender);
+      });
+      return sender;
+    } catch (error) {
+      return {
+        success: false,
+        message: "Error al subir los coins",
+        error
+      };
+    }
+  };
+  const getAllCoins = async () => {
+    try {
+      const res = await Sender.findAll({ attributes: ["id", "coins"] });
+      const sender = res.map((x) => x.dataValues);
+      return sender;
+    } catch (error) {
+      return {
+        success: false,
+        message: "Error al obtener los coins",
+        error
+      };
+    }
+  };
+  Sender_1 = { postSender, getAllCoins };
+  return Sender_1;
+}
 var hasRequiredIpcMain;
 function requireIpcMain() {
   if (hasRequiredIpcMain) return ipcMain;
@@ -50138,6 +50244,8 @@ function requireIpcMain() {
     deleteQuincena
   } = requireQuincena();
   const { postDay, getAllDay } = requireDay();
+  const { postPage, getAllPage } = requirePage();
+  const { postSender, getAllCoins } = requireSender();
   ipcMain$1.handle("get-quincena", async () => {
     return await getAllQuincenas();
   });
@@ -50156,6 +50264,18 @@ function requireIpcMain() {
   ipcMain$1.handle("get-day", async () => {
     return await getAllDay();
   });
+  ipcMain$1.handle("add-page", async (_, data) => {
+    return await postPage(data);
+  });
+  ipcMain$1.handle("get-page", async () => {
+    return await getAllPage();
+  });
+  ipcMain$1.handle("add-coins", async (_, data) => {
+    return await postSender(data);
+  });
+  ipcMain$1.handle("get-sender", async () => {
+    return await getAllCoins();
+  });
   return ipcMain;
 }
 var hasRequiredMain;
@@ -50165,12 +50285,68 @@ function requireMain() {
   const { app, BrowserWindow, ipcMain: ipcMain2, Menu, nativeImage } = require$$1$5;
   const path = require$$1$3;
   const chokidar2 = /* @__PURE__ */ requireChokidar();
-  const { sequelize: sequelize2 } = requireDb();
+  const { sequelize: sequelize2, Page } = requireDb();
   requireIpcMain();
+  const pagina = [
+    {
+      name: "adultwork",
+      id: "1",
+      coins: false,
+      moneda: "libras esterlinas",
+      mensual: false,
+      valor: 1,
+      tope: 0
+    },
+    {
+      name: "sender",
+      id: "2",
+      coins: true,
+      moneda: "euros",
+      mensual: true,
+      valor: 0.11,
+      tope: 0
+    },
+    {
+      name: "dirty",
+      id: "3",
+      coins: false,
+      moneda: "dolares",
+      mensual: true,
+      valor: 1,
+      tope: 50
+    },
+    {
+      name: "vx",
+      id: "4",
+      coins: false,
+      moneda: "euros",
+      mensual: true,
+      valor: 1,
+      tope: 0
+    },
+    {
+      name: "7live",
+      id: "5",
+      coins: false,
+      moneda: "euros",
+      mensual: true,
+      valor: 1,
+      tope: 0
+    }
+  ];
   let mainWindow;
   app.whenReady().then(async () => {
     await sequelize2.sync({ force: false });
     console.log("🔹 Base de datos lista");
+    const count = await Page.count();
+    if (count === 0) {
+      try {
+        await Page.bulkCreate(pagina);
+        console.log("✅ Registros iniciales insertados.");
+      } catch (error) {
+        console.error("❌ Error al insertar registros:", error);
+      }
+    }
     mainWindow = new BrowserWindow({
       width: 1280,
       height: 720,

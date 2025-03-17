@@ -26,6 +26,7 @@ export const Quincena = () => {
     try {
       const respuesta = await window.Electron.addQuincena(data);
       if (respuesta.error) {
+        console.log(error)
       } else {
         const nuevasQuincenas = await getAllQuincena();
         setQ(nuevasQuincenas || []);

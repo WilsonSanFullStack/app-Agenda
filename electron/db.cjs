@@ -31,16 +31,24 @@ let capsEntries = entries.map((entry) => [
 ]);
 sequelize.models = Object.fromEntries(capsEntries);
 
-const { Quincena, Day, Page } = sequelize.models;
+const { Quincena, Day, Page, Sender, Vx } = sequelize.models;
 
 //! relaciones entre modelos
 Quincena.hasMany(Day, { as: "dias", foreignKey: "quincena" });
 Day.belongsTo(Quincena, { foreignKey: "quincena" });
+
+Day.hasMany(Sender, { as: "Senders", foreignKey: "dayId" });
+Sender.belongsTo(Day, { foreignKey: "dayId" });
+
+Sender.hasMany(Page, { as: "pages", foreignKey: "pageId" });
+Page.belongsTo(Sender, { foreignKey: "pageId" });
 // Sincronizar base de datos
 
 module.exports = {
   sequelize,
   Quincena,
   Day,
-  Page
+  Page,
+  Sender,
+  Vx,
 };

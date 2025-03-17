@@ -16,6 +16,10 @@ contextBridge.exposeInMainWorld("Electron", {
   //eventos para pages
   addPage: (data) => ipcRenderer.invoke("add-page", data),
   getPage: () => ipcRenderer.invoke("get-page"),
+  //eventos para sender
+  addSender: (data) => ipcRenderer.invoke("add-sender", data),
+  getSender: () => ipcRenderer.invoke("get-sender"),
+
 
   //eventos para actualizar quincenas en react
   onAbrirRegistroQuincena: (callback) =>

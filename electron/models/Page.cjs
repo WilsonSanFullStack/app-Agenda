@@ -17,27 +17,22 @@ module.exports = (sequelize) => {
       coins: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
-        unique: true,
       },
       moneda: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
       },
       mensual: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
-        unique: true,
       },
       valor: {
         type: DataTypes.FLOAT,
         allowNull: false,
-        unique: true,
       },
       tope: {
         type: DataTypes.FLOAT,
         allowNull: false,
-        unique: true,
       },
     },
     {

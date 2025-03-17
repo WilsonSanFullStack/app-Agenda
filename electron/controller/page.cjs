@@ -36,7 +36,8 @@ const getAllPage = async () => {
     const pages = await Page.findAll({
       attributes: ["name", "id", "coins", "moneda", "mensual", "valor", "tope"],
     });
-    return pages;
+    const res = pages.map((x) => x.dataValues);
+    return res;
   } catch (error) {
     return {
       success: false,

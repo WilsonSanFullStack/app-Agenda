@@ -1,15 +1,74 @@
 const { app, BrowserWindow, ipcMain, Menu, nativeImage } = require("electron");
 const path = require("path");
 const chokidar = require("chokidar");
-const { sequelize } = require("./db.cjs");
+const { sequelize, Page } = require("./db.cjs");
 
 require("./ipcMain/ipcMain.cjs");
+const pagina = [
+  {
+    name: "adultwork",
+    id: "1",
+    coins: false,
+    moneda: "libras esterlinas",
+    mensual: false,
+    valor: 1,
+    tope: 0,
+  },
+  {
+    name: "sender",
+    id: "2",
+    coins: true,
+    moneda: "euros",
+    mensual: true,
+    valor: 0.11,
+    tope: 0,
+  },
+  {
+    name: "dirty",
+    id: "3",
+    coins: false,
+    moneda: "dolares",
+    mensual: true,
+    valor: 1,
+    tope: 50,
+  },
+  {
+    name: "vx",
+    id: "4",
+    coins: false,
+    moneda: "euros",
+    mensual: true,
+    valor: 1,
+    tope: 0,
+  },
+  {
+    name: "7live",
+    id: "5",
+    coins: false,
+    moneda: "euros",
+    mensual: true,
+    valor: 1,
+    tope: 0,
+  },
+];
 
 let mainWindow;
 
 app.whenReady().then(async () => {
   await sequelize.sync({ force: false }); //sincroniza la db sin eliminar datos
   console.log("🔹 Base de datos lista");
+
+  const count = await Page.count();
+  if (count === 0) {
+    try {
+      await Page.bulkCreate(pagina);
+      console.log("✅ Registros iniciales insertados.");
+    } catch (error) {
+      console.error("❌ Error al insertar registros:", error);
+    }
+  }
+
+
 
   mainWindow = new BrowserWindow({
     width: 1280,

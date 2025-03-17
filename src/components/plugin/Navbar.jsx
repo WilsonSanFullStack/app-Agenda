@@ -18,6 +18,7 @@ export const Navbar = () => {
       { name: "quincena", path: "/register/quincena" },
       { name: "dia", path: "/register/dia" },
       { name: "creditos", path: "/register/creditos" },
+      { name: "pagina", path: "/register/pagina" },
       { name: "option 5", path: "/" },
     ],
     Ayuda: [
