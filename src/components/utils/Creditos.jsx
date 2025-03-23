@@ -51,7 +51,14 @@ export const Creditos = () => {
   const [d, setD] = useState([]);
   const [day, setDay] = useState({});
   const [page, setPage] = useState([]);
-  const [coins, setCoins] = useState(0);
+  const [coins, setCoins] = useState(null);
+  const [dirty, setDirty] = useState({
+    dolar: null,
+    mostrar: false,
+  });
+  const [vx, setVx] = useState(null);
+  const [sLive, setSLive] = useState(null);
+  const [adult, setAdult] = useState(null);
 
   useEffect(() => {
     const quincenas = async () => {
@@ -98,13 +105,28 @@ export const Creditos = () => {
   console.log("pages", page);
   console.log("paginas", paginas);
   console.log("coins", coins);
-  const handleCoins = (e) => {};
+  console.log("dirty", dirty);
+  const handleCoins = (e) => {
+    const coin = e.target.value;
+      setCoins(coin);
+  };
+  const handleDirty = (e) => {
+    const newDirty = e.target.value;
+      setDirty({
+        ...dirty,
+        dolar: newDirty,
+        mostrar: newDirty > 49.99 ? true : false,
+      });
+  };
   const handleCortes = async () => {
     switch (paginas.name) {
       case "sender":
-        const data = { page: paginas.id, day: day.id, coins: coins };
-        await postSender(data);
-
+        const newCoin = { page: paginas.id, day: day.id, coins: coins };
+        await postSender(newCoin);
+        break;
+      case "dirty":
+        const newDirty = { page: paginas.id, day: day.id };
+        // await postDirty(newDirty)
         break;
 
       default:
@@ -151,6 +173,7 @@ export const Creditos = () => {
           })}
         </select>
       </section>
+
       <section>
         <select
           value={paginas.name}
@@ -168,75 +191,133 @@ export const Creditos = () => {
             );
           })}
         </select>
+      </section>
 
-        <section>
-          {paginas.name && (
-            <form>
-              <div className="flex justify-center items-center">
-              <h1 className="text-2xl m-2 text-center w-fit bg-slate-950 px-4 rounded-lg uppercase">{paginas.name}</h1>
-              </div>
-              {paginas.name === "sender" ? (
-                <section>
-                  <label className="m-2" htmlFor="coins">digite los coins</label>
-                  <input
+      <section>
+        {paginas.name && (
+          <form action={handleCortes}>
+            <div className="flex justify-center items-center">
+              <h1 className="text-2xl m-2 text-center w-fit bg-slate-950 px-4 rounded-lg uppercase">
+                {paginas.name}
+              </h1>
+            </div>
+            {paginas.name === "sender" ? (
+              <section>
+                <label className="m-2" htmlFor="coins">
+                  digite los coins
+                </label>
+                <input
                   id="coins"
+                  onWheel={(e) => e.target.blur()}
+                  type="number"
+                  value={coins}
+                  onChange={handleCoins}
+                  className="bg-slate-950 no-spin"
+                  onKeyDown={(e) => {
+                    if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+                      e.preventDefault(); // Bloquea flechas del teclado
+                    }
+                  }}/>
+              </section>
+            ) : paginas.name === "adultwork" ? (
+              <section>
+                <div>
+                  <label className="m-2" htmlFor="adultwork">
+                    Digite las Libras Esterlinas
+                  </label>
+                  <input
+                    id="adultwork"
                     onWheel={(e) => e.target.blur()}
                     type="number"
                     className="bg-slate-950 no-spin"
-                  />
-                </section>
-              ) : paginas.name === "adultwork" ? (
-                <section>
-                  <div>
-                    <label className="m-2" htmlFor="adultwork">
-                      Digite las Libras Esterlinas
-                    </label>
-                    <input
-                      id="adultwork"
-                      onWheel={(e) => e.target.blur()}
-                      type="number"
-                      className="bg-slate-950 no-spin"
-                    />
-                  </div>
-                  <div className="m-2">
-                    <label className="m-2 text-2xl" htmlFor="adult">Es un corte</label>
-                    <input id="adult" type="checkbox" className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 mx-6"/>
-                  </div>
-                </section>
-              ) : paginas.name === "dirty" ? (
-                <section>
-                  <label className="m-2" htmlFor="dirty">Digite los Dolares</label>
+                    onKeyDown={(e) => {
+                      if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+                        e.preventDefault(); // Bloquea flechas del teclado
+                      }
+                    }}/>
+                </div>
+                <div className="m-2">
+                  <label className="m-2 text-2xl" htmlFor="adult">
+                    Es un corte
+                  </label>
                   <input
+                    id="adult"
+                    type="checkbox"
+                    className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 mx-6"
+                    onKeyDown={(e) => {
+                      if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+                        e.preventDefault(); // Bloquea flechas del teclado
+                      }
+                    }}/>
+                </div>
+              </section>
+            ) : paginas.name === "dirty" ? (
+              <section>
+                <label className="m-2" htmlFor="dirty">
+                  Digite los Dolares
+                </label>
+                <input
                   id="dirty"
-                    onWheel={(e) => e.target.blur()}
-                    type="number"
-                    className="bg-slate-950 no-spin"
-                  />
-                </section>
-              ) : paginas.name === "vx" ? (
-                <section>
-                  <label className="m-2" htmlFor="vx">Digite los Euros</label>
-                  <input
+                  onWheel={(e) => e.target.blur()}
+                  value={dirty.dolar}
+                  onChange={handleDirty}
+                  type="number"
+                  className="bg-slate-950 no-spin decoration-0"
+                  onKeyDown={(e) => {
+                    if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+                      e.preventDefault(); // Bloquea flechas del teclado
+                    }
+                  }}
+                />
+              </section>
+            ) : paginas.name === "vx" ? (
+              <section>
+                <label className="m-2" htmlFor="vx">
+                  Digite los Euros
+                </label>
+                <input
                   id="vx"
-                    onWheel={(e) => e.target.blur()}
-                    type="number"
-                    className="bg-slate-950 no-spin"
-                  />
-                </section>
-              ) : paginas.name === "7live" ? (
-                <section>
-                  <label className="m-2" htmlFor="7live">Digite los Euros</label>
-                  <input
+                  onWheel={(e) => e.target.blur()}
+                  type="number"
+                  className="bg-slate-950 no-spin"
+                  onKeyDown={(e) => {
+                    if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+                      e.preventDefault(); // Bloquea flechas del teclado
+                    }
+                  }}
+                />
+              </section>
+            ) : paginas.name === "7live" ? (
+              <section>
+                <label className="m-2" htmlFor="7live">
+                  Digite los Euros
+                </label>
+                <input
                   id="7live"
-                    onWheel={(e) => e.target.blur()}
-                    type="number"
-                    className="bg-slate-950 no-spin"
-                  />
-                </section>
-              ) : null}
-            </form>
-          )}
-        </section>
+                  onWheel={(e) => e.target.blur()}
+                  type="number"
+                  className="bg-slate-950 no-spin"
+                  onKeyDown={(e) => {
+                    if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+                      e.preventDefault(); // Bloquea flechas del teclado
+                    }
+                  }}
+                />
+              </section>
+            ) : null}
+            <section>
+              {coins > 0 || dirty.dolar > 0 ? (
+                <button type="submit" className="border-2 border-slate-700 m-2 px-2 rounded-lg bg-slate-950 hover:bg-emerald-500 active:bg-sky-500 ">
+                  Cargar
+                </button>
+              ) : (
+                <div className="m-2 px-2 text-red-500">
+                  Selecciones una pagina e ingrese valor
+                </div>
+              )}
+            </section>
+          </form>
+        )}
       </section>
     </div>
   );
