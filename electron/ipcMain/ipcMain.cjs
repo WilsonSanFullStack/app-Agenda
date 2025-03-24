@@ -41,7 +41,7 @@ ipcMain.handle("get-page", async () => {
   return await getAllPage();
 });
 //sender
-ipcMain.handle("add-coins", async (_, data) => {
+ipcMain.handle("add-sender", async (_, data) => {
   return await postSender(data);
 });
 // buscar sender

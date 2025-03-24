@@ -1,10 +1,10 @@
 const {Day, Sender, Page} = require("../db.cjs")
 const { BrowserWindow } = require("electron");
 
-const postSender = async ({coins, page, day}) => {
+const postSender = async ({ page, day, coins}) => {
 try {
-  const dayId = await Day.findByPk(day)
-  const pageId = await Page.findByPk(page)
+  const dayId = await Day.findOne({where:{ id: day}})
+  const pageId = await Page.findOne({where:{id: page}})
 const sender = await Sender.create({
   coins: coins
 }) 

@@ -5,8 +5,8 @@ module.exports = (sequelize) => {
     "Vx",
     {
       id: {
-        type: DataTypes.UUIDV4,
-        defaultValue: DataTypes.x,
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
       Creditos: {

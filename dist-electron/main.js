@@ -49982,8 +49982,8 @@ function requireDb() {
   Day.belongsTo(Quincena, { foreignKey: "quincena" });
   Day.hasMany(Sender, { as: "Senders", foreignKey: "dayId" });
   Sender.belongsTo(Day, { foreignKey: "dayId" });
-  Sender.hasMany(Page, { as: "pages", foreignKey: "pageId" });
-  Page.belongsTo(Sender, { foreignKey: "pageId" });
+  Page.hasMany(Sender, { as: "Senders", foreignKey: "pageId" });
+  Sender.belongsTo(Page, { foreignKey: "pageId" });
   db = {
     sequelize: sequelize2,
     Quincena,
@@ -50048,7 +50048,6 @@ function requireQuincena() {
   };
   const getQuincenaById = async (id) => {
     try {
-      console.log(id);
       const res = await Quincena.findByPk(id, {
         include: [{ model: Day, as: "dias", attributes: ["id", "name"] }],
         attributes: ["id", "name", "inicio", "fin"]
@@ -50193,10 +50192,10 @@ function requireSender() {
   hasRequiredSender = 1;
   const { Day, Sender, Page } = requireDb();
   const { BrowserWindow } = require$$1$5;
-  const postSender = async ({ coins, page: page2, day: day2 }) => {
+  const postSender = async ({ page: page2, day: day2, coins }) => {
     try {
-      const dayId = await Day.findByPk(day2);
-      const pageId = await Page.findByPk(page2);
+      const dayId = await Day.findOne({ where: { id: day2 } });
+      const pageId = await Page.findOne({ where: { id: page2 } });
       const sender = await Sender.create({
         coins
       });
@@ -50270,7 +50269,7 @@ function requireIpcMain() {
   ipcMain$1.handle("get-page", async () => {
     return await getAllPage();
   });
-  ipcMain$1.handle("add-coins", async (_, data) => {
+  ipcMain$1.handle("add-sender", async (_, data) => {
     return await postSender(data);
   });
   ipcMain$1.handle("get-sender", async () => {
@@ -50290,7 +50289,6 @@ function requireMain() {
   const pagina = [
     {
       name: "adultwork",
-      id: "1",
       coins: false,
       moneda: "libras esterlinas",
       mensual: false,
@@ -50299,7 +50297,6 @@ function requireMain() {
     },
     {
       name: "sender",
-      id: "2",
       coins: true,
       moneda: "euros",
       mensual: true,
@@ -50308,7 +50305,6 @@ function requireMain() {
     },
     {
       name: "dirty",
-      id: "3",
       coins: false,
       moneda: "dolares",
       mensual: true,
@@ -50317,7 +50313,6 @@ function requireMain() {
     },
     {
       name: "vx",
-      id: "4",
       coins: false,
       moneda: "euros",
       mensual: true,
@@ -50326,7 +50321,6 @@ function requireMain() {
     },
     {
       name: "7live",
-      id: "5",
       coins: false,
       moneda: "euros",
       mensual: true,

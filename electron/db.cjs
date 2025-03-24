@@ -40,8 +40,8 @@ Day.belongsTo(Quincena, { foreignKey: "quincena" });
 Day.hasMany(Sender, { as: "Senders", foreignKey: "dayId" });
 Sender.belongsTo(Day, { foreignKey: "dayId" });
 
-Sender.hasMany(Page, { as: "pages", foreignKey: "pageId" });
-Page.belongsTo(Sender, { foreignKey: "pageId" });
+Page.hasMany(Sender, { as: "Senders", foreignKey: "pageId" });
+Sender.belongsTo(Page, { foreignKey: "pageId" });
 // Sincronizar base de datos
 
 module.exports = {

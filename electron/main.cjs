@@ -7,7 +7,6 @@ require("./ipcMain/ipcMain.cjs");
 const pagina = [
   {
     name: "adultwork",
-    id: "1",
     coins: false,
     moneda: "libras esterlinas",
     mensual: false,
@@ -16,7 +15,6 @@ const pagina = [
   },
   {
     name: "sender",
-    id: "2",
     coins: true,
     moneda: "euros",
     mensual: true,
@@ -25,7 +23,6 @@ const pagina = [
   },
   {
     name: "dirty",
-    id: "3",
     coins: false,
     moneda: "dolares",
     mensual: true,
@@ -34,7 +31,6 @@ const pagina = [
   },
   {
     name: "vx",
-    id: "4",
     coins: false,
     moneda: "euros",
     mensual: true,
@@ -43,7 +39,6 @@ const pagina = [
   },
   {
     name: "7live",
-    id: "5",
     coins: false,
     moneda: "euros",
     mensual: true,

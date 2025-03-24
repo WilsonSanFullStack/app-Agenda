@@ -121,7 +121,9 @@ export const Creditos = () => {
   const handleCortes = async () => {
     switch (paginas.name) {
       case "sender":
-        const newCoin = { page: paginas.id, day: day.id, coins: coins };
+        const p = paginas.id
+        const dia = day.id
+        const newCoin = { page: p, day: dia, coins: coins };
         await postSender(newCoin);
         break;
       case "dirty":

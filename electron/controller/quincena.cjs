@@ -50,7 +50,6 @@ const getAllQuincenas = async () => {
 
 const getQuincenaById = async (id) => {
   try {
-    console.log(id)
     const res = await Quincena.findByPk(id, {
       include: [{model: Day, as: "dias", attributes: ["id", "name"]}],
       attributes: ["id", "name", "inicio", "fin"]
