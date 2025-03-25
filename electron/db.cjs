@@ -31,17 +31,29 @@ let capsEntries = entries.map((entry) => [
 ]);
 sequelize.models = Object.fromEntries(capsEntries);
 
-const { Quincena, Day, Page, Sender, Vx } = sequelize.models;
+const { Quincena, Day, Page, Sender, Dirty, Vx, Adult } = sequelize.models;
 
 //! relaciones entre modelos
 Quincena.hasMany(Day, { as: "dias", foreignKey: "quincena" });
 Day.belongsTo(Quincena, { foreignKey: "quincena" });
-
+//relacion sender
 Day.hasMany(Sender, { as: "Senders", foreignKey: "dayId" });
 Sender.belongsTo(Day, { foreignKey: "dayId" });
 
 Page.hasMany(Sender, { as: "Senders", foreignKey: "pageId" });
 Sender.belongsTo(Page, { foreignKey: "pageId" });
+//relacion dirty
+Day.hasMany(Dirty, { as: "Dirtys", foreignKey: "dayId" });
+Dirty.belongsTo(Day, { foreignKey: "dayId" });
+
+Page.hasMany(Dirty, { as: "Dirtys", foreignKey: "pageId" });
+Dirty.belongsTo(Page, { foreignKey: "pageId" });
+//relacion Adult
+Day.hasMany(Adult, { as: "Adults", foreignKey: "dayId" });
+Adult.belongsTo(Day, { foreignKey: "dayId" });
+
+Page.hasMany(Adult, { as: "Adults", foreignKey: "pageId" });
+Adult.belongsTo(Page, { foreignKey: "pageId" });
 // Sincronizar base de datos
 
 module.exports = {
@@ -51,4 +63,6 @@ module.exports = {
   Page,
   Sender,
   Vx,
+  Dirty,
+  Adult
 };

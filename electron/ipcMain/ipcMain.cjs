@@ -8,6 +8,9 @@ const {
 const { postDay, getAllDay } = require("../controller/day.cjs");
 const { postPage, getAllPage } = require("../controller/page.cjs");
 const { postSender, getAllCoins } = require("../controller/Sender.cjs");
+const { postDirty } = require("../controller/dirty.cjs");
+const { postAdult } = require("../controller/adult.cjs");
+
 
 //quincenas
 ipcMain.handle("get-quincena", async () => {
@@ -47,4 +50,12 @@ ipcMain.handle("add-sender", async (_, data) => {
 // buscar sender
 ipcMain.handle("get-sender", async () => {
   return await getAllCoins();
+});
+//dirty
+ipcMain.handle("add-dirty", async (_, data) => {
+  return await postDirty(data);
+});
+//adult
+ipcMain.handle("add-adult", async (_, data) => {
+  return await postAdult(data);
 });

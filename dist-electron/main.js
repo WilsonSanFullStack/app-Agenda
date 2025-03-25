@@ -49976,7 +49976,7 @@ function requireDb() {
     entry[1]
   ]);
   sequelize2.models = Object.fromEntries(capsEntries);
-  const { Quincena, Day, Page, Sender, Vx } = sequelize2.models;
+  const { Quincena, Day, Page, Sender, Dirty, Vx, Adult } = sequelize2.models;
   //! relaciones entre modelos
   Quincena.hasMany(Day, { as: "dias", foreignKey: "quincena" });
   Day.belongsTo(Quincena, { foreignKey: "quincena" });
@@ -49984,13 +49984,23 @@ function requireDb() {
   Sender.belongsTo(Day, { foreignKey: "dayId" });
   Page.hasMany(Sender, { as: "Senders", foreignKey: "pageId" });
   Sender.belongsTo(Page, { foreignKey: "pageId" });
+  Day.hasMany(Dirty, { as: "Dirtys", foreignKey: "dayId" });
+  Dirty.belongsTo(Day, { foreignKey: "dayId" });
+  Page.hasMany(Dirty, { as: "Dirtys", foreignKey: "pageId" });
+  Dirty.belongsTo(Page, { foreignKey: "pageId" });
+  Day.hasMany(Adult, { as: "Adults", foreignKey: "dayId" });
+  Adult.belongsTo(Day, { foreignKey: "dayId" });
+  Page.hasMany(Adult, { as: "Adults", foreignKey: "pageId" });
+  Adult.belongsTo(Page, { foreignKey: "pageId" });
   db = {
     sequelize: sequelize2,
     Quincena,
     Day,
     Page,
     Sender,
-    Vx
+    Vx,
+    Dirty,
+    Adult
   };
   return db;
 }
@@ -50231,6 +50241,69 @@ function requireSender() {
   Sender_1 = { postSender, getAllCoins };
   return Sender_1;
 }
+var dirty;
+var hasRequiredDirty;
+function requireDirty() {
+  if (hasRequiredDirty) return dirty;
+  hasRequiredDirty = 1;
+  const { Day, Dirty, Page } = requireDb();
+  const { BrowserWindow } = require$$1$5;
+  const postDirty = async ({ dolares, mostrar, page: page2, day: day2 }) => {
+    try {
+      const dayId = await Day.findOne({ where: { id: day2 } });
+      const pageId = await Page.findOne({ where: { id: page2 } });
+      const newDirty = await Dirty.create({ dolares, mostrar });
+      if (newDirty) {
+        await newDirty.setDay(dayId);
+        await newDirty.setPage(pageId);
+      }
+      BrowserWindow.getAllWindows().forEach((win) => {
+        win.webContents.send("dirtyaActualizado", newDirty);
+      });
+      return newDirty;
+    } catch (error) {
+      return {
+        success: false,
+        message: "Error al subir los dolares",
+        error
+      };
+    }
+  };
+  dirty = { postDirty };
+  return dirty;
+}
+var adult;
+var hasRequiredAdult;
+function requireAdult() {
+  if (hasRequiredAdult) return adult;
+  hasRequiredAdult = 1;
+  const { Day, Adult, Page } = requireDb();
+  const { BrowserWindow } = require$$1$5;
+  const postAdult = async ({ page: page2, day: day2, lb, corte }) => {
+    try {
+      const dayId = await Day.findOne({ where: { id: day2 } });
+      const pageId = await Page.findOne({ where: { id: page2 } });
+      const newAdult = await Adult.create({ lb, corte });
+      if (newAdult) {
+        await newAdult.setDay(dayId);
+        await newAdult.setPage(pageId);
+      }
+      BrowserWindow.getAllWindows().forEach((win) => {
+        win.webContents.send("adultActualizado", newAdult);
+      });
+      console.log(newAdult);
+      return newAdult;
+    } catch (error) {
+      return {
+        success: false,
+        message: "Error al subir los creditos de adult",
+        error
+      };
+    }
+  };
+  adult = { postAdult };
+  return adult;
+}
 var hasRequiredIpcMain;
 function requireIpcMain() {
   if (hasRequiredIpcMain) return ipcMain;
@@ -50245,6 +50318,8 @@ function requireIpcMain() {
   const { postDay, getAllDay } = requireDay();
   const { postPage, getAllPage } = requirePage();
   const { postSender, getAllCoins } = requireSender();
+  const { postDirty } = requireDirty();
+  const { postAdult } = requireAdult();
   ipcMain$1.handle("get-quincena", async () => {
     return await getAllQuincenas();
   });
@@ -50274,6 +50349,12 @@ function requireIpcMain() {
   });
   ipcMain$1.handle("get-sender", async () => {
     return await getAllCoins();
+  });
+  ipcMain$1.handle("add-dirty", async (_, data) => {
+    return await postDirty(data);
+  });
+  ipcMain$1.handle("add-adult", async (_, data) => {
+    return await postAdult(data);
   });
   return ipcMain;
 }

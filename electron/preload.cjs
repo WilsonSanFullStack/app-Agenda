@@ -19,6 +19,10 @@ contextBridge.exposeInMainWorld("Electron", {
   //eventos para sender
   addSender: (data) => ipcRenderer.invoke("add-sender", data),
   getSender: () => ipcRenderer.invoke("get-sender"),
+  //eventos para dirty
+  addDirty: (data) => ipcRenderer.invoke("add-dirty", data),
+  //eventos para adult
+  addAdult: (data) => ipcRenderer.invoke("add-adult", data),
 
 
   //eventos para actualizar quincenas en react

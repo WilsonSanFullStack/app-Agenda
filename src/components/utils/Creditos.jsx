@@ -1,5 +1,29 @@
 import React, { useEffect, useState } from "react";
 
+const postAdult = async (data) => {
+  try {
+    const adult = await window.Electron.addAdult(data);
+    if (adult.error) {
+      console.log(error);
+    } else {
+      console.log(adult);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+const postDirty = async (data) => {
+  try {
+    const dirty = await window.Electron.addDirty(data);
+    if (dirty.error) {
+      console.log(error);
+    } else {
+      console.log(dirty);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
 const postSender = async (data) => {
   try {
     const sender = await window.Electron.addSender(data);
@@ -58,7 +82,10 @@ export const Creditos = () => {
   });
   const [vx, setVx] = useState(null);
   const [sLive, setSLive] = useState(null);
-  const [adult, setAdult] = useState(null);
+  const [adult, setAdult] = useState({
+    lb: null,
+    corte: false,
+  });
 
   useEffect(() => {
     const quincenas = async () => {
@@ -106,29 +133,60 @@ export const Creditos = () => {
   console.log("paginas", paginas);
   console.log("coins", coins);
   console.log("dirty", dirty);
+  console.log("adult", adult);
   const handleCoins = (e) => {
     const coin = e.target.value;
-      setCoins(coin);
+    setCoins(coin);
   };
   const handleDirty = (e) => {
     const newDirty = e.target.value;
-      setDirty({
-        ...dirty,
-        dolar: newDirty,
-        mostrar: newDirty > 49.99 ? true : false,
-      });
+    setDirty({
+      ...dirty,
+      dolar: newDirty,
+      mostrar: newDirty > 49.99 ? true : false,
+    });
+  };
+  const handleAdultLb = (e) => {
+    setAdult({ ...adult, lb: e.target.value });
+  };
+  const handleAdultCorte = (e) => {
+    setAdult({ ...adult, corte: e.target.checked });
   };
   const handleCortes = async () => {
     switch (paginas.name) {
       case "sender":
-        const p = paginas.id
-        const dia = day.id
+        const p = paginas.id;
+        const dia = day.id;
         const newCoin = { page: p, day: dia, coins: coins };
         await postSender(newCoin);
         break;
       case "dirty":
-        const newDirty = { page: paginas.id, day: day.id };
-        // await postDirty(newDirty)
+        const page = paginas.id;
+        const d = day.id;
+        const dolares = dirty.dolar;
+        const mostrar = dirty.mostrar;
+        const newDirty = {
+          page: page,
+          day: d,
+          dolares: dolares,
+          mostrar: mostrar,
+        };
+        console.log(newDirty);
+        await postDirty(newDirty);
+        break;
+
+      case "adultwork":
+        const pa = paginas.id;
+        const di = day.id;
+        const lb = adult.lb;
+        const corte = adult.corte;
+        const newAdult = {
+          page: pa,
+          day: di,
+          lb: lb,
+          corte: corte,
+        };
+        await postAdult(newAdult);
         break;
 
       default:
@@ -219,7 +277,8 @@ export const Creditos = () => {
                     if (e.key === "ArrowUp" || e.key === "ArrowDown") {
                       e.preventDefault(); // Bloquea flechas del teclado
                     }
-                  }}/>
+                  }}
+                />
               </section>
             ) : paginas.name === "adultwork" ? (
               <section>
@@ -230,13 +289,16 @@ export const Creditos = () => {
                   <input
                     id="adultwork"
                     onWheel={(e) => e.target.blur()}
+                    value={adult.lb}
+                    onChange={handleAdultLb}
                     type="number"
                     className="bg-slate-950 no-spin"
                     onKeyDown={(e) => {
                       if (e.key === "ArrowUp" || e.key === "ArrowDown") {
                         e.preventDefault(); // Bloquea flechas del teclado
                       }
-                    }}/>
+                    }}
+                  />
                 </div>
                 <div className="m-2">
                   <label className="m-2 text-2xl" htmlFor="adult">
@@ -244,13 +306,16 @@ export const Creditos = () => {
                   </label>
                   <input
                     id="adult"
+                    checked={adult.corte}
+                    onChange={handleAdultCorte}
                     type="checkbox"
                     className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 mx-6"
                     onKeyDown={(e) => {
                       if (e.key === "ArrowUp" || e.key === "ArrowDown") {
                         e.preventDefault(); // Bloquea flechas del teclado
                       }
-                    }}/>
+                    }}
+                  />
                 </div>
               </section>
             ) : paginas.name === "dirty" ? (
@@ -308,8 +373,11 @@ export const Creditos = () => {
               </section>
             ) : null}
             <section>
-              {coins > 0 || dirty.dolar > 0 ? (
-                <button type="submit" className="border-2 border-slate-700 m-2 px-2 rounded-lg bg-slate-950 hover:bg-emerald-500 active:bg-sky-500 ">
+              {coins > 0 || dirty.dolar > 0 ||adult.lb > 0 ? (
+                <button
+                  type="submit"
+                  className="border-2 border-slate-700 m-2 px-2 rounded-lg bg-slate-950 hover:bg-emerald-500 active:bg-sky-500 "
+                >
                   Cargar
                 </button>
               ) : (
