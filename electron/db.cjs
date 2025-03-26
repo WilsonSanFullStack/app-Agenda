@@ -31,11 +31,15 @@ let capsEntries = entries.map((entry) => [
 ]);
 sequelize.models = Object.fromEntries(capsEntries);
 
-const { Quincena, Day, Page, Sender, Dirty, Vx, Adult } = sequelize.models;
+const { Quincena, Day, Page, Sender, Dirty, Vx, Adult, Live7, Moneda } =
+  sequelize.models;
 
 //! relaciones entre modelos
 Quincena.hasMany(Day, { as: "dias", foreignKey: "quincena" });
 Day.belongsTo(Quincena, { foreignKey: "quincena" });
+
+Quincena.hasMany(Moneda, { as: "Monedas", foreignKey: "quincenaId" });
+Moneda.belongsTo(Quincena, { foreignKey: "quincenaId" });
 //relacion sender
 Day.hasMany(Sender, { as: "Senders", foreignKey: "dayId" });
 Sender.belongsTo(Day, { foreignKey: "dayId" });
@@ -54,6 +58,19 @@ Adult.belongsTo(Day, { foreignKey: "dayId" });
 
 Page.hasMany(Adult, { as: "Adults", foreignKey: "pageId" });
 Adult.belongsTo(Page, { foreignKey: "pageId" });
+
+//relacion VX
+Day.hasMany(Vx, { as: "Vxs", foreignKey: "dayId" });
+Vx.belongsTo(Day, { foreignKey: "dayId" });
+
+Page.hasMany(Vx, { as: "Vxs", foreignKey: "pageId" });
+Vx.belongsTo(Page, { foreignKey: "pageId" });
+//relacion VX
+Day.hasMany(Live7, { as: "Lives", foreignKey: "dayId" });
+Live7.belongsTo(Day, { foreignKey: "dayId" });
+
+Page.hasMany(Live7, { as: "Lives", foreignKey: "pageId" });
+Live7.belongsTo(Page, { foreignKey: "pageId" });
 // Sincronizar base de datos
 
 module.exports = {
@@ -64,5 +81,7 @@ module.exports = {
   Sender,
   Vx,
   Dirty,
-  Adult
+  Adult,
+  Live7,
+  Moneda
 };

@@ -23,6 +23,14 @@ contextBridge.exposeInMainWorld("Electron", {
   addDirty: (data) => ipcRenderer.invoke("add-dirty", data),
   //eventos para adult
   addAdult: (data) => ipcRenderer.invoke("add-adult", data),
+  //eventos para vx
+  addVx: (data) => ipcRenderer.invoke("add-vx", data),
+  //eventos para 7Live
+  addLive7: (data) => ipcRenderer.invoke("add-live7", data),
+  //eventos para monedas
+  addMoneda: (data) => ipcRenderer.invoke("add-moneda", data),
+  //eventos para buscar todas las quincenas
+  getAllData: (data) => ipcRenderer.invoke("get-all-quincena"),
 
 
   //eventos para actualizar quincenas en react

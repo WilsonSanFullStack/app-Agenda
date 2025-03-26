@@ -49976,10 +49976,12 @@ function requireDb() {
     entry[1]
   ]);
   sequelize2.models = Object.fromEntries(capsEntries);
-  const { Quincena, Day, Page, Sender, Dirty, Vx, Adult } = sequelize2.models;
+  const { Quincena, Day, Page, Sender, Dirty, Vx, Adult, Live7, Moneda } = sequelize2.models;
   //! relaciones entre modelos
   Quincena.hasMany(Day, { as: "dias", foreignKey: "quincena" });
   Day.belongsTo(Quincena, { foreignKey: "quincena" });
+  Quincena.hasMany(Moneda, { as: "Monedas", foreignKey: "quincenaId" });
+  Moneda.belongsTo(Quincena, { foreignKey: "quincenaId" });
   Day.hasMany(Sender, { as: "Senders", foreignKey: "dayId" });
   Sender.belongsTo(Day, { foreignKey: "dayId" });
   Page.hasMany(Sender, { as: "Senders", foreignKey: "pageId" });
@@ -49992,6 +49994,14 @@ function requireDb() {
   Adult.belongsTo(Day, { foreignKey: "dayId" });
   Page.hasMany(Adult, { as: "Adults", foreignKey: "pageId" });
   Adult.belongsTo(Page, { foreignKey: "pageId" });
+  Day.hasMany(Vx, { as: "Vxs", foreignKey: "dayId" });
+  Vx.belongsTo(Day, { foreignKey: "dayId" });
+  Page.hasMany(Vx, { as: "Vxs", foreignKey: "pageId" });
+  Vx.belongsTo(Page, { foreignKey: "pageId" });
+  Day.hasMany(Live7, { as: "Lives", foreignKey: "dayId" });
+  Live7.belongsTo(Day, { foreignKey: "dayId" });
+  Page.hasMany(Live7, { as: "Lives", foreignKey: "pageId" });
+  Live7.belongsTo(Page, { foreignKey: "pageId" });
   db = {
     sequelize: sequelize2,
     Quincena,
@@ -50000,7 +50010,9 @@ function requireDb() {
     Sender,
     Vx,
     Dirty,
-    Adult
+    Adult,
+    Live7,
+    Moneda
   };
   return db;
 }
@@ -50149,14 +50161,14 @@ function requirePage() {
   hasRequiredPage = 1;
   const { Page } = requireDb();
   const { BrowserWindow } = require$$1$5;
-  const postPage = async ({ name, coins, moneda, mensual, valor, tope }) => {
+  const postPage = async ({ name, coins, moneda: moneda2, mensual, valor, tope }) => {
     try {
       const [nuevaPage, created] = await Page.findOrCreate({
         where: { name },
         defaults: {
           name,
           coins,
-          moneda,
+          moneda: moneda2,
           mensual,
           valor,
           tope
@@ -50291,7 +50303,6 @@ function requireAdult() {
       BrowserWindow.getAllWindows().forEach((win) => {
         win.webContents.send("adultActualizado", newAdult);
       });
-      console.log(newAdult);
       return newAdult;
     } catch (error) {
       return {
@@ -50303,6 +50314,148 @@ function requireAdult() {
   };
   adult = { postAdult };
   return adult;
+}
+var vx;
+var hasRequiredVx;
+function requireVx() {
+  if (hasRequiredVx) return vx;
+  hasRequiredVx = 1;
+  const { Day, Vx, Page } = requireDb();
+  const { BrowserWindow } = require$$1$5;
+  const postVx = async ({ euros, page: page2, day: day2 }) => {
+    try {
+      const dayId = await Day.findOne({ where: { id: day2 } });
+      const pageId = await Page.findOne({ where: { id: page2 } });
+      const newVx = await Vx.create({ creditos: euros });
+      if (newVx) {
+        await newVx.setDay(dayId);
+        await newVx.setPage(pageId);
+      }
+      BrowserWindow.getAllWindows().forEach((win) => {
+        win.webContents.send("VxaActualizado", newVx);
+      });
+      return newVx;
+    } catch (error) {
+      return {
+        success: false,
+        message: "Error al subir los Euros",
+        error
+      };
+    }
+  };
+  vx = { postVx };
+  return vx;
+}
+var live7;
+var hasRequiredLive7;
+function requireLive7() {
+  if (hasRequiredLive7) return live7;
+  hasRequiredLive7 = 1;
+  const { Day, Live7, Page } = requireDb();
+  const { BrowserWindow } = require$$1$5;
+  const postLive7 = async ({ creditos, page: page2, day: day2 }) => {
+    try {
+      const dayId = await Day.findOne({ where: { id: day2 } });
+      const pageId = await Page.findOne({ where: { id: page2 } });
+      const newLive7 = await Live7.create({ creditos });
+      if (newLive7) {
+        await newLive7.setDay(dayId);
+        await newLive7.setPage(pageId);
+      }
+      BrowserWindow.getAllWindows().forEach((win) => {
+        win.webContents.send("live7aActualizado", newLive7);
+      });
+      return newLive7;
+    } catch (error) {
+      return {
+        success: false,
+        message: "Error al subir los euros",
+        error
+      };
+    }
+  };
+  live7 = { postLive7 };
+  return live7;
+}
+var moneda;
+var hasRequiredMoneda;
+function requireMoneda() {
+  if (hasRequiredMoneda) return moneda;
+  hasRequiredMoneda = 1;
+  const { Quincena, Moneda } = requireDb();
+  const { BrowserWindow } = require$$1$5;
+  const postMoneda = async ({ dolar, euro, lb, pago, quincena: quincena2 }) => {
+    try {
+      const quincenaId = await Quincena.findOne({ where: { id: quincena2 } });
+      const newMoneda = await Moneda.create({ dolar, euro, lb, pago });
+      if (newMoneda) {
+        await newMoneda.setQuincena(quincenaId);
+      }
+      BrowserWindow.getAllWindows().forEach((win) => {
+        win.webContents.send("monedasaActualizado", newMoneda);
+      });
+      return newMoneda;
+    } catch (error) {
+      return {
+        success: false,
+        message: "Error al subir las monedas",
+        error
+      };
+    }
+  };
+  moneda = { postMoneda };
+  return moneda;
+}
+var serchAllQuincena;
+var hasRequiredSerchAllQuincena;
+function requireSerchAllQuincena() {
+  if (hasRequiredSerchAllQuincena) return serchAllQuincena;
+  hasRequiredSerchAllQuincena = 1;
+  const {
+    Quincena,
+    Day,
+    Sender,
+    Adult,
+    Dirty,
+    Vx,
+    Moneda,
+    Live7
+  } = requireDb();
+  const getAllsQuincenas = async () => {
+    try {
+      const pages = await Quincena.findAll({
+        attributes: ["name", "id"],
+        include: [
+          {
+            model: Day,
+            as: "dias",
+            include: [
+              { model: Sender, as: "Senders" },
+              { model: Dirty, as: "Dirtys" },
+              { model: Adult, as: "Adults" },
+              { model: Vx, as: "Vxs" },
+              { model: Live7, as: "Lives" }
+            ]
+          },
+          {
+            model: Moneda,
+            as: "Monedas"
+          }
+        ]
+      });
+      console.log(pages);
+      return pages.map((x) => x.get({ plain: true }));
+    } catch (error) {
+      console.error(error);
+      return {
+        success: false,
+        message: "Error al obtener las quincenas",
+        error: error.message
+      };
+    }
+  };
+  serchAllQuincena = { getAllsQuincenas };
+  return serchAllQuincena;
 }
 var hasRequiredIpcMain;
 function requireIpcMain() {
@@ -50320,6 +50473,10 @@ function requireIpcMain() {
   const { postSender, getAllCoins } = requireSender();
   const { postDirty } = requireDirty();
   const { postAdult } = requireAdult();
+  const { postVx } = requireVx();
+  const { postLive7 } = requireLive7();
+  const { postMoneda } = requireMoneda();
+  const { getAllsQuincenas } = requireSerchAllQuincena();
   ipcMain$1.handle("get-quincena", async () => {
     return await getAllQuincenas();
   });
@@ -50355,6 +50512,18 @@ function requireIpcMain() {
   });
   ipcMain$1.handle("add-adult", async (_, data) => {
     return await postAdult(data);
+  });
+  ipcMain$1.handle("add-vx", async (_, data) => {
+    return await postVx(data);
+  });
+  ipcMain$1.handle("add-live7", async (_, data) => {
+    return await postLive7(data);
+  });
+  ipcMain$1.handle("add-moneda", async (_, data) => {
+    return await postMoneda(data);
+  });
+  ipcMain$1.handle("get-all-quincena", async () => {
+    return await getAllsQuincenas();
   });
   return ipcMain;
 }

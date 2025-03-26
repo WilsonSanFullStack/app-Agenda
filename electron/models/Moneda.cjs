@@ -2,15 +2,27 @@ const { DataTypes, UUIDV4 } = require("sequelize");
 
 module.exports = (sequelize) => {
   sequelize.define(
-    "Vx",
+    "Moneda",
     {
       id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
-      creditos: {
+      dolar: {
         type: DataTypes.FLOAT,
+        allowNull: false,
+      },
+      euro: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+      },
+      lb: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+      },
+      pago: {
+        type: DataTypes.BOOLEAN,
         allowNull: false,
       },
     },

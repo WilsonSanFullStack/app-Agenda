@@ -8,6 +8,7 @@ import { Dia } from "./components/utils/Dia.jsx";
 import { Quincena } from "./components/utils/Quincena.jsx";
 import { Creditos } from "./components/utils/Creditos.jsx";
 import { Page } from "./components/utils/Page.jsx";
+import { Moneda } from "./components/utils/Moneda.jsx";
 
 function App() {
   const navigate = useNavigate();
@@ -27,6 +28,7 @@ function App() {
         <Route path="/register/dia" element={<Dia />} />
         <Route path="/register/creditos" element={<Creditos />} />
         <Route path="/register/pagina" element={<Page />} />
+        <Route path="/register/moneda" element={<Moneda />} />
       </Routes>
     </div>
   );

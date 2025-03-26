@@ -10,6 +10,10 @@ const { postPage, getAllPage } = require("../controller/page.cjs");
 const { postSender, getAllCoins } = require("../controller/Sender.cjs");
 const { postDirty } = require("../controller/dirty.cjs");
 const { postAdult } = require("../controller/adult.cjs");
+const { postVx } = require("../controller/vx.cjs");
+const { postLive7 } = require("../controller/live7.cjs");
+const { postMoneda } = require("../controller/moneda.cjs");
+const { getAllsQuincenas } = require("../controller/serchAllQuincena.cjs");
 
 
 //quincenas
@@ -58,4 +62,20 @@ ipcMain.handle("add-dirty", async (_, data) => {
 //adult
 ipcMain.handle("add-adult", async (_, data) => {
   return await postAdult(data);
+});
+//vx
+ipcMain.handle("add-vx", async (_, data) => {
+  return await postVx(data);
+});
+//7live
+ipcMain.handle("add-live7", async (_, data) => {
+  return await postLive7(data);
+});
+//monedas
+ipcMain.handle("add-moneda", async (_, data) => {
+  return await postMoneda(data);
+});
+//getAllQuincena
+ipcMain.handle("get-all-quincena", async () => {
+  return await getAllsQuincenas();
 });

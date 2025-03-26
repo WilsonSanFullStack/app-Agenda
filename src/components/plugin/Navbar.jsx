@@ -17,6 +17,7 @@ export const Navbar = () => {
     Registrar: [
       { name: "quincena", path: "/register/quincena" },
       { name: "dia", path: "/register/dia" },
+      { name: "moneda", path: "/register/moneda" },
       { name: "creditos", path: "/register/creditos" },
       { name: "pagina", path: "/register/pagina" },
       { name: "option 5", path: "/" },

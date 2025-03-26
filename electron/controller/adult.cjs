@@ -14,7 +14,6 @@ const postAdult = async ({ page, day, lb, corte }) => {
     BrowserWindow.getAllWindows().forEach((win) => {
       win.webContents.send("adultActualizado", newAdult);
     });
-    console.log(newAdult)
     return newAdult;
   } catch (error) {
     return {

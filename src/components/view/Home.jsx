@@ -25,17 +25,27 @@ const getAllQuincena = async () => {
     console.log(error);
   }
 };
-
+const getAllData = async () => {
+  try {
+    const res = await window.Electron.getAllData()
+    console.log("getAllData", res)
+    return res
+  } catch (error) {
+    console.log(error)
+  }
+}
 export const Home = () => {
   const [days, setDays] = useState([]);
   const [q, setQ] = useState([]);
   //traemos de la db las quincenas creadas para no mostrarlas
   const handleQuincena = async () => {
     const creadas = await getAllQuincena();
+    await getAllData()
     setQ(creadas);
   };
 
   useEffect(() => {
+
     handleQuincena();
     // 📌 Escuchar evento de Electron para actualizar quincenas
     window.Electron.onQuincenaActualizada(() => {
