@@ -49984,24 +49984,24 @@ function requireDb() {
   Moneda.belongsTo(Quincena, { foreignKey: "quincenaId" });
   Day.hasMany(Sender, { as: "Senders", foreignKey: "dayId" });
   Sender.belongsTo(Day, { foreignKey: "dayId" });
-  Page.hasMany(Sender, { as: "Senders", foreignKey: "pageId" });
-  Sender.belongsTo(Page, { foreignKey: "pageId" });
+  Page.hasMany(Sender, { as: "paginaS", foreignKey: "pageId" });
+  Sender.belongsTo(Page, { foreignKey: "pageId", as: "paginaS" });
   Day.hasMany(Dirty, { as: "Dirtys", foreignKey: "dayId" });
   Dirty.belongsTo(Day, { foreignKey: "dayId" });
-  Page.hasMany(Dirty, { as: "Dirtys", foreignKey: "pageId" });
-  Dirty.belongsTo(Page, { foreignKey: "pageId" });
+  Page.hasMany(Dirty, { as: "paginaD", foreignKey: "pageId" });
+  Dirty.belongsTo(Page, { foreignKey: "pageId", as: "paginaD" });
   Day.hasMany(Adult, { as: "Adults", foreignKey: "dayId" });
   Adult.belongsTo(Day, { foreignKey: "dayId" });
-  Page.hasMany(Adult, { as: "Adults", foreignKey: "pageId" });
-  Adult.belongsTo(Page, { foreignKey: "pageId" });
+  Page.hasMany(Adult, { as: "paginaA", foreignKey: "pageId" });
+  Adult.belongsTo(Page, { foreignKey: "pageId", as: "paginaA" });
   Day.hasMany(Vx, { as: "Vxs", foreignKey: "dayId" });
   Vx.belongsTo(Day, { foreignKey: "dayId" });
-  Page.hasMany(Vx, { as: "Vxs", foreignKey: "pageId" });
-  Vx.belongsTo(Page, { foreignKey: "pageId" });
+  Page.hasMany(Vx, { as: "paginaV", foreignKey: "pageId" });
+  Vx.belongsTo(Page, { foreignKey: "pageId", as: "paginaV" });
   Day.hasMany(Live7, { as: "Lives", foreignKey: "dayId" });
   Live7.belongsTo(Day, { foreignKey: "dayId" });
-  Page.hasMany(Live7, { as: "Lives", foreignKey: "pageId" });
-  Live7.belongsTo(Page, { foreignKey: "pageId" });
+  Page.hasMany(Live7, { as: "paginaL", foreignKey: "pageId" });
+  Live7.belongsTo(Page, { foreignKey: "pageId", as: "paginaL" });
   db = {
     sequelize: sequelize2,
     Quincena,
@@ -50419,7 +50419,8 @@ function requireSerchAllQuincena() {
     Dirty,
     Vx,
     Moneda,
-    Live7
+    Live7,
+    Page
   } = requireDb();
   const getAllsQuincenas = async () => {
     try {
@@ -50429,24 +50430,133 @@ function requireSerchAllQuincena() {
           {
             model: Day,
             as: "dias",
+            order: [["createdAt", "DESC"]],
             include: [
-              { model: Sender, as: "Senders" },
-              { model: Dirty, as: "Dirtys" },
-              { model: Adult, as: "Adults" },
-              { model: Vx, as: "Vxs" },
-              { model: Live7, as: "Lives" }
-            ]
+              {
+                model: Sender,
+                as: "Senders",
+                limit: 1,
+                // Solo trae el último Day
+                order: [["createdAt", "DESC"]],
+                include: [
+                  {
+                    model: Page,
+                    as: "paginaS",
+                    attributes: [
+                      "id",
+                      "name",
+                      "coins",
+                      "moneda",
+                      "mensual",
+                      "valor",
+                      "tope"
+                    ]
+                  }
+                ],
+                attributes: ["id", "coins", "dayId", "pageId"]
+              },
+              {
+                model: Dirty,
+                as: "Dirtys",
+                limit: 1,
+                // Solo trae el último Day
+                order: [["createdAt", "DESC"]],
+                include: [
+                  {
+                    model: Page,
+                    as: "paginaD",
+                    attributes: [
+                      "id",
+                      "name",
+                      "coins",
+                      "moneda",
+                      "mensual",
+                      "valor",
+                      "tope"
+                    ]
+                  }
+                ],
+                attributes: ["id", "dolares", "mostrar", "dayId", "pageId"]
+              },
+              {
+                model: Adult,
+                as: "Adults",
+                order: [["createdAt", "DESC"]],
+                include: [
+                  {
+                    model: Page,
+                    as: "paginaA",
+                    attributes: [
+                      "id",
+                      "name",
+                      "coins",
+                      "moneda",
+                      "mensual",
+                      "valor",
+                      "tope"
+                    ]
+                  }
+                ]
+              },
+              {
+                model: Vx,
+                as: "Vxs",
+                limit: 1,
+                // Solo trae el último Day
+                order: [["createdAt", "DESC"]],
+                include: [
+                  {
+                    model: Page,
+                    as: "paginaV",
+                    order: [["createdAt", "DESC"]],
+                    attributes: [
+                      "id",
+                      "name",
+                      "coins",
+                      "moneda",
+                      "mensual",
+                      "valor",
+                      "tope"
+                    ]
+                  }
+                ],
+                attributes: ["id", "creditos", "dayId", "pageId"]
+              },
+              {
+                model: Live7,
+                as: "Lives",
+                limit: 1,
+                // Solo trae el último Day
+                order: [["createdAt", "DESC"]],
+                include: [
+                  {
+                    model: Page,
+                    as: "paginaL",
+                    attributes: [
+                      "id",
+                      "name",
+                      "coins",
+                      "moneda",
+                      "mensual",
+                      "valor",
+                      "tope"
+                    ]
+                  }
+                ],
+                attributes: ["id", "creditos", "dayId", "pageId"]
+              }
+            ],
+            attributes: ["id", "name"]
           },
           {
             model: Moneda,
-            as: "Monedas"
+            as: "Monedas",
+            attributes: ["id", "dolar", "euro", "lb", "pago"]
           }
         ]
       });
-      console.log(pages);
       return pages.map((x) => x.get({ plain: true }));
     } catch (error) {
-      console.error(error);
       return {
         success: false,
         message: "Error al obtener las quincenas",
