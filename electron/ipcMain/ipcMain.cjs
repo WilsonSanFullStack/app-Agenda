@@ -76,6 +76,6 @@ ipcMain.handle("add-moneda", async (_, data) => {
   return await postMoneda(data);
 });
 //getAllQuincena
-ipcMain.handle("get-all-quincena", async () => {
-  return await getAllsQuincenas();
+ipcMain.handle("get-all-quincena", async (_, data) => {
+  return await getAllsQuincenas(data);
 });

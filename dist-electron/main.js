@@ -50420,11 +50420,14 @@ function requireSerchAllQuincena() {
     Vx,
     Moneda,
     Live7,
-    Page
+    Page,
+    sequelize: sequelize2
   } = requireDb();
-  const getAllsQuincenas = async () => {
+  const { Op } = requireLib();
+  const getAllsQuincenas = async (data) => {
     try {
       const pages = await Quincena.findAll({
+        where: { id: data },
         attributes: ["name", "id"],
         include: [
           {
@@ -50551,15 +50554,68 @@ function requireSerchAllQuincena() {
           {
             model: Moneda,
             as: "Monedas",
+            where: {
+              [Op.or]: [{ pago: true }, { pago: false }]
+            },
+            order: [["createdAt", "DESC"]],
+            limit: 2,
             attributes: ["id", "dolar", "euro", "lb", "pago"]
           }
         ]
       });
-      return pages.map((x) => x.get({ plain: true }));
+      const quincena2 = pages == null ? void 0 : pages.map((x) => x.get({ plain: true }));
+      const quincenaOrdenada = {
+        id: "",
+        name: "",
+        dias: [],
+        moneda: {
+          pago: { id: "", dolar: 0, euro: 0, lb: 0 },
+          estadisticas: { id: "", dolar: 0, euro: 0, lb: 0 }
+        },
+        aranceles: { dolar: 130, euro: 220, lb: 250 },
+        porcentaje: 0.8,
+        adult: 0.699947813268342
+      };
+      for (let q of quincena2) {
+        if (!q) continue;
+        quincenaOrdenada.id = q.id;
+        quincenaOrdenada.name = q.name;
+        for (let moneda2 of q.Monedas) {
+          if (moneda2 == null ? void 0 : moneda2.pago) {
+            quincenaOrdenada.moneda.pago.id = moneda2.id;
+            quincenaOrdenada.moneda.pago.dolar = moneda2.dolar;
+            quincenaOrdenada.moneda.pago.euro = moneda2.euro;
+            quincenaOrdenada.moneda.pago.lb = moneda2.lb;
+          }
+          if (!moneda2.pago) {
+            quincenaOrdenada.moneda.estadisticas.id = moneda2.id;
+            quincenaOrdenada.moneda.estadisticas.dolar = moneda2.dolar;
+            quincenaOrdenada.moneda.estadisticas.euro = moneda2.euro;
+            quincenaOrdenada.moneda.estadisticas.lb = moneda2.lb;
+          }
+        }
+        for (let dias of q.dias) {
+          const dia = "";
+          for (let adult2 of dias.Adults) {
+          }
+          for (let sender of dias.Senders) {
+          }
+          for (let dirty2 of dias.Dirtys) {
+          }
+          for (let vx2 of dias.Vxs) {
+          }
+          for (let lives of dias.Lives) {
+          }
+        }
+      }
+      console.log("quincena", quincena2);
+      console.log(quincenaOrdenada);
+      return quincenaOrdenada;
     } catch (error) {
+      console.log(error);
       return {
         success: false,
-        message: "Error al obtener las quincenas",
+        message: "Error al obtener las quincena",
         error: error.message
       };
     }
@@ -50632,8 +50688,8 @@ function requireIpcMain() {
   ipcMain$1.handle("add-moneda", async (_, data) => {
     return await postMoneda(data);
   });
-  ipcMain$1.handle("get-all-quincena", async () => {
-    return await getAllsQuincenas();
+  ipcMain$1.handle("get-all-quincena", async (_, data) => {
+    return await getAllsQuincenas(data);
   });
   return ipcMain;
 }

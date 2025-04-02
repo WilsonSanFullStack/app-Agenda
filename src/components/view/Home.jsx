@@ -25,9 +25,9 @@ const getAllQuincena = async () => {
     console.log(error);
   }
 };
-const getAllData = async () => {
+const getAllData = async (data) => {
   try {
-    const res = await window.Electron.getAllData()
+    const res = await window.Electron.getAllData(data)
     console.log("getAllData", res)
     return res
   } catch (error) {
@@ -40,7 +40,7 @@ export const Home = () => {
   //traemos de la db las quincenas creadas para no mostrarlas
   const handleQuincena = async () => {
     const creadas = await getAllQuincena();
-    await getAllData()
+    await getAllData("8c5dbde2-0430-49c3-b8e0-395e0ab49adc")
     setQ(creadas);
   };
 
