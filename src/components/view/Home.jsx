@@ -27,25 +27,47 @@ const getAllQuincena = async () => {
 };
 const getAllData = async (data) => {
   try {
-    const res = await window.Electron.getAllData(data)
-    console.log("getAllData", res)
-    return res
+    const res = await window.Electron.getAllData(data);
+    console.log("getAllData", res);
+    return res;
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
-}
+};
 export const Home = () => {
-  const [days, setDays] = useState([]);
+  //estado para buscar la quincena actual y la quincena anterior
+  const [datos, setDatos] = useState({ q: "", qa: "" });
   const [q, setQ] = useState([]);
+  const months = [
+    "enero",
+    "febrero",
+    "marzo",
+    "abril",
+    "mayo",
+    "junio",
+    "julio",
+    "agosto",
+    "septiembre",
+    "octubre",
+    "noviembre",
+    "diciembre",
+  ];
+
+  const [fecha, setfecha] = useState({
+    day: new Date().getDate(),
+    month: months[new Date().getMonth()], // Enero es 0
+    year: new Date().getFullYear(),
+  });
+ 
+  
   //traemos de la db las quincenas creadas para no mostrarlas
   const handleQuincena = async () => {
     const creadas = await getAllQuincena();
-    await getAllData("8c5dbde2-0430-49c3-b8e0-395e0ab49adc")
+    await getAllData("8c5dbde2-0430-49c3-b8e0-395e0ab49adc");
     setQ(creadas);
   };
 
   useEffect(() => {
-
     handleQuincena();
     // 📌 Escuchar evento de Electron para actualizar quincenas
     window.Electron.onQuincenaActualizada(() => {
@@ -57,20 +79,42 @@ export const Home = () => {
       window.Electron.removeQuincenaActualizada();
     };
   }, []);
-  const handleDay = async () => {
-    const days = await getAllDay();
-    setDays(days);
-  };
   useEffect(() => {
-    handleDay();
-  }, []);
-  console.log("dias", days);
-  const [fecha, setfecha] = useState({
-    year: new Date().getFullYear(),
-    month: new Date().getMonth(),
-    day: new Date().getDate(),
-  });
+    if (q.length > 0) {
+      const today = new Date();
+      const day = today.getDate();
+      const monthIndex = today.getMonth();
+      const year = today.getFullYear();
+  
+      // Determinar quincena actual
+      const currentQuincena =
+        day <= 15
+          ? `${months[monthIndex]}-1-${year}` // Primera quincena
+          : `${months[monthIndex]}-2-${year}`; // Segunda quincena
+  
+      console.log("currentQuincena", currentQuincena);
+  
+      // Buscar quincena actual en la lista
+      const quincenaActual = q.find((quincena) => quincena.name === currentQuincena);
+  
+      // Determinar quincena anterior (solo si la actual es la segunda)
+      let quincenaAnterior = "";
+      if (currentQuincena.includes("-2-")) {
+        const previousQuincenaName = `${months[monthIndex]}-1-${year}`;
+        quincenaAnterior = q.find((quincena) => quincena.name === previousQuincenaName)?.name || "";
+      }
+  
+      console.log("quincenaActual", quincenaActual);
+      console.log("quincenaAnterior", quincenaAnterior);
+  
+      if (quincenaActual) {
+        setDatos({ ...datos, q: quincenaActual.name, qa: quincenaAnterior });
+      }
+    }
+  }, [q, fecha]);
 
+  console.log("q", q);
+  console.log("datos", datos);
   return (
     <div className="text-center">
       <h1 className="text-4xl uppercase text-center">agenda y estadisticas</h1>
@@ -79,39 +123,17 @@ export const Home = () => {
         sus manos una herramienta para facilitar las estadisticas webcam
       </p>
       <h2>
-        {fecha.day}/{fecha.month}/{fecha.year}
+        {fecha.day} de {fecha.month} del {fecha.year}
       </h2>
-      <section className="grid grid-cols-7 m-2 p-2">
-        {!days.error && days?.map((dia) => {
+      <div className="bg-slate-950 m-2 h-8 border-2 border-slate-700 rounded-lg flex justify-center items-center">
+        {q?.map((q) => {
           return (
-            <div key={dia.id} className="w-32 border m-2">
-              <h1>{dia.name}</h1>
-              <section className="">
-                <div className="grid grid-cols-2 border-b">
-                  <h1>sender</h1>
-                  <h1>100</h1>
-                </div>
-                <div className="grid grid-cols-2 border-b">
-                  <h1>adult</h1>
-                  <h1>200</h1>
-                </div>
-                <div className="grid grid-cols-2 border-b">
-                  <h1>dirty</h1>
-                  <h1>300</h1>
-                </div>
-                <div className="grid grid-cols-2 border-b">
-                  <h1>7live</h1>
-                  <h1>400</h1>
-                </div>
-                <div className="grid grid-cols-2 border-b">
-                  <h1>xv</h1>
-                  <h1>500</h1>
-                </div>
-              </section>
+            <div key={q.id} className={`${datos.q === q.name?"bg-emerald-800":"bg-amber-950"} mx-2 rounded-lg px-2`}>
+              {q.name}
             </div>
           );
         })}
-      </section>
+      </div>
     </div>
   );
 };

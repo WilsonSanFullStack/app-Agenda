@@ -50051,15 +50051,42 @@ function requireQuincena() {
   };
   const getAllQuincenas = async () => {
     try {
-      const respuesta = await (Quincena == null ? void 0 : Quincena.findAll());
-      const res = respuesta == null ? void 0 : respuesta.map((x) => x == null ? void 0 : x.dataValues);
+      const months2 = [
+        "enero",
+        "febrero",
+        "marzo",
+        "abril",
+        "mayo",
+        "junio",
+        "julio",
+        "agosto",
+        "septiembre",
+        "octubre",
+        "noviembre",
+        "diciembre"
+      ];
+      const today = /* @__PURE__ */ new Date();
+      const day2 = today.getDate();
+      const monthIndex = today.getMonth();
+      const year = today.getFullYear();
+      const currentQuincena = day2 <= 15 ? `${months2[monthIndex]}-1-${year}` : `${months2[monthIndex]}-2-${year}`;
+      const respuesta = await (Quincena == null ? void 0 : Quincena.findAll({
+        order: [["inicio", "ASC"]],
+        attributes: ["id", "name", "inicio", "fin"]
+      }));
+      const res = respuesta == null ? void 0 : respuesta.map((x) => x.get({ plain: true }));
       const sortedData = res == null ? void 0 : res.sort((a, b) => {
         var _a, _b, _c, _d, _e, _f;
         const dateA = (_c = (_b = (_a = a == null ? void 0 : a.inicio) == null ? void 0 : _a.split("/")) == null ? void 0 : _b.reverse()) == null ? void 0 : _c.join("-");
         const dateB = (_f = (_e = (_d = b == null ? void 0 : b.inicio) == null ? void 0 : _d.split("/")) == null ? void 0 : _e.reverse()) == null ? void 0 : _f.join("-");
         return new Date(dateA) - new Date(dateB);
       });
-      return sortedData;
+      const indexActual = sortedData.findIndex((q) => q.name === currentQuincena);
+      const filteredQuincenas = sortedData.slice(
+        Math.max(0, indexActual - 2),
+        indexActual + 3
+      );
+      return filteredQuincenas;
     } catch (error) {
       return {
         success: false,
@@ -50595,10 +50622,44 @@ function requireSerchAllQuincena() {
           }
         }
         for (let dias of q.dias) {
-          const dia = "";
+          const dia = {
+            adult: [],
+            sender: {
+              id: "",
+              coins: 0,
+              euros: 0,
+              qa: 0,
+              pesos: 0
+            },
+            dirty: {
+              id: "",
+              dolares: 0,
+              mostrar: null,
+              qa: 0
+            },
+            vx: {
+              id: "",
+              creditos: 0
+            },
+            live7: {
+              id: "",
+              creditos: 0
+            }
+          };
           for (let adult2 of dias.Adults) {
+            dia.adult.push({
+              id: adult2.id,
+              lb: adult2.lb,
+              corte: adult2.corte,
+              lbr: adult2.lb * quincenaOrdenada.adult,
+              moneda: adult2.paginaA.moneda
+            });
           }
           for (let sender of dias.Senders) {
+            dia.sender.id = sender.id;
+            dia.sender.coins = sender.coins;
+            dia.sender.qa = 0;
+            dia.sender.euros = sender.dia.sender.pesos = 0;
           }
           for (let dirty2 of dias.Dirtys) {
           }
@@ -50606,6 +50667,7 @@ function requireSerchAllQuincena() {
           }
           for (let lives of dias.Lives) {
           }
+          quincenaOrdenada.dias.push(dia);
         }
       }
       console.log("quincena", quincena2);

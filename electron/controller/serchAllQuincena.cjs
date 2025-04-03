@@ -163,7 +163,7 @@ const getAllsQuincenas = async (data) => {
       adult: 0.699947813268342,
     };
     for (let q of quincena) {
-      if (!q) continue
+      if (!q) continue;
       // formatiamos el id y name
       quincenaOrdenada.id = q.id;
       quincenaOrdenada.name = q.name;
@@ -184,15 +184,51 @@ const getAllsQuincenas = async (data) => {
       }
       //entrando a las propiedades de dias
       for (let dias of q.dias) {
-        const dia = {adult: [], sender: {id: ""}}
+        const dia = {
+          adult: [],
+          sender: {
+            id: "",
+            coins: 0,
+            euros: 0,
+            qa: 0,
+            pesos: 0
+          },
+          dirty: {
+            id: "",
+            dolares: 0,
+            mostrar: null,
+            qa: 0,
+          },
+          vx: {
+            id: "",
+            creditos: 0,
+          },
+          live7: {
+            id: "",
+            creditos: 0,
+          },
+        };
 
         //entrando a las propiedades de adult
         for (let adult of dias.Adults) {
           // console.log("adult", adult);
+          dia.adult.push({
+            id: adult.id,
+            lb: adult.lb,
+            corte: adult.corte,
+            lbr: adult.lb * quincenaOrdenada.adult,
+            moneda: adult.paginaA.moneda
+          });
         }
         //entrando a las propiedades de sender
         for (let sender of dias.Senders) {
           // console.log("sender", sender);
+          dia.sender.id = sender.id
+            dia.sender.coins= sender.coins
+            dia.sender.qa=0
+            dia.sender.euros = sender.
+            dia.sender.pesos= 0
+
         }
         //entrando a las propiedades de dirty
         for (let dirty of dias.Dirtys) {
@@ -206,6 +242,7 @@ const getAllsQuincenas = async (data) => {
         for (let lives of dias.Lives) {
           // console.log("lives", lives);
         }
+        quincenaOrdenada.dias.push(dia)
       }
     }
 
@@ -213,7 +250,7 @@ const getAllsQuincenas = async (data) => {
     console.log(quincenaOrdenada);
     return quincenaOrdenada;
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return {
       success: false,
       message: "Error al obtener las quincena",
