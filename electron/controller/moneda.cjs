@@ -22,4 +22,6 @@ const postMoneda = async ({ dolar, euro, lb, pago, quincena }) => {
   }
 };
 
+
+
 module.exports = { postMoneda };

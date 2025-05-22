@@ -8,7 +8,7 @@ const postVx = async ({ euros, page, day }) => {
     const newVx = await Vx.create({ creditos: euros });
     if (newVx) {
       await newVx.setDay(dayId);
-      await newVx.setPage(pageId);
+      await newVx.setPaginaV(pageId);
     }
     // 🔹 Enviar evento a React para actualizar la lista
     BrowserWindow.getAllWindows().forEach((win) => {

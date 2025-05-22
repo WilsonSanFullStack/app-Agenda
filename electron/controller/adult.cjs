@@ -8,7 +8,7 @@ const postAdult = async ({ page, day, lb, corte }) => {
     const newAdult = await Adult.create({ lb: lb, corte: corte });
     if (newAdult) {
       await newAdult.setDay(dayId);
-      await newAdult.setPage(pageId);
+      await newAdult.setPaginaA(pageId);
     }
     // 🔹 Enviar evento a React para actualizar la lista
     BrowserWindow.getAllWindows().forEach((win) => {

@@ -50249,8 +50249,8 @@ function requireSender() {
         coins
       });
       if (sender) {
+        await sender.setPaginaS(pageId);
         await sender.setDay(dayId);
-        await sender.setPage(pageId);
       }
       BrowserWindow.getAllWindows().forEach((win) => {
         win.webContents.send("senderaActualizado", sender);
@@ -50294,7 +50294,7 @@ function requireDirty() {
       const newDirty = await Dirty.create({ dolares, mostrar });
       if (newDirty) {
         await newDirty.setDay(dayId);
-        await newDirty.setPage(pageId);
+        await newDirty.setPaginaD(pageId);
       }
       BrowserWindow.getAllWindows().forEach((win) => {
         win.webContents.send("dirtyaActualizado", newDirty);
@@ -50325,7 +50325,7 @@ function requireAdult() {
       const newAdult = await Adult.create({ lb, corte });
       if (newAdult) {
         await newAdult.setDay(dayId);
-        await newAdult.setPage(pageId);
+        await newAdult.setPaginaA(pageId);
       }
       BrowserWindow.getAllWindows().forEach((win) => {
         win.webContents.send("adultActualizado", newAdult);
@@ -50356,7 +50356,7 @@ function requireVx() {
       const newVx = await Vx.create({ creditos: euros });
       if (newVx) {
         await newVx.setDay(dayId);
-        await newVx.setPage(pageId);
+        await newVx.setPaginaV(pageId);
       }
       BrowserWindow.getAllWindows().forEach((win) => {
         win.webContents.send("VxaActualizado", newVx);
@@ -50387,7 +50387,7 @@ function requireLive7() {
       const newLive7 = await Live7.create({ creditos });
       if (newLive7) {
         await newLive7.setDay(dayId);
-        await newLive7.setPage(pageId);
+        await newLive7.setPaginaL(pageId);
       }
       BrowserWindow.getAllWindows().forEach((win) => {
         win.webContents.send("live7aActualizado", newLive7);
@@ -50452,9 +50452,10 @@ function requireSerchAllQuincena() {
   } = requireDb();
   const { Op } = requireLib();
   const getAllsQuincenas = async (data) => {
+    console.log("data id quincena", data);
     try {
       const pages = await Quincena.findAll({
-        where: { id: data },
+        where: { id: data.q },
         attributes: ["name", "id"],
         include: [
           {
@@ -50607,21 +50608,20 @@ function requireSerchAllQuincena() {
         if (!q) continue;
         quincenaOrdenada.id = q.id;
         quincenaOrdenada.name = q.name;
-        for (let moneda2 of q.Monedas) {
-          if (moneda2 == null ? void 0 : moneda2.pago) {
-            quincenaOrdenada.moneda.pago.id = moneda2.id;
-            quincenaOrdenada.moneda.pago.dolar = moneda2.dolar;
-            quincenaOrdenada.moneda.pago.euro = moneda2.euro;
-            quincenaOrdenada.moneda.pago.lb = moneda2.lb;
-          }
-          if (!moneda2.pago) {
+        for (let moneda2 of q == null ? void 0 : q.Monedas) {
+          if (moneda2.pago) {
+            quincenaOrdenada.moneda.pago.id = moneda2 == null ? void 0 : moneda2.id;
+            quincenaOrdenada.moneda.pago.dolar = moneda2 == null ? void 0 : moneda2.dolar;
+            quincenaOrdenada.moneda.pago.euro = moneda2 == null ? void 0 : moneda2.euro;
+            quincenaOrdenada.moneda.pago.lb = moneda2 == null ? void 0 : moneda2.lb;
+          } else if (moneda2.pago === false) {
             quincenaOrdenada.moneda.estadisticas.id = moneda2.id;
             quincenaOrdenada.moneda.estadisticas.dolar = moneda2.dolar;
             quincenaOrdenada.moneda.estadisticas.euro = moneda2.euro;
             quincenaOrdenada.moneda.estadisticas.lb = moneda2.lb;
           }
         }
-        for (let dias of q.dias) {
+        for (let dias of q == null ? void 0 : q.dias) {
           const dia = {
             adult: [],
             sender: {
@@ -50646,7 +50646,7 @@ function requireSerchAllQuincena() {
               creditos: 0
             }
           };
-          for (let adult2 of dias.Adults) {
+          for (let adult2 of dias == null ? void 0 : dias.Adults) {
             dia.adult.push({
               id: adult2.id,
               lb: adult2.lb,
@@ -50655,17 +50655,18 @@ function requireSerchAllQuincena() {
               moneda: adult2.paginaA.moneda
             });
           }
-          for (let sender of dias.Senders) {
+          for (let sender of dias == null ? void 0 : dias.Senders) {
             dia.sender.id = sender.id;
             dia.sender.coins = sender.coins;
             dia.sender.qa = 0;
-            dia.sender.euros = sender.dia.sender.pesos = 0;
+            dia.sender.euros = sender.coins * sender.paginaS.valor;
+            dia.sender.pesos = 0;
           }
-          for (let dirty2 of dias.Dirtys) {
+          for (let dirty2 of dias == null ? void 0 : dias.Dirtys) {
           }
-          for (let vx2 of dias.Vxs) {
+          for (let vx2 of dias == null ? void 0 : dias.Vxs) {
           }
-          for (let lives of dias.Lives) {
+          for (let lives of dias == null ? void 0 : dias.Lives) {
           }
           quincenaOrdenada.dias.push(dia);
         }

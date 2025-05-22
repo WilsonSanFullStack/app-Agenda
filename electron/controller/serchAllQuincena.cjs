@@ -15,9 +15,10 @@ const { Op } = require("sequelize"); // Importar Op
 // const { BrowserWindow } = require("electron");
 
 const getAllsQuincenas = async (data) => {
+  console.log("data id quincena", data)
   try {
     const pages = await Quincena.findAll({
-      where: { id: data },
+      where: { id: data.q },
       attributes: ["name", "id"],
       include: [
         {
@@ -149,7 +150,11 @@ const getAllsQuincenas = async (data) => {
         },
       ],
     });
+    // console.log("pages = ",pages[0].dataValues.dias[0].dataValues.Senders[0])
     const quincena = pages?.map((x) => x.get({ plain: true }));
+    // console.log("quincena =",quincena[0])
+    // console.log("quincena.dias =", quincena[0].dias[0])
+    // console.log("quincena.moneda =",quincena[0].Monedas[0])
     const quincenaOrdenada = {
       id: "",
       name: "",
@@ -164,26 +169,37 @@ const getAllsQuincenas = async (data) => {
     };
     for (let q of quincena) {
       if (!q) continue;
+      // console.log("q =",q)
       // formatiamos el id y name
       quincenaOrdenada.id = q.id;
       quincenaOrdenada.name = q.name;
       //entrando a las propiedades de monedas
-      for (let moneda of q.Monedas) {
-        if (moneda?.pago) {
-          quincenaOrdenada.moneda.pago.id = moneda.id;
-          quincenaOrdenada.moneda.pago.dolar = moneda.dolar;
-          quincenaOrdenada.moneda.pago.euro = moneda.euro;
-          quincenaOrdenada.moneda.pago.lb = moneda.lb;
-        }
-        if (!moneda.pago) {
+      for (let moneda of q?.Monedas) {
+        // console.log("Modenda antes del if ",moneda)
+        if (moneda.pago) {
+          // console.log("first")
+          quincenaOrdenada.moneda.pago.id = moneda?.id;
+          quincenaOrdenada.moneda.pago.dolar = moneda?.dolar;
+          quincenaOrdenada.moneda.pago.euro = moneda?.euro;
+          quincenaOrdenada.moneda.pago.lb = moneda?.lb;
+        } else if (moneda.pago === false ) {
+          // console.log("secund =", moneda.id)
           quincenaOrdenada.moneda.estadisticas.id = moneda.id;
+          // console.log("quincenaOrdenada.moneda.estadisticas.id =", quincenaOrdenada.moneda.estadisticas.id)
+          // console.log("dolar = ", moneda.dolar)
           quincenaOrdenada.moneda.estadisticas.dolar = moneda.dolar;
+          // console.log("quincenaOrdenada.moneda.estadisticas.id =", quincenaOrdenada.moneda.estadisticas.dolar)
+          // console.log("moneda.euro ", moneda.euro)
           quincenaOrdenada.moneda.estadisticas.euro = moneda.euro;
+          // console.log("quincenaOrdenada.moneda.estadisticas.euro =", quincenaOrdenada.moneda.estadisticas.euro)
+          // console.log("moneda.lb = ", moneda.lb)
           quincenaOrdenada.moneda.estadisticas.lb = moneda.lb;
+          // console.log("quincenaOrdenada.moneda.estadisticas.lb = ", quincenaOrdenada.moneda.estadisticas.lb)
         }
       }
+      // console.log('fin del for moneda')
       //entrando a las propiedades de dias
-      for (let dias of q.dias) {
+      for (let dias of q?.dias) {
         const dia = {
           adult: [],
           sender: {
@@ -210,7 +226,7 @@ const getAllsQuincenas = async (data) => {
         };
 
         //entrando a las propiedades de adult
-        for (let adult of dias.Adults) {
+        for (let adult of dias?.Adults) {
           // console.log("adult", adult);
           dia.adult.push({
             id: adult.id,
@@ -221,25 +237,25 @@ const getAllsQuincenas = async (data) => {
           });
         }
         //entrando a las propiedades de sender
-        for (let sender of dias.Senders) {
+        for (let sender of dias?.Senders) {
           // console.log("sender", sender);
-          dia.sender.id = sender.id
-            dia.sender.coins= sender.coins
-            dia.sender.qa=0
-            dia.sender.euros = sender.
-            dia.sender.pesos= 0
+          dia.sender.id = sender.id;
+            dia.sender.coins= sender.coins;
+            dia.sender.qa=0;
+            dia.sender.euros = sender.coins * sender.paginaS.valor;
+            dia.sender.pesos= 0;
 
         }
         //entrando a las propiedades de dirty
-        for (let dirty of dias.Dirtys) {
+        for (let dirty of dias?.Dirtys) {
           // console.log("dirty", dirty);
         }
         // entrando a las propiedades de vx
-        for (let vx of dias.Vxs) {
+        for (let vx of dias?.Vxs) {
           // console.log("vx", vx);
         }
         // entrando a las propiedades de lives
-        for (let lives of dias.Lives) {
+        for (let lives of dias?.Lives) {
           // console.log("lives", lives);
         }
         quincenaOrdenada.dias.push(dia)

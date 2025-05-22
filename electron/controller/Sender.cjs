@@ -9,8 +9,8 @@ const sender = await Sender.create({
   coins: coins
 }) 
 if (sender) {
+  await sender.setPaginaS(pageId)
   await sender.setDay(dayId)
-  await sender.setPage(pageId)
 }
  // 🔹 Enviar evento a React para actualizar la lista
  BrowserWindow.getAllWindows().forEach((win) => {

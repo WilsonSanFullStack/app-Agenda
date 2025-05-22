@@ -8,7 +8,7 @@ const postLive7 = async ({ creditos, page, day }) => {
     const newLive7 = await Live7.create({ creditos: creditos });
     if (newLive7) {
       await newLive7.setDay(dayId);
-      await newLive7.setPage(pageId);
+      await newLive7.setPaginaL(pageId);
     }
     // 🔹 Enviar evento a React para actualizar la lista
     BrowserWindow.getAllWindows().forEach((win) => {

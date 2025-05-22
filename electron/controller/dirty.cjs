@@ -8,7 +8,7 @@ const postDirty = async ({ dolares, mostrar, page, day }) => {
     const newDirty = await Dirty.create({ dolares: dolares, mostrar: mostrar });
     if (newDirty) {
       await newDirty.setDay(dayId);
-      await newDirty.setPage(pageId);
+      await newDirty.setPaginaD(pageId);
     }
     // 🔹 Enviar evento a React para actualizar la lista
     BrowserWindow.getAllWindows().forEach((win) => {
