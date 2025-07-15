@@ -50461,7 +50461,6 @@ function requireSerchAllQuincena() {
           {
             model: Day,
             as: "dias",
-            order: [["createdAt", "DESC"]],
             include: [
               {
                 model: Sender,
@@ -50589,6 +50588,14 @@ function requireSerchAllQuincena() {
             limit: 2,
             attributes: ["id", "dolar", "euro", "lb", "pago"]
           }
+        ],
+        order: [
+          [
+            sequelize2.literal(
+              `CAST(substr(dias.name, 1, instr(dias.name, '-') - 1) AS INTEGER)`
+            ),
+            "ASC"
+          ]
         ]
       });
       const quincena2 = pages == null ? void 0 : pages.map((x) => x.get({ plain: true }));
@@ -50606,6 +50613,7 @@ function requireSerchAllQuincena() {
       };
       for (let q of quincena2) {
         if (!q) continue;
+        console.log("q =", q);
         quincenaOrdenada.id = q.id;
         quincenaOrdenada.name = q.name;
         for (let moneda2 of q == null ? void 0 : q.Monedas) {
@@ -50622,14 +50630,16 @@ function requireSerchAllQuincena() {
           }
         }
         for (let dias of q == null ? void 0 : q.dias) {
+          console.log("dias sin formatear", dias);
           const dia = {
+            name: dias.name,
             adult: [],
             sender: {
               id: "",
               coins: 0,
               euros: 0,
-              qa: 0,
-              pesos: 0
+              pesos: 0,
+              qa: 0
             },
             dirty: {
               id: "",
@@ -50656,6 +50666,7 @@ function requireSerchAllQuincena() {
             });
           }
           for (let sender of dias == null ? void 0 : dias.Senders) {
+            console.log("sender", sender);
             dia.sender.id = sender.id;
             dia.sender.coins = sender.coins;
             dia.sender.qa = 0;
@@ -50671,8 +50682,7 @@ function requireSerchAllQuincena() {
           quincenaOrdenada.dias.push(dia);
         }
       }
-      console.log("quincena", quincena2);
-      console.log(quincenaOrdenada);
+      console.log("quincena ordenada", quincenaOrdenada);
       return quincenaOrdenada;
     } catch (error) {
       console.log(error);

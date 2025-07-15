@@ -67,6 +67,7 @@ export const Home = () => {
     setQ(creadas);
   };
 
+  // useEffect para obtener los dias y quincenas al cargar el componente
   useEffect(() => {
     handleQuincena();
     // 📌 Escuchar evento de Electron para actualizar quincenas
@@ -79,6 +80,8 @@ export const Home = () => {
       window.Electron.removeQuincenaActualizada();
     };
   }, []);
+
+  // useEffect para obtener los dias y quincenas al cargar el componente
   useEffect(() => {
     if (q.length > 0) {
       const today = new Date();
@@ -126,7 +129,7 @@ export const Home = () => {
   // useEffect(() => {
   //   handleData(datos.q);
   // }, [datos]);
-  console.log(data);
+  console.log("data", data);
   return (
     <div className="text-center">
       <h1 className="text-4xl uppercase text-center">agenda y estadisticas</h1>
@@ -152,11 +155,71 @@ export const Home = () => {
           );
         })}
       </div>
-      {/* <section>
-        {data?.map((x) => {
-          return <div>{x.name}</div>;
-        })}
-      </section> */}
+      <section>
+        <h1>{data?.name}</h1>
+
+        <div className="grid grid-cols-2 gap-4">
+          {data?.dias?.length > 0 ? (
+            [...data.dias]
+              .sort((a, b) => {
+                const numA = parseInt(a?.name?.split("-")[0]);
+                const numB = parseInt(b?.name?.split("-")[0]);
+                return numA - numB;
+              })
+              .map((dia, index, arr) => {
+                const numDia = parseInt(dia?.name?.split("-")[0]);
+
+                // Si es el primer día de quincena, no hay comparación
+                const esDiaInicial = numDia === 1 || numDia === 16;
+
+                // Buscar el día anterior más cercano
+                let diaAnterior = null;
+                if (!esDiaInicial) {
+                  // Filtrar días que sean anteriores (por número)
+                  const anteriores = arr
+                    .filter((d) => parseInt(d?.name?.split("-")[0]) < numDia)
+                    .sort(
+                      (a, b) =>
+                        parseInt(b?.name?.split("-")[0]) -
+                        parseInt(a?.name?.split("-")[0])
+                    ); // mayor a menor
+
+                  diaAnterior = anteriores[0] || null;
+                }
+
+                const coinsActual = dia?.sender?.coins ?? 0;
+                const eurosActual = dia?.sender?.euros ?? 0;
+
+                const coinsAnterior = diaAnterior?.sender?.coins ?? null;
+                const eurosAnterior = diaAnterior?.sender?.euros ?? null;
+
+                const coinsDiff =
+                  coinsAnterior !== null ? coinsActual - coinsAnterior : null;
+                const eurosDiff =
+                  eurosAnterior !== null ? eurosActual - eurosAnterior : null;
+
+                return (
+                  <div key={dia?.name} className="p-4 border rounded shadow">
+                    <h1 className="font-bold text-lg">{dia?.name}</h1>
+                    <section className="mt-2">
+                      <h2 className="text-sm text-gray-600">Sender</h2>
+                      <div>Coins Total: {coinsActual}</div>
+                      <div>Euros Total: {eurosActual}</div>
+                      {coinsDiff !== null ? (
+                        <div>Coins Día: {coinsDiff}</div>
+                      ) : null}
+                      {eurosDiff !== null ? (
+                        <div>Euros Día: {eurosDiff}</div>
+                      ) : null}
+                    </section>
+                  </div>
+                );
+              })
+          ) : (
+            <div>No hay datos</div>
+          )}
+        </div>
+      </section>
     </div>
   );
 };
