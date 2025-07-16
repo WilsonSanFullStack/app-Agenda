@@ -60,7 +60,7 @@ export const Home = () => {
     year: new Date().getFullYear(),
   });
 
-  //traemos de la db las quincenas creadas para no mostrarlas
+  //traemos de la db las quincenas creadas para mostrarlas
   const handleQuincena = async () => {
     const creadas = await getAllQuincena();
     // await getAllData();
@@ -122,13 +122,22 @@ export const Home = () => {
 
   console.log("q", q);
   console.log("datos", datos);
+  const handleClick = async (id) => {
+    console.log("id", id);
+    setDatos({ ...datos, q: id });
+    if (datos.q === id) {
+      const getData = await getAllData(datos);
+      setData(getData);
+      setDatos({ ...datos, q: "" });
+    }
+  };
   const handleData = async () => {
     const getData = await getAllData(datos);
     setData(getData);
   };
-  // useEffect(() => {
-  //   handleData(datos.q);
-  // }, [datos]);
+  useEffect(() => {
+    handleData(datos.q);
+  }, [datos]);
   console.log("data", data);
   return (
     <div className="text-center">
@@ -148,7 +157,7 @@ export const Home = () => {
               className={`${
                 datos.q === q.name ? "bg-emerald-800" : "bg-amber-950"
               } mx-2 rounded-lg px-2 cursor-pointer`}
-              onClick={() => handleData()}
+              onClick={() => handleClick(q.id)}
             >
               {q.name}
             </div>
