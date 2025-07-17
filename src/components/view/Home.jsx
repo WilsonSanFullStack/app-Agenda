@@ -167,7 +167,7 @@ export const Home = () => {
       <section>
         <h1>{data?.name}</h1>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-5 gap-1">
           {data?.dias?.length > 0 ? (
             [...data.dias]
               .sort((a, b) => {
@@ -203,24 +203,121 @@ export const Home = () => {
                 const eurosAnterior = diaAnterior?.sender?.euros ?? null;
 
                 const coinsDiff =
-                  coinsAnterior !== null ? coinsActual - coinsAnterior : null;
+                  coinsAnterior !== null && 0
+                    ? coinsActual - coinsAnterior
+                    : null;
                 const eurosDiff =
-                  eurosAnterior !== null ? eurosActual - eurosAnterior : null;
+                  eurosAnterior !== null && 0
+                    ? eurosActual - eurosAnterior
+                    : null;
 
                 return (
-                  <div key={dia?.name} className="p-4 border rounded shadow">
+                  <div key={dia?.name} className=" p-2 border rounded shadow">
                     <h1 className="font-bold text-lg">{dia?.name}</h1>
-                    <section className="mt-2">
-                      <h2 className="text-sm text-gray-600">Sender</h2>
-                      <div>Coins Total: {coinsActual}</div>
-                      <div>Euros Total: {eurosActual}</div>
-                      {coinsDiff !== null ? (
-                        <div>Coins Día: {coinsDiff}</div>
+                    <div className="grid grid-cols-2 gap-1">
+                      {/* adult work */}
+                      <section>
+                        <h2 className="text-sm text-gray-600">Adult Work</h2>
+
+                        <div>
+                          {dia.adult.map((x) => {
+                            return (
+                              <div key={x.id}>
+                                <h2>{x.corte ? "Corte" : "No Corte"}</h2>
+                                <h2>
+                                  {Intl.NumberFormat("en-GB", {
+                                    style: "currency",
+                                    currency: "GBP",
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2,
+                                  }).format(parseFloat(x.lbr))}
+                                </h2>
+                                <div>falta colocar los pesos</div>
+                              </div>
+                            );
+                          })}{" "}
+                        </div>
+                      </section>
+                      {/* sender */}
+                      <section className="mt-2">
+                        <h2 className="text-sm text-gray-600">Sender</h2>
+                        <div>
+                          Coins Total:{" "}
+                          {Intl.NumberFormat("es-IN", {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0,
+                          }).format(coinsActual)}
+                        </div>
+                        <div>
+                          Euros Total:{" "}
+                          {Intl.NumberFormat("es-EU", {
+                            style: "currency",
+                            currency: "EUR",
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          }).format(eurosActual)}
+                        </div>
+                        {coinsDiff !== null ? (
+                          <div>
+                            Coins Día:{" "}
+                            {Intl.NumberFormat("es-IN", {
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 0,
+                            }).format(coinsDiff)}
+                          </div>
+                        ) : null}
+                        {eurosDiff !== null ? (
+                          <div>
+                            Euros Día:{" "}
+                            {Intl.NumberFormat("es-EU", {
+                              style: "currency",
+                              currency: "EUR",
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            }).format(eurosDiff)}
+                          </div>
+                        ) : null}
+                      </section>
+                      {/* dirty */}
+                      {dia.dirty.mostrar ? (
+                        <section>
+                          <div>{console.log(dia.dirty)} </div>
+                          <h2 className="text-sm text-gray-600">Dirty</h2>
+                          <h2>
+                            {Intl.NumberFormat("en-US", {
+                              style: "currency",
+                              currency: "USD",
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            }).format(dia.dirty.dolares)}
+                          </h2>
+                        </section>
                       ) : null}
-                      {eurosDiff !== null ? (
-                        <div>Euros Día: {eurosDiff}</div>
-                      ) : null}
-                    </section>
+                      {/* vx */}
+                      <section>
+                        <h2 className="text-sm text-gray-600">VX</h2>
+                        <h2>
+                          {Intl.NumberFormat("es-EU", {
+                              style: "currency",
+                              currency: "EUR",
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            }).format(dia.vx.creditos)}
+                        </h2>
+                      </section>
+                      {/* live7 */}
+                      <section>
+                        <h2 className="text-sm text-gray-600">7 live</h2>
+                        <h2>
+                          {Intl.NumberFormat("es-EU", {
+                              style: "currency",
+                              currency: "EUR",
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            }).format(dia.live7.creditos)}
+                        </h2>
+                      </section>
+                    </div>
                   </div>
                 );
               })

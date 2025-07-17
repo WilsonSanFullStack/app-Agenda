@@ -274,7 +274,7 @@ export const Creditos = () => {
             id="coins"
             onWheel={(e) => e.target.blur()}
             type="number"
-            value={coins??""}
+            value={coins ?? ""}
             onChange={handleCoins}
             className="bg-slate-950 no-spin"
             onKeyDown={(e) => {
@@ -316,7 +316,7 @@ export const Creditos = () => {
             <input
               id="adultwork"
               onWheel={(e) => e.target.blur()}
-              value={adult.lb??""}
+              value={adult.lb ?? ""}
               onChange={handleAdultLb}
               type="number"
               className="bg-slate-950 no-spin"
@@ -376,7 +376,7 @@ export const Creditos = () => {
           <input
             id="dirty"
             onWheel={(e) => e.target.blur()}
-            value={dirty.dolar??""}
+            value={dirty.dolar ?? ""}
             onChange={handleDirty}
             type="number"
             className="bg-slate-950 no-spin decoration-0"
@@ -418,7 +418,7 @@ export const Creditos = () => {
           <input
             id="vx"
             onWheel={(e) => e.target.blur()}
-            value={vx??""}
+            value={vx ?? ""}
             onChange={handleVx}
             type="number"
             className="bg-slate-950 no-spin"
@@ -460,7 +460,7 @@ export const Creditos = () => {
           <input
             id="7live"
             onWheel={(e) => e.target.blur()}
-            value={live7??""}
+            value={live7 ?? ""}
             onChange={handleLive7}
             type="number"
             className="bg-slate-950 no-spin"
@@ -517,13 +517,15 @@ export const Creditos = () => {
           <option value="" hidden>
             Seleccione un dia
           </option>
-          {d?.dias?.map((d) => {
-            return (
-              <option key={d.id} value={d.name}>
-                {d.name}
-              </option>
-            );
-          })}
+          {d?.dias
+            ?.sort((a, b) => parseInt(a.name) - parseInt(b.name))
+            .map((d) => {
+              return (
+                <option key={d.id} value={d.name}>
+                  {d.name}
+                </option>
+              );
+            })}
         </select>
       </section>
 

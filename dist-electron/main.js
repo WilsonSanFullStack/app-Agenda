@@ -50613,7 +50613,6 @@ function requireSerchAllQuincena() {
       };
       for (let q of quincena2) {
         if (!q) continue;
-        console.log("q =", q);
         quincenaOrdenada.id = q.id;
         quincenaOrdenada.name = q.name;
         for (let moneda2 of q == null ? void 0 : q.Monedas) {
@@ -50630,7 +50629,6 @@ function requireSerchAllQuincena() {
           }
         }
         for (let dias of q == null ? void 0 : q.dias) {
-          console.log("dias sin formatear", dias);
           const dia = {
             name: dias.name,
             adult: [],
@@ -50666,7 +50664,6 @@ function requireSerchAllQuincena() {
             });
           }
           for (let sender of dias == null ? void 0 : dias.Senders) {
-            console.log("sender", sender);
             dia.sender.id = sender.id;
             dia.sender.coins = sender.coins;
             dia.sender.qa = 0;
@@ -50674,15 +50671,23 @@ function requireSerchAllQuincena() {
             dia.sender.pesos = 0;
           }
           for (let dirty2 of dias == null ? void 0 : dias.Dirtys) {
+            dia.dirty.id = dirty2.id;
+            dia.dirty.dolares = dirty2.dolares;
+            dia.dirty.mostrar = dirty2.mostrar;
+            dia.dirty.qa = 0;
           }
           for (let vx2 of dias == null ? void 0 : dias.Vxs) {
+            dia.vx.id = vx2.id;
+            dia.vx.creditos = vx2.creditos;
           }
           for (let lives of dias == null ? void 0 : dias.Lives) {
+            console.log("lives", lives);
+            dia.live7.id = lives.id;
+            dia.live7.creditos = lives.creditos;
           }
           quincenaOrdenada.dias.push(dia);
         }
       }
-      console.log("quincena ordenada", quincenaOrdenada);
       return quincenaOrdenada;
     } catch (error) {
       console.log(error);

@@ -30,6 +30,22 @@ module.exports = (sequelize) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
+      dolar : {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      euro : {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      lb : {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      daysWorked : {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
     },
     {
       paranoid: true,

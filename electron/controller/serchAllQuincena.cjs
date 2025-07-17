@@ -176,7 +176,7 @@ const getAllsQuincenas = async (data) => {
     };
     for (let q of quincena) {
       if (!q) continue;
-      console.log("q =", q);
+      // console.log("q =", q);
       // formatiamos el id y name
       quincenaOrdenada.id = q.id;
       quincenaOrdenada.name = q.name;
@@ -196,7 +196,7 @@ const getAllsQuincenas = async (data) => {
       }
       //entrando a las propiedades de dias
       for (let dias of q?.dias) {
-        console.log("dias sin formatear", dias);
+        // console.log("dias sin formatear", dias);
         const dia = {
           name: dias.name,
           adult: [],
@@ -236,7 +236,7 @@ const getAllsQuincenas = async (data) => {
         }
         //entrando a las propiedades de sender
         for (let sender of dias?.Senders) {
-          console.log("sender", sender);
+          // console.log("sender", sender);
           dia.sender.id = sender.id;
           dia.sender.coins = sender.coins;
           dia.sender.qa = 0;
@@ -246,21 +246,29 @@ const getAllsQuincenas = async (data) => {
         //entrando a las propiedades de dirty
         for (let dirty of dias?.Dirtys) {
           // console.log("dirty", dirty);
+          dia.dirty.id = dirty.id;
+          dia.dirty.dolares = dirty.dolares;
+          dia.dirty.mostrar = dirty.mostrar;
+          dia.dirty.qa = 0;
         }
         // entrando a las propiedades de vx
         for (let vx of dias?.Vxs) {
           // console.log("vx", vx);
+          dia.vx.id = vx.id;
+          dia.vx.creditos = vx.creditos;
         }
         // entrando a las propiedades de lives
         for (let lives of dias?.Lives) {
-          // console.log("lives", lives);
+          console.log("lives", lives);
+          dia.live7.id = lives.id;
+          dia.live7.creditos = lives.creditos;
         }
         quincenaOrdenada.dias.push(dia);
       }
     }
 
     // console.log("quincena", quincena);
-    console.log("quincena ordenada", quincenaOrdenada);
+    // console.log("quincena ordenada", quincenaOrdenada);
     return quincenaOrdenada;
   } catch (error) {
     console.log(error);
