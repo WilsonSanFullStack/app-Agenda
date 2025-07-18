@@ -202,41 +202,116 @@ const getAllsQuincenas = async (data) => {
           adult: [],
           sender: {
             id: "",
-            coins: 0,
-            euros: 0,
-            pesos: 0,
+            totalCoins: 0,
+            totalEuros: 0,
+            coinsDias: 0,
+            eurosDias: 0,
+            pesosDias: 0,
+            totalPesos: 0,
             qa: 0,
           },
           dirty: {
             id: "",
             dolares: 0,
             mostrar: null,
+            pesos: 0,
             qa: 0,
           },
           vx: {
             id: "",
             creditos: 0,
+            pesos: 0,
+            qa: 0,
           },
           live7: {
             id: "",
             creditos: 0,
+            pesos: 0,
+            qa: 0,
           },
         };
 
         //entrando a las propiedades de adult
         for (let adult of dias?.Adults) {
           // console.log("adult", adult);
+          //quitamos a las libras el porcentaje de la pagina
+          const corte = adult.lb * quincenaOrdenada.adult;
+          // libras por el porcentaje del studio
+          // luego miramos si hay moneda de pago
+          // si no hay moneda de pago, usamos la estadistica
+          const AdultPesos =
+            corte *
+              quincenaOrdenada.porcentaje *
+              quincenaOrdenada.moneda.pago.lb !==
+            0
+              ? quincenaOrdenada.moneda.pago.lb - quincenaOrdenada.aranceles.lb
+              : quincenaOrdenada.moneda.estadisticas.lb;
+          //
           dia.adult.push({
             id: adult.id,
             lb: adult.lb,
             corte: adult.corte,
-            lbr: adult.lb * quincenaOrdenada.adult,
-            moneda: adult.paginaA.moneda,
+            lbr: corte,
+            pesos: AdultPesos,
           });
         }
         //entrando a las propiedades de sender
         for (let sender of dias?.Senders) {
-          // console.log("sender", sender);
+          console.log("sender", sender);
+          console.log(dias.name?.split("-")[0]);
+          const diaPrimero = 1;
+          const dia16 = 16;
+          const curren = dias.name?.split("-")[0];
+          if (diaPrimero === curren) {
+            dia.sender.id = sender.id;
+            dia.sender.totalCoins = sender.coins;
+            const euros = sender.coins * sender.paginaS.valor;
+            dia.sender.totalEuros = euros;
+            const eurosPorcentaje = euros * quincenaOrdenada.porcentaje;
+            const pesos =
+              eurosPorcentaje * quincenaOrdenada.moneda.pago.euro !== 0
+                ? quincenaOrdenada.moneda.pago.euro -
+                  quincenaOrdenada.aranceles.euro
+                : quincenaOrdenada.moneda.estadisticas.euro;
+            dia.sender.totalPesos = pesos;
+          } else if (dia16 === curren) {
+            dia.sender.id = sender.id;
+            const coins = sender.coins - dia.qa;
+            dia.sender.totalCoins = coins;
+            const euros = coins * sender.paginaS.valor;
+            dia.sender.totalEuros = euros;
+            const eurosPorcentaje = euros * quincenaOrdenada.porcentaje;
+            const pesos =
+              eurosPorcentaje * quincenaOrdenada.moneda.pago.euro !== 0
+                ? quincenaOrdenada.moneda.pago.euro -
+                  quincenaOrdenada.aranceles.euro
+                : quincenaOrdenada.moneda.estadisticas.euro;
+            dia.sender.totalPesos = pesos;
+          } else if (curren > diaPrimero && curren < dia16) {
+            // const diaAnterior = 
+            console.log(q?.dias.map((x) => {
+              console.log("index", x);
+              console.log("curren", curren);
+              const nameDia = x.name?.split("-")[0];
+              console.log("nameDia",nameDia);
+              const diaAnterior = curren > nameDia ;
+              console.log("diaAnterior",diaAnterior);
+              return diaAnterior;
+            }));
+            console.log("diaAnterior", diaAnterior);
+            const coins = sender.coins - dias?.filter((dia) => dia.name?.split("-")[0] === curren-1);
+            dia.sender.coins = coins;
+            const euros = coins * sender.paginaS.valor;
+            dia.sender.euros = euros;
+            const eurosPorcentaje = euros * quincenaOrdenada.porcentaje;
+            const pesos =
+              eurosPorcentaje * quincenaOrdenada.moneda.pago.euro !== 0
+                ? quincenaOrdenada.moneda.pago.euro -
+                  quincenaOrdenada.aranceles.euro
+                : quincenaOrdenada.moneda.estadisticas.euro;
+            dia.sender.pesos = pesos;
+            
+          }
           dia.sender.id = sender.id;
           dia.sender.coins = sender.coins;
           dia.sender.qa = 0;
@@ -259,7 +334,7 @@ const getAllsQuincenas = async (data) => {
         }
         // entrando a las propiedades de lives
         for (let lives of dias?.Lives) {
-          console.log("lives", lives);
+          // console.log("lives", lives);
           dia.live7.id = lives.id;
           dia.live7.creditos = lives.creditos;
         }

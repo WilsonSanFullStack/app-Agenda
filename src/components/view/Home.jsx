@@ -232,6 +232,9 @@ export const Home = () => {
                                     maximumFractionDigits: 2,
                                   }).format(parseFloat(x.lbr))}
                                 </h2>
+                                <h2>
+                                  {}
+                                </h2>
                                 <div>falta colocar los pesos</div>
                               </div>
                             );
