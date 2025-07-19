@@ -261,62 +261,128 @@ const getAllsQuincenas = async (data) => {
           console.log(dias.name?.split("-")[0]);
           const diaPrimero = 1;
           const dia16 = 16;
-          const curren = dias.name?.split("-")[0];
+          const curren = parseInt(dias.name?.split("-")[0]);
           if (diaPrimero === curren) {
             dia.sender.id = sender.id;
             dia.sender.totalCoins = sender.coins;
             const euros = sender.coins * sender.paginaS.valor;
             dia.sender.totalEuros = euros;
             const eurosPorcentaje = euros * quincenaOrdenada.porcentaje;
-            const pesos =
-              eurosPorcentaje * quincenaOrdenada.moneda.pago.euro !== 0
+            const valorEuro =quincenaOrdenada.moneda.pago.euro !== 0
                 ? quincenaOrdenada.moneda.pago.euro -
                   quincenaOrdenada.aranceles.euro
                 : quincenaOrdenada.moneda.estadisticas.euro;
-            dia.sender.totalPesos = pesos;
+                const totalPesos = eurosPorcentaje * valorEuro;
+            dia.sender.totalPesos = totalPesos;
           } else if (dia16 === curren) {
+            //agregamos el id del dia actual al dia
             dia.sender.id = sender.id;
-            const coins = sender.coins - dia.qa;
+            //calculamos los coins del dia descontando los coins de quincena  anterior
+            const coins = dia.qa ?sender.coins - dia?.qa: sender.coins;
+            // console.log("coins", coins);
+            // agregamos al dia el total de coins
             dia.sender.totalCoins = coins;
+            //calculamos los euros del dia
             const euros = coins * sender.paginaS.valor;
+            //agregamos los euros al total
             dia.sender.totalEuros = euros;
+            //calculamos los euros por el porcentaje de la quincena
             const eurosPorcentaje = euros * quincenaOrdenada.porcentaje;
-            const pesos =
-              eurosPorcentaje * quincenaOrdenada.moneda.pago.euro !== 0
+            const valorEuro = quincenaOrdenada.moneda.pago.euro !== 0
                 ? quincenaOrdenada.moneda.pago.euro -
                   quincenaOrdenada.aranceles.euro
                 : quincenaOrdenada.moneda.estadisticas.euro;
+            //calculamos los pesos del dia
+            const pesos = eurosPorcentaje * valorEuro;
+            //agregamos los pesos al total
             dia.sender.totalPesos = pesos;
           } else if (curren > diaPrimero && curren < dia16) {
-            // const diaAnterior = 
-            console.log(q?.dias.map((x) => {
-              console.log("index", x);
-              console.log("curren", curren);
-              const nameDia = x.name?.split("-")[0];
-              console.log("nameDia",nameDia);
-              const diaAnterior = curren > nameDia ;
-              console.log("diaAnterior",diaAnterior);
-              return diaAnterior;
-            }));
-            console.log("diaAnterior", diaAnterior);
-            const coins = sender.coins - dias?.filter((dia) => dia.name?.split("-")[0] === curren-1);
-            dia.sender.coins = coins;
-            const euros = coins * sender.paginaS.valor;
-            dia.sender.euros = euros;
+            //filtramos los dias anteriores
+            //y ordenamos de mayor a menor
+            const diaAnterior = q?.dias
+              ?.filter((x) => parseInt(x.name?.split("-")[0]) < curren)
+              .sort(
+                (a, b) =>
+                  parseInt(b.name?.split("-")[0]) -
+                  parseInt(a.name?.split("-")[0])
+              );
+            // tomamos el ultimo dia anterior y restamos los coins
+            const coins = sender.coins - diaAnterior[0]?.Senders[0]?.coins;
+            // agregamos al dia el total de coins y los coins del dia
+            dia.sender.totalCoins = sender.coins;
+            dia.sender.coinsDias = coins;
+            // calculamos los euros del dia y el total de euros
+            const eurosDia = coins * sender.paginaS.valor;
+            const euros = sender.coins * sender.paginaS.valor;
+            // agregamos los euros al dia y al total
+            dia.sender.totalEuros = euros;
+            dia.sender.eurosDias = eurosDia;
+            //calculamos los euros por el porcentaje de la quincena
+            const eurosPorcentajeDia = eurosDia * quincenaOrdenada.porcentaje;
             const eurosPorcentaje = euros * quincenaOrdenada.porcentaje;
-            const pesos =
-              eurosPorcentaje * quincenaOrdenada.moneda.pago.euro !== 0
+            //calculamos el valor del euro
+            // si hay moneda de pago, usamos el valor de pago de lo contrario usamos el de estadisticas
+            // y restamos los aranceles
+            const valorEuro =
+              quincenaOrdenada.moneda.pago.euro !== 0
                 ? quincenaOrdenada.moneda.pago.euro -
                   quincenaOrdenada.aranceles.euro
                 : quincenaOrdenada.moneda.estadisticas.euro;
-            dia.sender.pesos = pesos;
-            
+                //ca;lculamos los pesos del dia y el total
+            const pesosDias = eurosPorcentajeDia * valorEuro;
+            const totalPesos = eurosPorcentaje * valorEuro;
+            // agregamos los pesos al dia y al total
+            dia.sender.totalPesos = totalPesos;
+            dia.sender.pesosDias = pesosDias;
+            // agregamos el id del diaactual al dia
+            dia.sender.id = sender.id;
+          } else if (curren > dia16) {
+            //filtramos los dias anteriores
+            //y ordenamos de mayor a menor
+            const diaAnterior = q?.dias
+              ?.filter((x) => parseInt(x.name?.split("-")[0]) < curren)
+              .sort(
+                (a, b) =>
+                  parseInt(b.name?.split("-")[0]) -
+                  parseInt(a.name?.split("-")[0])
+              );
+              console.log("dia anterior", diaAnterior);
+            // tomamos el ultimo dia anterior y restamos los coins
+            const coins = sender.coins - diaAnterior[0]?.Senders[0]?.coins;
+            // agregamos al dia el total de coins y los coins del dia
+            dia.sender.totalCoins = sender.coins;
+            dia.sender.coinsDias = coins;
+            // calculamos los euros del dia y el total de euros
+            const eurosDia = coins * sender.paginaS.valor;
+            const euros = sender.coins * sender.paginaS.valor;
+            // agregamos los euros al dia y al total
+            dia.sender.totalEuros = euros;
+            dia.sender.eurosDias = eurosDia;
+            //calculamos los euros por el porcentaje de la quincena
+            const eurosPorcentajeDia = eurosDia * quincenaOrdenada.porcentaje;
+            const eurosPorcentaje = euros * quincenaOrdenada.porcentaje;
+            //calculamos el valor del euro
+            // si hay moneda de pago, usamos el valor de pago de lo contrario usamos el de estadisticas
+            // y restamos los aranceles
+            const valorEuro =
+              quincenaOrdenada.moneda.pago.euro !== 0
+                ? quincenaOrdenada.moneda.pago.euro -
+                  quincenaOrdenada.aranceles.euro
+                : quincenaOrdenada.moneda.estadisticas.euro;
+                //ca;lculamos los pesos del dia y el total
+            const pesosDias = eurosPorcentajeDia * valorEuro;
+            const totalPesos = eurosPorcentaje * valorEuro;
+            // agregamos los pesos al dia y al total
+            dia.sender.totalPesos = totalPesos;
+            dia.sender.pesosDias = pesosDias;
+            // agregamos el id del diaactual al dia
+            dia.sender.id = sender.id;
           }
-          dia.sender.id = sender.id;
-          dia.sender.coins = sender.coins;
-          dia.sender.qa = 0;
-          dia.sender.euros = sender.coins * sender.paginaS.valor;
-          dia.sender.pesos = 0;
+          // dia.sender.id = sender.id;
+          // dia.sender.coins = sender.coins;
+          // dia.sender.qa = 0;
+          // dia.sender.euros = sender.coins * sender.paginaS.valor;
+          // dia.sender.pesos = 0;
         }
         //entrando a las propiedades de dirty
         for (let dirty of dias?.Dirtys) {

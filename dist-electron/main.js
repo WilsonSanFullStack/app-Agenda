@@ -50452,7 +50452,7 @@ function requireSerchAllQuincena() {
   } = requireDb();
   const { Op } = requireLib();
   const getAllsQuincenas = async (data) => {
-    var _a, _b;
+    var _a, _b, _c, _d, _e, _f, _g, _h;
     console.log("data id quincena", data);
     try {
       const pages = await Quincena.findAll({
@@ -50679,52 +50679,78 @@ function requireSerchAllQuincena() {
             console.log((_a = dias.name) == null ? void 0 : _a.split("-")[0]);
             const diaPrimero = 1;
             const dia16 = 16;
-            const curren = (_b = dias.name) == null ? void 0 : _b.split("-")[0];
+            const curren = parseInt((_b = dias.name) == null ? void 0 : _b.split("-")[0]);
             if (diaPrimero === curren) {
               dia.sender.id = sender.id;
               dia.sender.totalCoins = sender.coins;
               const euros = sender.coins * sender.paginaS.valor;
               dia.sender.totalEuros = euros;
               const eurosPorcentaje = euros * quincenaOrdenada.porcentaje;
-              const pesos = eurosPorcentaje * quincenaOrdenada.moneda.pago.euro !== 0 ? quincenaOrdenada.moneda.pago.euro - quincenaOrdenada.aranceles.euro : quincenaOrdenada.moneda.estadisticas.euro;
-              dia.sender.totalPesos = pesos;
+              const valorEuro = quincenaOrdenada.moneda.pago.euro !== 0 ? quincenaOrdenada.moneda.pago.euro - quincenaOrdenada.aranceles.euro : quincenaOrdenada.moneda.estadisticas.euro;
+              const totalPesos = eurosPorcentaje * valorEuro;
+              dia.sender.totalPesos = totalPesos;
             } else if (dia16 === curren) {
               dia.sender.id = sender.id;
-              const coins = sender.coins - dia.qa;
+              const coins = dia.qa ? sender.coins - (dia == null ? void 0 : dia.qa) : sender.coins;
               dia.sender.totalCoins = coins;
               const euros = coins * sender.paginaS.valor;
               dia.sender.totalEuros = euros;
               const eurosPorcentaje = euros * quincenaOrdenada.porcentaje;
-              const pesos = eurosPorcentaje * quincenaOrdenada.moneda.pago.euro !== 0 ? quincenaOrdenada.moneda.pago.euro - quincenaOrdenada.aranceles.euro : quincenaOrdenada.moneda.estadisticas.euro;
+              const valorEuro = quincenaOrdenada.moneda.pago.euro !== 0 ? quincenaOrdenada.moneda.pago.euro - quincenaOrdenada.aranceles.euro : quincenaOrdenada.moneda.estadisticas.euro;
+              const pesos = eurosPorcentaje * valorEuro;
               dia.sender.totalPesos = pesos;
             } else if (curren > diaPrimero && curren < dia16) {
-              console.log(q == null ? void 0 : q.dias.map((x) => {
+              const diaAnterior = (_c = q == null ? void 0 : q.dias) == null ? void 0 : _c.filter((x) => {
                 var _a2;
-                console.log("index", x);
-                console.log("curren", curren);
-                const nameDia = (_a2 = x.name) == null ? void 0 : _a2.split("-")[0];
-                console.log("nameDia", nameDia);
-                const diaAnterior2 = curren > nameDia;
-                console.log("diaAnterior", diaAnterior2);
-                return diaAnterior2;
-              }));
-              console.log("diaAnterior", diaAnterior);
-              const coins = sender.coins - (dias == null ? void 0 : dias.filter((dia2) => {
-                var _a2;
-                return ((_a2 = dia2.name) == null ? void 0 : _a2.split("-")[0]) === curren - 1;
-              }));
-              dia.sender.coins = coins;
-              const euros = coins * sender.paginaS.valor;
-              dia.sender.euros = euros;
+                return parseInt((_a2 = x.name) == null ? void 0 : _a2.split("-")[0]) < curren;
+              }).sort(
+                (a, b) => {
+                  var _a2, _b2;
+                  return parseInt((_a2 = b.name) == null ? void 0 : _a2.split("-")[0]) - parseInt((_b2 = a.name) == null ? void 0 : _b2.split("-")[0]);
+                }
+              );
+              const coins = sender.coins - ((_e = (_d = diaAnterior[0]) == null ? void 0 : _d.Senders[0]) == null ? void 0 : _e.coins);
+              dia.sender.totalCoins = sender.coins;
+              dia.sender.coinsDias = coins;
+              const eurosDia = coins * sender.paginaS.valor;
+              const euros = sender.coins * sender.paginaS.valor;
+              dia.sender.totalEuros = euros;
+              dia.sender.eurosDias = eurosDia;
+              const eurosPorcentajeDia = eurosDia * quincenaOrdenada.porcentaje;
               const eurosPorcentaje = euros * quincenaOrdenada.porcentaje;
-              const pesos = eurosPorcentaje * quincenaOrdenada.moneda.pago.euro !== 0 ? quincenaOrdenada.moneda.pago.euro - quincenaOrdenada.aranceles.euro : quincenaOrdenada.moneda.estadisticas.euro;
-              dia.sender.pesos = pesos;
+              const valorEuro = quincenaOrdenada.moneda.pago.euro !== 0 ? quincenaOrdenada.moneda.pago.euro - quincenaOrdenada.aranceles.euro : quincenaOrdenada.moneda.estadisticas.euro;
+              const pesosDias = eurosPorcentajeDia * valorEuro;
+              const totalPesos = eurosPorcentaje * valorEuro;
+              dia.sender.totalPesos = totalPesos;
+              dia.sender.pesosDias = pesosDias;
+              dia.sender.id = sender.id;
+            } else if (curren > dia16) {
+              const diaAnterior = (_f = q == null ? void 0 : q.dias) == null ? void 0 : _f.filter((x) => {
+                var _a2;
+                return parseInt((_a2 = x.name) == null ? void 0 : _a2.split("-")[0]) < curren;
+              }).sort(
+                (a, b) => {
+                  var _a2, _b2;
+                  return parseInt((_a2 = b.name) == null ? void 0 : _a2.split("-")[0]) - parseInt((_b2 = a.name) == null ? void 0 : _b2.split("-")[0]);
+                }
+              );
+              console.log("dia anterior", diaAnterior);
+              const coins = sender.coins - ((_h = (_g = diaAnterior[0]) == null ? void 0 : _g.Senders[0]) == null ? void 0 : _h.coins);
+              dia.sender.totalCoins = sender.coins;
+              dia.sender.coinsDias = coins;
+              const eurosDia = coins * sender.paginaS.valor;
+              const euros = sender.coins * sender.paginaS.valor;
+              dia.sender.totalEuros = euros;
+              dia.sender.eurosDias = eurosDia;
+              const eurosPorcentajeDia = eurosDia * quincenaOrdenada.porcentaje;
+              const eurosPorcentaje = euros * quincenaOrdenada.porcentaje;
+              const valorEuro = quincenaOrdenada.moneda.pago.euro !== 0 ? quincenaOrdenada.moneda.pago.euro - quincenaOrdenada.aranceles.euro : quincenaOrdenada.moneda.estadisticas.euro;
+              const pesosDias = eurosPorcentajeDia * valorEuro;
+              const totalPesos = eurosPorcentaje * valorEuro;
+              dia.sender.totalPesos = totalPesos;
+              dia.sender.pesosDias = pesosDias;
+              dia.sender.id = sender.id;
             }
-            dia.sender.id = sender.id;
-            dia.sender.coins = sender.coins;
-            dia.sender.qa = 0;
-            dia.sender.euros = sender.coins * sender.paginaS.valor;
-            dia.sender.pesos = 0;
           }
           for (let dirty2 of dias == null ? void 0 : dias.Dirtys) {
             dia.dirty.id = dirty2.id;
