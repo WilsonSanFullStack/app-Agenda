@@ -50452,7 +50452,7 @@ function requireSerchAllQuincena() {
   } = requireDb();
   const { Op } = requireLib();
   const getAllsQuincenas = async (data) => {
-    var _a, _b, _c, _d, _e, _f, _g, _h;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l;
     console.log("data id quincena", data);
     try {
       const pages = await Quincena.findAll({
@@ -50675,8 +50675,9 @@ function requireSerchAllQuincena() {
             });
           }
           for (let sender of dias == null ? void 0 : dias.Senders) {
+            console.log("revisando array de senders", dias == null ? void 0 : dias.Senders);
             console.log("sender", sender);
-            console.log((_a = dias.name) == null ? void 0 : _a.split("-")[0]);
+            console.log("numero del dia", (_a = dias.name) == null ? void 0 : _a.split("-")[0]);
             const diaPrimero = 1;
             const dia16 = 16;
             const curren = parseInt((_b = dias.name) == null ? void 0 : _b.split("-")[0]);
@@ -50690,6 +50691,7 @@ function requireSerchAllQuincena() {
               const totalPesos = eurosPorcentaje * valorEuro;
               dia.sender.totalPesos = totalPesos;
             } else if (dia16 === curren) {
+              console.log("prueba dia 16", curren === dia16);
               dia.sender.id = sender.id;
               const coins = dia.qa ? sender.coins - (dia == null ? void 0 : dia.qa) : sender.coins;
               dia.sender.totalCoins = coins;
@@ -50709,7 +50711,7 @@ function requireSerchAllQuincena() {
                   return parseInt((_a2 = b.name) == null ? void 0 : _a2.split("-")[0]) - parseInt((_b2 = a.name) == null ? void 0 : _b2.split("-")[0]);
                 }
               );
-              const coins = sender.coins - ((_e = (_d = diaAnterior[0]) == null ? void 0 : _d.Senders[0]) == null ? void 0 : _e.coins);
+              const coins = ((_e = (_d = diaAnterior[0]) == null ? void 0 : _d.Senders[0]) == null ? void 0 : _e.coins) === sender.coins ? sender.coins : sender.coins - ((_g = (_f = diaAnterior[0]) == null ? void 0 : _f.Senders[0]) == null ? void 0 : _g.coins);
               dia.sender.totalCoins = sender.coins;
               dia.sender.coinsDias = coins;
               const eurosDia = coins * sender.paginaS.valor;
@@ -50725,7 +50727,9 @@ function requireSerchAllQuincena() {
               dia.sender.pesosDias = pesosDias;
               dia.sender.id = sender.id;
             } else if (curren > dia16) {
-              const diaAnterior = (_f = q == null ? void 0 : q.dias) == null ? void 0 : _f.filter((x) => {
+              console.log("curren", curren === 21);
+              dia.sender.id = sender.id;
+              const diaAnterior = (_h = q == null ? void 0 : q.dias) == null ? void 0 : _h.filter((x) => {
                 var _a2;
                 return parseInt((_a2 = x.name) == null ? void 0 : _a2.split("-")[0]) < curren;
               }).sort(
@@ -50735,7 +50739,7 @@ function requireSerchAllQuincena() {
                 }
               );
               console.log("dia anterior", diaAnterior);
-              const coins = sender.coins - ((_h = (_g = diaAnterior[0]) == null ? void 0 : _g.Senders[0]) == null ? void 0 : _h.coins);
+              const coins = ((_j = (_i = diaAnterior[0]) == null ? void 0 : _i.Senders[0]) == null ? void 0 : _j.coins) === sender.coins ? sender.coins : sender.coins - ((_l = (_k = diaAnterior[0]) == null ? void 0 : _k.Senders[0]) == null ? void 0 : _l.coins);
               dia.sender.totalCoins = sender.coins;
               dia.sender.coinsDias = coins;
               const eurosDia = coins * sender.paginaS.valor;
@@ -50749,7 +50753,6 @@ function requireSerchAllQuincena() {
               const totalPesos = eurosPorcentaje * valorEuro;
               dia.sender.totalPesos = totalPesos;
               dia.sender.pesosDias = pesosDias;
-              dia.sender.id = sender.id;
             }
           }
           for (let dirty2 of dias == null ? void 0 : dias.Dirtys) {

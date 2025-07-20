@@ -169,48 +169,7 @@ export const Home = () => {
 
         <div className="grid grid-cols-5 gap-1">
           {data?.dias?.length > 0 ? (
-            [...data.dias]
-              .sort((a, b) => {
-                const numA = parseInt(a?.name?.split("-")[0]);
-                const numB = parseInt(b?.name?.split("-")[0]);
-                return numA - numB;
-              })
-              .map((dia, index, arr) => {
-                const numDia = parseInt(dia?.name?.split("-")[0]);
-
-                // Si es el primer día de quincena, no hay comparación
-                const esDiaInicial = numDia === 1 || numDia === 16;
-
-                // Buscar el día anterior más cercano
-                let diaAnterior = null;
-                if (!esDiaInicial) {
-                  // Filtrar días que sean anteriores (por número)
-                  const anteriores = arr
-                    .filter((d) => parseInt(d?.name?.split("-")[0]) < numDia)
-                    .sort(
-                      (a, b) =>
-                        parseInt(b?.name?.split("-")[0]) -
-                        parseInt(a?.name?.split("-")[0])
-                    ); // mayor a menor
-
-                  diaAnterior = anteriores[0] || null;
-                }
-
-                const coinsActual = dia?.sender?.coins ?? 0;
-                const eurosActual = dia?.sender?.euros ?? 0;
-
-                const coinsAnterior = diaAnterior?.sender?.coins ?? null;
-                const eurosAnterior = diaAnterior?.sender?.euros ?? null;
-
-                const coinsDiff =
-                  coinsAnterior !== null && 0
-                    ? coinsActual - coinsAnterior
-                    : null;
-                const eurosDiff =
-                  eurosAnterior !== null && 0
-                    ? eurosActual - eurosAnterior
-                    : null;
-
+            data.dias?.map((dia) => {
                 return (
                   <div key={dia?.name} className=" p-2 border rounded shadow">
                     <h1 className="font-bold text-lg">{dia?.name}</h1>
@@ -233,9 +192,13 @@ export const Home = () => {
                                   }).format(parseFloat(x.lbr))}
                                 </h2>
                                 <h2>
-                                  {}
+                                  {Intl.NumberFormat("es-ES", {
+                                    style: "currency",
+                                    currency: "COP",
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2,
+                                  }).format(parseFloat(x.pesos))}
                                 </h2>
-                                <div>falta colocar los pesos</div>
                               </div>
                             );
                           })}{" "}
@@ -249,7 +212,7 @@ export const Home = () => {
                           {Intl.NumberFormat("es-IN", {
                             minimumFractionDigits: 0,
                             maximumFractionDigits: 0,
-                          }).format(coinsActual)}
+                          }).format(dia.sender.totalCoins)}
                         </div>
                         <div>
                           Euros Total:{" "}
@@ -258,18 +221,18 @@ export const Home = () => {
                             currency: "EUR",
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
-                          }).format(eurosActual)}
+                          }).format(dia.sender.totalEuros)}
                         </div>
-                        {coinsDiff !== null ? (
+                        {dia.sender.coinsDias !== 0 ? (
                           <div>
                             Coins Día:{" "}
                             {Intl.NumberFormat("es-IN", {
                               minimumFractionDigits: 0,
                               maximumFractionDigits: 0,
-                            }).format(coinsDiff)}
+                            }).format(dia.sender.coinsDias)}
                           </div>
                         ) : null}
-                        {eurosDiff !== null ? (
+                        {dia.sender.eurosDias !== 0 ? (
                           <div>
                             Euros Día:{" "}
                             {Intl.NumberFormat("es-EU", {
@@ -277,7 +240,7 @@ export const Home = () => {
                               currency: "EUR",
                               minimumFractionDigits: 2,
                               maximumFractionDigits: 2,
-                            }).format(eurosDiff)}
+                            }).format(dia.sender.eurosDias)}
                           </div>
                         ) : null}
                       </section>

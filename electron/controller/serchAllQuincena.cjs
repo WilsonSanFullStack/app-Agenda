@@ -257,28 +257,34 @@ const getAllsQuincenas = async (data) => {
         }
         //entrando a las propiedades de sender
         for (let sender of dias?.Senders) {
+          console.log("revisando array de senders", dias?.Senders);
           console.log("sender", sender);
-          console.log(dias.name?.split("-")[0]);
+          console.log("numero del dia",dias.name?.split("-")[0]);
           const diaPrimero = 1;
           const dia16 = 16;
           const curren = parseInt(dias.name?.split("-")[0]);
+          //todo revisamos si es el dia primero
           if (diaPrimero === curren) {
             dia.sender.id = sender.id;
             dia.sender.totalCoins = sender.coins;
             const euros = sender.coins * sender.paginaS.valor;
             dia.sender.totalEuros = euros;
             const eurosPorcentaje = euros * quincenaOrdenada.porcentaje;
-            const valorEuro =quincenaOrdenada.moneda.pago.euro !== 0
+            const valorEuro =
+              quincenaOrdenada.moneda.pago.euro !== 0
                 ? quincenaOrdenada.moneda.pago.euro -
                   quincenaOrdenada.aranceles.euro
                 : quincenaOrdenada.moneda.estadisticas.euro;
-                const totalPesos = eurosPorcentaje * valorEuro;
+            const totalPesos = eurosPorcentaje * valorEuro;
             dia.sender.totalPesos = totalPesos;
+
+            //todo revisamos si es el dia 16
           } else if (dia16 === curren) {
+            console.log("prueba dia 16", curren === dia16);
             //agregamos el id del dia actual al dia
             dia.sender.id = sender.id;
             //calculamos los coins del dia descontando los coins de quincena  anterior
-            const coins = dia.qa ?sender.coins - dia?.qa: sender.coins;
+            const coins = dia.qa ? sender.coins - dia?.qa : sender.coins;
             // console.log("coins", coins);
             // agregamos al dia el total de coins
             dia.sender.totalCoins = coins;
@@ -288,7 +294,8 @@ const getAllsQuincenas = async (data) => {
             dia.sender.totalEuros = euros;
             //calculamos los euros por el porcentaje de la quincena
             const eurosPorcentaje = euros * quincenaOrdenada.porcentaje;
-            const valorEuro = quincenaOrdenada.moneda.pago.euro !== 0
+            const valorEuro =
+              quincenaOrdenada.moneda.pago.euro !== 0
                 ? quincenaOrdenada.moneda.pago.euro -
                   quincenaOrdenada.aranceles.euro
                 : quincenaOrdenada.moneda.estadisticas.euro;
@@ -296,6 +303,8 @@ const getAllsQuincenas = async (data) => {
             const pesos = eurosPorcentaje * valorEuro;
             //agregamos los pesos al total
             dia.sender.totalPesos = pesos;
+
+            //todo revisamos si es de la primera quincena
           } else if (curren > diaPrimero && curren < dia16) {
             //filtramos los dias anteriores
             //y ordenamos de mayor a menor
@@ -307,7 +316,9 @@ const getAllsQuincenas = async (data) => {
                   parseInt(a.name?.split("-")[0])
               );
             // tomamos el ultimo dia anterior y restamos los coins
-            const coins = sender.coins - diaAnterior[0]?.Senders[0]?.coins;
+            const coins = diaAnterior[0]?.Senders[0]?.coins === sender.coins
+                ? sender.coins
+                : sender.coins - diaAnterior[0]?.Senders[0]?.coins;
             // agregamos al dia el total de coins y los coins del dia
             dia.sender.totalCoins = sender.coins;
             dia.sender.coinsDias = coins;
@@ -328,7 +339,7 @@ const getAllsQuincenas = async (data) => {
                 ? quincenaOrdenada.moneda.pago.euro -
                   quincenaOrdenada.aranceles.euro
                 : quincenaOrdenada.moneda.estadisticas.euro;
-                //ca;lculamos los pesos del dia y el total
+            //ca;lculamos los pesos del dia y el total
             const pesosDias = eurosPorcentajeDia * valorEuro;
             const totalPesos = eurosPorcentaje * valorEuro;
             // agregamos los pesos al dia y al total
@@ -336,7 +347,12 @@ const getAllsQuincenas = async (data) => {
             dia.sender.pesosDias = pesosDias;
             // agregamos el id del diaactual al dia
             dia.sender.id = sender.id;
+
+            //todo revisamos si es de la segunda quincena
           } else if (curren > dia16) {
+            console.log("curren",curren === 21 );
+            // agregamos el id del diaactual al dia
+            dia.sender.id = sender.id;
             //filtramos los dias anteriores
             //y ordenamos de mayor a menor
             const diaAnterior = q?.dias
@@ -346,9 +362,12 @@ const getAllsQuincenas = async (data) => {
                   parseInt(b.name?.split("-")[0]) -
                   parseInt(a.name?.split("-")[0])
               );
-              console.log("dia anterior", diaAnterior);
+            console.log("dia anterior", diaAnterior);
             // tomamos el ultimo dia anterior y restamos los coins
-            const coins = sender.coins - diaAnterior[0]?.Senders[0]?.coins;
+            const coins =
+              diaAnterior[0]?.Senders[0]?.coins === sender.coins
+                ? sender.coins
+                : sender.coins - diaAnterior[0]?.Senders[0]?.coins;
             // agregamos al dia el total de coins y los coins del dia
             dia.sender.totalCoins = sender.coins;
             dia.sender.coinsDias = coins;
@@ -369,14 +388,13 @@ const getAllsQuincenas = async (data) => {
                 ? quincenaOrdenada.moneda.pago.euro -
                   quincenaOrdenada.aranceles.euro
                 : quincenaOrdenada.moneda.estadisticas.euro;
-                //ca;lculamos los pesos del dia y el total
+            //ca;lculamos los pesos del dia y el total
             const pesosDias = eurosPorcentajeDia * valorEuro;
             const totalPesos = eurosPorcentaje * valorEuro;
             // agregamos los pesos al dia y al total
             dia.sender.totalPesos = totalPesos;
             dia.sender.pesosDias = pesosDias;
-            // agregamos el id del diaactual al dia
-            dia.sender.id = sender.id;
+            
           }
           // dia.sender.id = sender.id;
           // dia.sender.coins = sender.coins;
