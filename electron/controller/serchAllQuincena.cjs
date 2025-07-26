@@ -13,9 +13,73 @@ const {
 const { Op } = require("sequelize"); // Importar Op
 
 // const { BrowserWindow } = require("electron");
+function filtrarAdults(dias) {
+  const diasSoloAdult = dias.flatMap((dia) =>
+    dia.Adults.map((adult) => ({
+      ...adult,
+      name: dia.name,
+      createdAt: new Date(adult.createdAt), // Asegurar que es Date
+    }))
+  );
+
+  const getDia = (item) =>
+    parseInt(item.name.split("-")[0].replace(/\D/g, ""), 10);
+
+  const corteTrue = diasSoloAdult.filter((a) => a.corte === true);
+  const corteFalse = diasSoloAdult.filter((a) => a.corte === false);
+
+  const mostRecentTrue = corteTrue.reduce(
+    (latest, current) =>
+      current.createdAt > latest.createdAt ? current : latest,
+    corteTrue[0] ?? null
+  );
+  
+  const mostRecentFalse = corteFalse.reduce(
+    (latest, current) =>
+      current.createdAt > latest.createdAt ? current : latest,
+    corteFalse[0] ?? null
+  );
+  console.log("mostRecentFalse", mostRecentFalse);
+  console.log("mostRecentTrue", mostRecentTrue);
+
+  const maxDiaTrue = Math.max(...corteTrue.map(getDia), 0);
+  console.log("maxDiaTrue", maxDiaTrue);
+  const maxDiaFalse = Math.max(...corteFalse.map(getDia), 0);
+  console.log("maxDiaFalse", maxDiaFalse);
+
+  return diasSoloAdult.filter((item) => {
+    if (item.corte === true) return true;
+
+    const dia = getDia(item);
+    console.log("dia", dia);
+    const isMostRecent = item.id === mostRecentFalse?.id;
+    console.log("isMostRecent", isMostRecent);
+    console.log("item", item);
+
+    // Condición 1: Es el corte:false más reciente y su día es >= al corte:true más reciente
+    const condition1 =
+      isMostRecent &&
+      (!mostRecentTrue || dia >= getDia(mostRecentTrue));
+      console.log("condition1", condition1);
+    // Condición 2: Tiene día mayor a todos los corte:true y a todos los corte:false
+    const condition2 = dia > maxDiaTrue && dia > maxDiaFalse;
+console.log("condition2", condition2);
+    // Condición 3: Tiene el día máximo entre todos los corte:false
+    const condition3 = dia === maxDiaFalse;
+console.log("condition3", condition3);
+    // Condición de exclusión
+    const removeByOtherFalse = dia < maxDiaFalse && !isMostRecent;
+    console.log("removeByOtherFalse", removeByOtherFalse);
+    const removeByTrue = dia < maxDiaTrue;
+    console.log("removeByTrue", removeByTrue);
+    console.log("return ",(condition1 || condition2 || condition3) && !removeByOtherFalse && !removeByTrue)
+    return (condition1 || condition2 || condition3) && !removeByOtherFalse && !removeByTrue;
+  });
+}
+
 
 const getAllsQuincenas = async (data) => {
-  console.log("data id quincena", data);
+  // console.log("data id quincena", data);
   try {
     const pages = await Quincena.findAll({
       where: { id: data.q },
@@ -177,6 +241,23 @@ const getAllsQuincenas = async (data) => {
     for (let q of quincena) {
       if (!q) continue;
       // console.log("q =", q);
+      //filtramos los dias para poder luego filtrar los adults
+      const dias = q?.dias;
+      // console.log("dias =", dias);
+      // metemos los adults en un array
+      // y le agregamos el nombre del dia
+      let diasConParcial = [];
+      let diasSoloAdult = filtrarAdults(dias);
+      // console.log("diasSoloAdult =", diasSoloAdult);
+      // [];
+      for (let dia = 0; dia < dias.length; dia++) {
+        for (let adult = 0; adult < dias[dia].Adults.length; adult++) {
+          dias[dia].Adults[adult].name = dias[dia].name;
+          diasConParcial.push(dias[dia].Adults[adult]);
+        }
+      }
+
+      // console.log("diasConParcial =", diasConParcial);
       // formatiamos el id y name
       quincenaOrdenada.id = q.id;
       quincenaOrdenada.name = q.name;
@@ -230,36 +311,38 @@ const getAllsQuincenas = async (data) => {
             qa: 0,
           },
         };
+        for (let adult of diasSoloAdult) {
+          // console.log("reciente", reciente);
+          if (adult.name === dias.name) {
+            // console.log("numero del dia", dias.name?.split("-")[0]);
 
-        //entrando a las propiedades de adult
-        for (let adult of dias?.Adults) {
-          // console.log("adult", adult);
-          //quitamos a las libras el porcentaje de la pagina
-          const corte = adult.lb * quincenaOrdenada.adult;
-          // libras por el porcentaje del studio
-          // luego miramos si hay moneda de pago
-          // si no hay moneda de pago, usamos la estadistica
-          const AdultPesos =
-            corte *
-              quincenaOrdenada.porcentaje *
-              quincenaOrdenada.moneda.pago.lb !==
-            0
-              ? quincenaOrdenada.moneda.pago.lb - quincenaOrdenada.aranceles.lb
-              : quincenaOrdenada.moneda.estadisticas.lb;
-          //
-          dia.adult.push({
-            id: adult.id,
-            lb: adult.lb,
-            corte: adult.corte,
-            lbr: corte,
-            pesos: AdultPesos,
-          });
+            //quitamos a las libras el porcentaje de la pagina
+            const corte = adult.lb * quincenaOrdenada.adult;
+            // libras por el porcentaje del studio
+            const cortePorcentaje = corte * quincenaOrdenada.porcentaje;
+            // luego miramos si hay moneda de pago
+            // si no hay moneda de pago, usamos la estadistica
+            const precioLb =
+              quincenaOrdenada.moneda.pago.lb !== 0
+                ? quincenaOrdenada.moneda.pago.lb -
+                  quincenaOrdenada.aranceles.lb
+                : quincenaOrdenada.moneda.estadisticas.lb;
+            const AdultPesos = cortePorcentaje * precioLb;
+            //agregamos todo al array de adult
+            dia.adult.push({
+              id: adult.id,
+              lb: adult.lb,
+              corte: adult.corte,
+              lbr: corte,
+              pesos: AdultPesos,
+            });
+          }
         }
         //entrando a las propiedades de sender
         for (let sender of dias?.Senders) {
-          console.log("revisando array de senders", dias?.Senders);
-          console.log("sender", sender);
-          console.log("numero del dia",dias.name?.split("-")[0]);
+          // console.log("revisando array de senders", dias?.Senders);
+          // console.log("sender", sender);
+          // console.log("numero del dia", dias.name?.split("-")[0]);
           const diaPrimero = 1;
           const dia16 = 16;
           const curren = parseInt(dias.name?.split("-")[0]);
@@ -280,7 +363,7 @@ const getAllsQuincenas = async (data) => {
 
             //todo revisamos si es el dia 16
           } else if (dia16 === curren) {
-            console.log("prueba dia 16", curren === dia16);
+            // console.log("prueba dia 16", curren === dia16);
             //agregamos el id del dia actual al dia
             dia.sender.id = sender.id;
             //calculamos los coins del dia descontando los coins de quincena  anterior
@@ -316,7 +399,8 @@ const getAllsQuincenas = async (data) => {
                   parseInt(a.name?.split("-")[0])
               );
             // tomamos el ultimo dia anterior y restamos los coins
-            const coins = diaAnterior[0]?.Senders[0]?.coins === sender.coins
+            const coins =
+              diaAnterior[0]?.Senders[0]?.coins === sender.coins
                 ? sender.coins
                 : sender.coins - diaAnterior[0]?.Senders[0]?.coins;
             // agregamos al dia el total de coins y los coins del dia
@@ -350,7 +434,7 @@ const getAllsQuincenas = async (data) => {
 
             //todo revisamos si es de la segunda quincena
           } else if (curren > dia16) {
-            console.log("curren",curren === 21 );
+            // console.log("curren", curren === 21);
             // agregamos el id del diaactual al dia
             dia.sender.id = sender.id;
             //filtramos los dias anteriores
@@ -362,7 +446,7 @@ const getAllsQuincenas = async (data) => {
                   parseInt(b.name?.split("-")[0]) -
                   parseInt(a.name?.split("-")[0])
               );
-            console.log("dia anterior", diaAnterior);
+            // console.log("dia anterior", diaAnterior);
             // tomamos el ultimo dia anterior y restamos los coins
             const coins =
               diaAnterior[0]?.Senders[0]?.coins === sender.coins
@@ -394,13 +478,7 @@ const getAllsQuincenas = async (data) => {
             // agregamos los pesos al dia y al total
             dia.sender.totalPesos = totalPesos;
             dia.sender.pesosDias = pesosDias;
-            
           }
-          // dia.sender.id = sender.id;
-          // dia.sender.coins = sender.coins;
-          // dia.sender.qa = 0;
-          // dia.sender.euros = sender.coins * sender.paginaS.valor;
-          // dia.sender.pesos = 0;
         }
         //entrando a las propiedades de dirty
         for (let dirty of dias?.Dirtys) {

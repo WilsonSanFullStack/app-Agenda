@@ -50451,9 +50451,55 @@ function requireSerchAllQuincena() {
     sequelize: sequelize2
   } = requireDb();
   const { Op } = requireLib();
+  function filtrarAdults(dias) {
+    const diasSoloAdult = dias.flatMap(
+      (dia) => dia.Adults.map((adult2) => ({
+        ...adult2,
+        name: dia.name,
+        createdAt: new Date(adult2.createdAt)
+        // Asegurar que es Date
+      }))
+    );
+    const getDia = (item) => parseInt(item.name.split("-")[0].replace(/\D/g, ""), 10);
+    const corteTrue = diasSoloAdult.filter((a) => a.corte === true);
+    const corteFalse = diasSoloAdult.filter((a) => a.corte === false);
+    const mostRecentTrue = corteTrue.reduce(
+      (latest, current) => current.createdAt > latest.createdAt ? current : latest,
+      corteTrue[0] ?? null
+    );
+    const mostRecentFalse = corteFalse.reduce(
+      (latest, current) => current.createdAt > latest.createdAt ? current : latest,
+      corteFalse[0] ?? null
+    );
+    console.log("mostRecentFalse", mostRecentFalse);
+    console.log("mostRecentTrue", mostRecentTrue);
+    const maxDiaTrue = Math.max(...corteTrue.map(getDia), 0);
+    console.log("maxDiaTrue", maxDiaTrue);
+    const maxDiaFalse = Math.max(...corteFalse.map(getDia), 0);
+    console.log("maxDiaFalse", maxDiaFalse);
+    return diasSoloAdult.filter((item) => {
+      if (item.corte === true) return true;
+      const dia = getDia(item);
+      console.log("dia", dia);
+      const isMostRecent = item.id === (mostRecentFalse == null ? void 0 : mostRecentFalse.id);
+      console.log("isMostRecent", isMostRecent);
+      console.log("item", item);
+      const condition1 = isMostRecent && (!mostRecentTrue || dia >= getDia(mostRecentTrue));
+      console.log("condition1", condition1);
+      const condition2 = dia > maxDiaTrue && dia > maxDiaFalse;
+      console.log("condition2", condition2);
+      const condition3 = dia === maxDiaFalse;
+      console.log("condition3", condition3);
+      const removeByOtherFalse = dia < maxDiaFalse && !isMostRecent;
+      console.log("removeByOtherFalse", removeByOtherFalse);
+      const removeByTrue = dia < maxDiaTrue;
+      console.log("removeByTrue", removeByTrue);
+      console.log("return ", (condition1 || condition2 || condition3) && !removeByOtherFalse && !removeByTrue);
+      return (condition1 || condition2 || condition3) && !removeByOtherFalse && !removeByTrue;
+    });
+  }
   const getAllsQuincenas = async (data) => {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l;
-    console.log("data id quincena", data);
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k;
     try {
       const pages = await Quincena.findAll({
         where: { id: data.q },
@@ -50614,6 +50660,15 @@ function requireSerchAllQuincena() {
       };
       for (let q of quincena2) {
         if (!q) continue;
+        const dias = q == null ? void 0 : q.dias;
+        let diasConParcial = [];
+        let diasSoloAdult = filtrarAdults(dias);
+        for (let dia = 0; dia < dias.length; dia++) {
+          for (let adult2 = 0; adult2 < dias[dia].Adults.length; adult2++) {
+            dias[dia].Adults[adult2].name = dias[dia].name;
+            diasConParcial.push(dias[dia].Adults[adult2]);
+          }
+        }
         quincenaOrdenada.id = q.id;
         quincenaOrdenada.name = q.name;
         for (let moneda2 of q == null ? void 0 : q.Monedas) {
@@ -50629,9 +50684,9 @@ function requireSerchAllQuincena() {
             quincenaOrdenada.moneda.estadisticas.lb = moneda2.lb;
           }
         }
-        for (let dias of q == null ? void 0 : q.dias) {
+        for (let dias2 of q == null ? void 0 : q.dias) {
           const dia = {
-            name: dias.name,
+            name: dias2.name,
             adult: [],
             sender: {
               id: "",
@@ -50663,24 +50718,25 @@ function requireSerchAllQuincena() {
               qa: 0
             }
           };
-          for (let adult2 of dias == null ? void 0 : dias.Adults) {
-            const corte = adult2.lb * quincenaOrdenada.adult;
-            const AdultPesos = corte * quincenaOrdenada.porcentaje * quincenaOrdenada.moneda.pago.lb !== 0 ? quincenaOrdenada.moneda.pago.lb - quincenaOrdenada.aranceles.lb : quincenaOrdenada.moneda.estadisticas.lb;
-            dia.adult.push({
-              id: adult2.id,
-              lb: adult2.lb,
-              corte: adult2.corte,
-              lbr: corte,
-              pesos: AdultPesos
-            });
+          for (let adult2 of diasSoloAdult) {
+            if (adult2.name === dias2.name) {
+              const corte = adult2.lb * quincenaOrdenada.adult;
+              const cortePorcentaje = corte * quincenaOrdenada.porcentaje;
+              const precioLb = quincenaOrdenada.moneda.pago.lb !== 0 ? quincenaOrdenada.moneda.pago.lb - quincenaOrdenada.aranceles.lb : quincenaOrdenada.moneda.estadisticas.lb;
+              const AdultPesos = cortePorcentaje * precioLb;
+              dia.adult.push({
+                id: adult2.id,
+                lb: adult2.lb,
+                corte: adult2.corte,
+                lbr: corte,
+                pesos: AdultPesos
+              });
+            }
           }
-          for (let sender of dias == null ? void 0 : dias.Senders) {
-            console.log("revisando array de senders", dias == null ? void 0 : dias.Senders);
-            console.log("sender", sender);
-            console.log("numero del dia", (_a = dias.name) == null ? void 0 : _a.split("-")[0]);
+          for (let sender of dias2 == null ? void 0 : dias2.Senders) {
             const diaPrimero = 1;
             const dia16 = 16;
-            const curren = parseInt((_b = dias.name) == null ? void 0 : _b.split("-")[0]);
+            const curren = parseInt((_a = dias2.name) == null ? void 0 : _a.split("-")[0]);
             if (diaPrimero === curren) {
               dia.sender.id = sender.id;
               dia.sender.totalCoins = sender.coins;
@@ -50691,7 +50747,6 @@ function requireSerchAllQuincena() {
               const totalPesos = eurosPorcentaje * valorEuro;
               dia.sender.totalPesos = totalPesos;
             } else if (dia16 === curren) {
-              console.log("prueba dia 16", curren === dia16);
               dia.sender.id = sender.id;
               const coins = dia.qa ? sender.coins - (dia == null ? void 0 : dia.qa) : sender.coins;
               dia.sender.totalCoins = coins;
@@ -50702,7 +50757,7 @@ function requireSerchAllQuincena() {
               const pesos = eurosPorcentaje * valorEuro;
               dia.sender.totalPesos = pesos;
             } else if (curren > diaPrimero && curren < dia16) {
-              const diaAnterior = (_c = q == null ? void 0 : q.dias) == null ? void 0 : _c.filter((x) => {
+              const diaAnterior = (_b = q == null ? void 0 : q.dias) == null ? void 0 : _b.filter((x) => {
                 var _a2;
                 return parseInt((_a2 = x.name) == null ? void 0 : _a2.split("-")[0]) < curren;
               }).sort(
@@ -50711,7 +50766,7 @@ function requireSerchAllQuincena() {
                   return parseInt((_a2 = b.name) == null ? void 0 : _a2.split("-")[0]) - parseInt((_b2 = a.name) == null ? void 0 : _b2.split("-")[0]);
                 }
               );
-              const coins = ((_e = (_d = diaAnterior[0]) == null ? void 0 : _d.Senders[0]) == null ? void 0 : _e.coins) === sender.coins ? sender.coins : sender.coins - ((_g = (_f = diaAnterior[0]) == null ? void 0 : _f.Senders[0]) == null ? void 0 : _g.coins);
+              const coins = ((_d = (_c = diaAnterior[0]) == null ? void 0 : _c.Senders[0]) == null ? void 0 : _d.coins) === sender.coins ? sender.coins : sender.coins - ((_f = (_e = diaAnterior[0]) == null ? void 0 : _e.Senders[0]) == null ? void 0 : _f.coins);
               dia.sender.totalCoins = sender.coins;
               dia.sender.coinsDias = coins;
               const eurosDia = coins * sender.paginaS.valor;
@@ -50727,9 +50782,8 @@ function requireSerchAllQuincena() {
               dia.sender.pesosDias = pesosDias;
               dia.sender.id = sender.id;
             } else if (curren > dia16) {
-              console.log("curren", curren === 21);
               dia.sender.id = sender.id;
-              const diaAnterior = (_h = q == null ? void 0 : q.dias) == null ? void 0 : _h.filter((x) => {
+              const diaAnterior = (_g = q == null ? void 0 : q.dias) == null ? void 0 : _g.filter((x) => {
                 var _a2;
                 return parseInt((_a2 = x.name) == null ? void 0 : _a2.split("-")[0]) < curren;
               }).sort(
@@ -50738,8 +50792,7 @@ function requireSerchAllQuincena() {
                   return parseInt((_a2 = b.name) == null ? void 0 : _a2.split("-")[0]) - parseInt((_b2 = a.name) == null ? void 0 : _b2.split("-")[0]);
                 }
               );
-              console.log("dia anterior", diaAnterior);
-              const coins = ((_j = (_i = diaAnterior[0]) == null ? void 0 : _i.Senders[0]) == null ? void 0 : _j.coins) === sender.coins ? sender.coins : sender.coins - ((_l = (_k = diaAnterior[0]) == null ? void 0 : _k.Senders[0]) == null ? void 0 : _l.coins);
+              const coins = ((_i = (_h = diaAnterior[0]) == null ? void 0 : _h.Senders[0]) == null ? void 0 : _i.coins) === sender.coins ? sender.coins : sender.coins - ((_k = (_j = diaAnterior[0]) == null ? void 0 : _j.Senders[0]) == null ? void 0 : _k.coins);
               dia.sender.totalCoins = sender.coins;
               dia.sender.coinsDias = coins;
               const eurosDia = coins * sender.paginaS.valor;
@@ -50755,17 +50808,17 @@ function requireSerchAllQuincena() {
               dia.sender.pesosDias = pesosDias;
             }
           }
-          for (let dirty2 of dias == null ? void 0 : dias.Dirtys) {
+          for (let dirty2 of dias2 == null ? void 0 : dias2.Dirtys) {
             dia.dirty.id = dirty2.id;
             dia.dirty.dolares = dirty2.dolares;
             dia.dirty.mostrar = dirty2.mostrar;
             dia.dirty.qa = 0;
           }
-          for (let vx2 of dias == null ? void 0 : dias.Vxs) {
+          for (let vx2 of dias2 == null ? void 0 : dias2.Vxs) {
             dia.vx.id = vx2.id;
             dia.vx.creditos = vx2.creditos;
           }
-          for (let lives of dias == null ? void 0 : dias.Lives) {
+          for (let lives of dias2 == null ? void 0 : dias2.Lives) {
             dia.live7.id = lives.id;
             dia.live7.creditos = lives.creditos;
           }

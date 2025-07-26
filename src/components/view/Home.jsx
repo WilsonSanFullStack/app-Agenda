@@ -182,7 +182,7 @@ export const Home = () => {
                           {dia.adult.map((x) => {
                             return (
                               <div key={x.id}>
-                                <h2>{x.corte ? "Corte" : "No Corte"}</h2>
+                                <h2>{x.corte ? "Corte" : "Parcial"}</h2>
                                 <h2>
                                   {Intl.NumberFormat("en-GB", {
                                     style: "currency",
