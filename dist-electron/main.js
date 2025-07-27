@@ -50455,47 +50455,39 @@ function requireSerchAllQuincena() {
     const diasSoloAdult = dias.flatMap(
       (dia) => dia.Adults.map((adult2) => ({
         ...adult2,
-        name: dia.name,
-        createdAt: new Date(adult2.createdAt)
-        // Asegurar que es Date
+        name: dia.name
+        // createdAt: new Date(adult.createdAt), // Asegurar que es Date
       }))
     );
     const getDia = (item) => parseInt(item.name.split("-")[0].replace(/\D/g, ""), 10);
     const corteTrue = diasSoloAdult.filter((a) => a.corte === true);
     const corteFalse = diasSoloAdult.filter((a) => a.corte === false);
+    const maxDiaTrue = Math.max(...corteTrue.map(getDia), 0);
+    const maxDiaFalse = Math.max(...corteFalse.map(getDia), 0);
     const mostRecentTrue = corteTrue.reduce(
-      (latest, current) => current.createdAt > latest.createdAt ? current : latest,
+      (latest, current) => {
+        var _a;
+        return new Date(current.createdAt) > new Date(latest.createdAt) && parseInt((_a = current.name) == null ? void 0 : _a.split("-")[0]) === maxDiaTrue ? current : latest;
+      },
       corteTrue[0] ?? null
     );
     const mostRecentFalse = corteFalse.reduce(
-      (latest, current) => current.createdAt > latest.createdAt ? current : latest,
+      (latest, current) => {
+        var _a;
+        return new Date(current.createdAt) > new Date(latest.createdAt) && parseInt((_a = current.name) == null ? void 0 : _a.split("-")[0]) === maxDiaFalse ? current : latest;
+      },
       corteFalse[0] ?? null
     );
-    console.log("mostRecentFalse", mostRecentFalse);
-    console.log("mostRecentTrue", mostRecentTrue);
-    const maxDiaTrue = Math.max(...corteTrue.map(getDia), 0);
-    console.log("maxDiaTrue", maxDiaTrue);
-    const maxDiaFalse = Math.max(...corteFalse.map(getDia), 0);
-    console.log("maxDiaFalse", maxDiaFalse);
     return diasSoloAdult.filter((item) => {
       if (item.corte === true) return true;
       const dia = getDia(item);
-      console.log("dia", dia);
       const isMostRecent = item.id === (mostRecentFalse == null ? void 0 : mostRecentFalse.id);
-      console.log("isMostRecent", isMostRecent);
-      console.log("item", item);
-      const condition1 = isMostRecent && (!mostRecentTrue || dia >= getDia(mostRecentTrue));
-      console.log("condition1", condition1);
-      const condition2 = dia > maxDiaTrue && dia > maxDiaFalse;
-      console.log("condition2", condition2);
-      const condition3 = dia === maxDiaFalse;
-      console.log("condition3", condition3);
+      const condition1 = isMostRecent && new Date(mostRecentTrue.createdAt) < new Date(item.createdAt);
+      const condition2 = dia >= maxDiaTrue && dia >= maxDiaFalse;
+      const condition3 = dia === maxDiaFalse || new Date(mostRecentTrue) > new Date(item.createdAt);
       const removeByOtherFalse = dia < maxDiaFalse && !isMostRecent;
-      console.log("removeByOtherFalse", removeByOtherFalse);
       const removeByTrue = dia < maxDiaTrue;
-      console.log("removeByTrue", removeByTrue);
-      console.log("return ", (condition1 || condition2 || condition3) && !removeByOtherFalse && !removeByTrue);
-      return (condition1 || condition2 || condition3) && !removeByOtherFalse && !removeByTrue;
+      return condition1 && condition2 && condition3 && !removeByOtherFalse && !removeByTrue;
     });
   }
   const getAllsQuincenas = async (data) => {
@@ -50661,14 +50653,7 @@ function requireSerchAllQuincena() {
       for (let q of quincena2) {
         if (!q) continue;
         const dias = q == null ? void 0 : q.dias;
-        let diasConParcial = [];
         let diasSoloAdult = filtrarAdults(dias);
-        for (let dia = 0; dia < dias.length; dia++) {
-          for (let adult2 = 0; adult2 < dias[dia].Adults.length; adult2++) {
-            dias[dia].Adults[adult2].name = dias[dia].name;
-            diasConParcial.push(dias[dia].Adults[adult2]);
-          }
-        }
         quincenaOrdenada.id = q.id;
         quincenaOrdenada.name = q.name;
         for (let moneda2 of q == null ? void 0 : q.Monedas) {

@@ -18,7 +18,7 @@ function filtrarAdults(dias) {
     dia.Adults.map((adult) => ({
       ...adult,
       name: dia.name,
-      createdAt: new Date(adult.createdAt), // Asegurar que es Date
+      // createdAt: new Date(adult.createdAt), // Asegurar que es Date
     }))
   );
 
@@ -28,55 +28,53 @@ function filtrarAdults(dias) {
   const corteTrue = diasSoloAdult.filter((a) => a.corte === true);
   const corteFalse = diasSoloAdult.filter((a) => a.corte === false);
 
+   const maxDiaTrue = Math.max(...corteTrue.map(getDia), 0);
+  const maxDiaFalse = Math.max(...corteFalse.map(getDia), 0);
+
   const mostRecentTrue = corteTrue.reduce(
     (latest, current) =>
-      current.createdAt > latest.createdAt ? current : latest,
+      new Date(current.createdAt) > new Date(latest.createdAt) &&
+      parseInt(current.name?.split("-")[0]) === maxDiaTrue
+        ? current
+        : latest,
     corteTrue[0] ?? null
   );
-  
+
   const mostRecentFalse = corteFalse.reduce(
     (latest, current) =>
-      current.createdAt > latest.createdAt ? current : latest,
+      new Date(current.createdAt) > new Date(latest.createdAt) &&
+      parseInt(current.name?.split("-")[0]) === maxDiaFalse 
+        ? current
+        : latest,
     corteFalse[0] ?? null
   );
-  console.log("mostRecentFalse", mostRecentFalse);
-  console.log("mostRecentTrue", mostRecentTrue);
 
-  const maxDiaTrue = Math.max(...corteTrue.map(getDia), 0);
-  console.log("maxDiaTrue", maxDiaTrue);
-  const maxDiaFalse = Math.max(...corteFalse.map(getDia), 0);
-  console.log("maxDiaFalse", maxDiaFalse);
 
   return diasSoloAdult.filter((item) => {
     if (item.corte === true) return true;
 
     const dia = getDia(item);
-    console.log("dia", dia);
     const isMostRecent = item.id === mostRecentFalse?.id;
-    console.log("isMostRecent", isMostRecent);
-    console.log("item", item);
-
     // Condición 1: Es el corte:false más reciente y su día es >= al corte:true más reciente
-    const condition1 =
-      isMostRecent &&
-      (!mostRecentTrue || dia >= getDia(mostRecentTrue));
-      console.log("condition1", condition1);
+    const condition1 = isMostRecent && new Date(mostRecentTrue.createdAt) < new Date(item.createdAt);
+
     // Condición 2: Tiene día mayor a todos los corte:true y a todos los corte:false
-    const condition2 = dia > maxDiaTrue && dia > maxDiaFalse;
-console.log("condition2", condition2);
+    const condition2 = dia >= maxDiaTrue && dia >= maxDiaFalse;
     // Condición 3: Tiene el día máximo entre todos los corte:false
-    const condition3 = dia === maxDiaFalse;
-console.log("condition3", condition3);
+    const condition3 =
+      dia === maxDiaFalse ||
+      new Date(mostRecentTrue) > new Date(item.createdAt);
     // Condición de exclusión
     const removeByOtherFalse = dia < maxDiaFalse && !isMostRecent;
-    console.log("removeByOtherFalse", removeByOtherFalse);
     const removeByTrue = dia < maxDiaTrue;
-    console.log("removeByTrue", removeByTrue);
-    console.log("return ",(condition1 || condition2 || condition3) && !removeByOtherFalse && !removeByTrue)
-    return (condition1 || condition2 || condition3) && !removeByOtherFalse && !removeByTrue;
+
+    return (
+      (condition1 && condition2 && condition3) &&
+      !removeByOtherFalse &&
+      !removeByTrue
+    );
   });
 }
-
 
 const getAllsQuincenas = async (data) => {
   // console.log("data id quincena", data);
@@ -246,18 +244,7 @@ const getAllsQuincenas = async (data) => {
       // console.log("dias =", dias);
       // metemos los adults en un array
       // y le agregamos el nombre del dia
-      let diasConParcial = [];
       let diasSoloAdult = filtrarAdults(dias);
-      // console.log("diasSoloAdult =", diasSoloAdult);
-      // [];
-      for (let dia = 0; dia < dias.length; dia++) {
-        for (let adult = 0; adult < dias[dia].Adults.length; adult++) {
-          dias[dia].Adults[adult].name = dias[dia].name;
-          diasConParcial.push(dias[dia].Adults[adult]);
-        }
-      }
-
-      // console.log("diasConParcial =", diasConParcial);
       // formatiamos el id y name
       quincenaOrdenada.id = q.id;
       quincenaOrdenada.name = q.name;
