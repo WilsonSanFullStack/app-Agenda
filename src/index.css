@@ -3,6 +3,7 @@
 
 :root {
   @apply bg-black text-white;
+  scrollbar-width: none;
 }
 .mover {
   cursor: pointer;

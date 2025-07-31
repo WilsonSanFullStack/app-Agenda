@@ -17,7 +17,7 @@ export const Page = () => {
     })
   }
   return (
-    <div className="m-2 p-2 text-center  ">
+    <div className="m-2 p-2 text-center pt-12 ">
       <h1 className="m-2 text-2xl uppercase">registro de paginas</h1>
       <form action="" className="flex justify-center items-center">
         <section className="w-fit bg-slate-800 rounded-2xl p-2">

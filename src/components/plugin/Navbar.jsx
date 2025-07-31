@@ -46,7 +46,7 @@ export const Navbar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
   return (
-    <nav className="flex justify-between bg-slate-900 mover">
+    <nav className="flex justify-between bg-slate-900 mover rounded-md">
       <div className="p-1">
         <img
           src={notebook}

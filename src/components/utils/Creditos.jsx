@@ -487,7 +487,7 @@ export const Creditos = () => {
     ),
   };
   return (
-    <div className="text-center">
+    <div className="text-center pt-12">
       <h1 className="text-4xl uppercase m-2 mb-6">registro de creditos</h1>
       <section>
         <select

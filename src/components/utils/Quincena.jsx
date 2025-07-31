@@ -111,7 +111,7 @@ export const Quincena = () => {
 
   return (
     <div>
-      <form className="">
+      <form className="pt-12">
         <div className="grid grid-cols-21 mx-2 px-1">
           {years?.map((y) => {
             return (

@@ -131,7 +131,7 @@ export const Dia = () => {
   return (
     <div>
       <form>
-        <section className="text-center m-1 p-1 ">
+        <section className="text-center m-1 p-1 pt-10">
           <h1>Seleccione una quincena</h1>
           <select
             className="bg-slate-950 m-1 rounded-md p-1"

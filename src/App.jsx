@@ -20,8 +20,11 @@ function App() {
     });
   }, []);
   return (
-    <div>
+    <div className="p-2">
+      <div className="fixed top-0 left-0 right-0 z-50">
       <Navbar />
+      </div>
+
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/register/quincena" element={<Quincena />} />

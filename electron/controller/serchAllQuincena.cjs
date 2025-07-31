@@ -28,7 +28,7 @@ function filtrarAdults(dias) {
   const corteTrue = diasSoloAdult.filter((a) => a.corte === true);
   const corteFalse = diasSoloAdult.filter((a) => a.corte === false);
 
-   const maxDiaTrue = Math.max(...corteTrue.map(getDia), 0);
+  const maxDiaTrue = Math.max(...corteTrue.map(getDia), 0);
   const maxDiaFalse = Math.max(...corteFalse.map(getDia), 0);
 
   const mostRecentTrue = corteTrue.reduce(
@@ -43,12 +43,11 @@ function filtrarAdults(dias) {
   const mostRecentFalse = corteFalse.reduce(
     (latest, current) =>
       new Date(current.createdAt) > new Date(latest.createdAt) &&
-      parseInt(current.name?.split("-")[0]) === maxDiaFalse 
+      parseInt(current.name?.split("-")[0]) === maxDiaFalse
         ? current
         : latest,
     corteFalse[0] ?? null
   );
-
 
   return diasSoloAdult.filter((item) => {
     if (item.corte === true) return true;
@@ -56,7 +55,9 @@ function filtrarAdults(dias) {
     const dia = getDia(item);
     const isMostRecent = item.id === mostRecentFalse?.id;
     // Condición 1: Es el corte:false más reciente y su día es >= al corte:true más reciente
-    const condition1 = isMostRecent && new Date(mostRecentTrue.createdAt) < new Date(item.createdAt);
+    const condition1 =
+      isMostRecent &&
+      new Date(mostRecentTrue.createdAt) < new Date(item.createdAt);
 
     // Condición 2: Tiene día mayor a todos los corte:true y a todos los corte:false
     const condition2 = dia >= maxDiaTrue && dia >= maxDiaFalse;
@@ -69,7 +70,9 @@ function filtrarAdults(dias) {
     const removeByTrue = dia < maxDiaTrue;
 
     return (
-      (condition1 && condition2 && condition3) &&
+      condition1 &&
+      condition2 &&
+      condition3 &&
       !removeByOtherFalse &&
       !removeByTrue
     );
@@ -280,8 +283,10 @@ const getAllsQuincenas = async (data) => {
           },
           dirty: {
             id: "",
-            dolares: 0,
+            dia: 0,
+            total: 0,
             mostrar: null,
+            pesosDia: 0,
             pesos: 0,
             qa: 0,
           },
@@ -470,8 +475,20 @@ const getAllsQuincenas = async (data) => {
         //entrando a las propiedades de dirty
         for (let dirty of dias?.Dirtys) {
           // console.log("dirty", dirty);
+          const current = parseInt(dias.name?.split("-")[0]);
           dia.dirty.id = dirty.id;
-          dia.dirty.dolares = dirty.dolares;
+          const diasAnterior = q?.dias
+            ?.filter((x) => parseInt(x.name?.split("-")[0]) < current)
+            .sort(
+              (a, b) =>
+                parseInt(b.name?.split("-")[0]) -
+                parseInt(a.name?.split("-")[0])
+            );
+          const diaAnterior = diasAnterior[0]?.Dirtys[0];
+          console.log("diaAnterior", diaAnterior);
+          dia.dirty.dia = diaAnterior?.dolares <= dirty?.dolares ? dirty.dolares - diaAnterior?.dolares : dirty?.dolares;
+          console.log("dia.dirty.dia", dia.dirty.dia);
+          dia.dirty.total = dirty.dolares;
           dia.dirty.mostrar = dirty.mostrar;
           dia.dirty.qa = 0;
         }

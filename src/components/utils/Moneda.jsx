@@ -68,7 +68,7 @@ export const Moneda = () => {
     });
   };
   return (
-    <div className="text-center" key={"1234"}>
+    <div className="text-center pt-12" key={"1234"}>
       <h1 className="text-4xl uppercase m-2 mb-6">registro de monedas</h1>
       <section>
         <select
