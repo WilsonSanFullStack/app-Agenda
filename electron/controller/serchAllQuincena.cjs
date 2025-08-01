@@ -475,20 +475,30 @@ const getAllsQuincenas = async (data) => {
         //entrando a las propiedades de dirty
         for (let dirty of dias?.Dirtys) {
           // console.log("dirty", dirty);
+          // console.log("numero del dia", dias.name?.split("-")[0]);
           const current = parseInt(dias.name?.split("-")[0]);
           dia.dirty.id = dirty.id;
-          const diasAnterior = q?.dias
-            ?.filter((x) => parseInt(x.name?.split("-")[0]) < current)
+          const qOrdena = quincenaOrdenada.dias
+            ?.filter((x) =>
+              parseInt(x.name?.split("-")[0]) < current ? x : null
+            )
             .sort(
               (a, b) =>
                 parseInt(b.name?.split("-")[0]) -
                 parseInt(a.name?.split("-")[0])
             );
-          const diaAnterior = diasAnterior[0]?.Dirtys[0];
-          console.log("diaAnterior", diaAnterior);
-          dia.dirty.dia = diaAnterior?.dolares <= dirty?.dolares ? dirty.dolares - diaAnterior?.dolares : dirty?.dolares;
-          console.log("dia.dirty.dia", dia.dirty.dia);
-          dia.dirty.total = dirty.dolares;
+          const tda = qOrdena[0]?.dirty?.total || 0;
+          // console.log("qOrdena = ",qOrdena);
+          // console.log("tda", tda);
+          
+          dia.dirty.dia =
+            tda <= dirty?.dolares
+              ? dirty?.dolares - tda
+              : tda > dirty?.dolares
+              ? tda
+              : dirty?.dolares;
+          // console.log("dia.dirty.dia", dia.dirty.dia);
+          dia.dirty.total = dirty?.dolares > 0 ? dirty?.dolares > tda? dirty?.dolares: tda  : tda;
           dia.dirty.mostrar = dirty.mostrar;
           dia.dirty.qa = 0;
         }
@@ -509,7 +519,7 @@ const getAllsQuincenas = async (data) => {
     }
 
     // console.log("quincena", quincena);
-    // console.log("quincena ordenada", quincenaOrdenada);
+    // console.log("quincena ordenada", quincenaOrdenada.dias);
     return quincenaOrdenada;
   } catch (error) {
     console.log(error);

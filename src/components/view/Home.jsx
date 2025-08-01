@@ -259,21 +259,17 @@ export const Home = () => {
                           }).format(dia.dirty.dia)}
                         </div>
                         <div>
-                          Dolares Total:{" "}
+                          {dia.dirty.mostrar ? "Dolares Total: " : "Faltan: "}
                           {Intl.NumberFormat("en-US", {
                             style: "currency",
                             currency: "USD",
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
-                          }).format(dia.dirty.total)}{" "}
-                          {dia.dirty.mostrar
-                            ? null
-                            : `Faltan ${Intl.NumberFormat("en-US", {
-                                style: "currency",
-                                currency: "USD",
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              }).format(50 - dia.dirty.total)}`}
+                          }).format(
+                            dia.dirty.mostrar
+                              ? dia.dirty.total
+                              : 50 - dia.dirty.total
+                          )}
                         </div>
                       </section>
                     ) : null}

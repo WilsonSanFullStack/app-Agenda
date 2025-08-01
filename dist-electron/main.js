@@ -50491,7 +50491,7 @@ function requireSerchAllQuincena() {
     });
   }
   const getAllsQuincenas = async (data) => {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o;
     try {
       const pages = await Quincena.findAll({
         where: { id: data.q },
@@ -50798,20 +50798,20 @@ function requireSerchAllQuincena() {
           for (let dirty2 of dias2 == null ? void 0 : dias2.Dirtys) {
             const current = parseInt((_l = dias2.name) == null ? void 0 : _l.split("-")[0]);
             dia.dirty.id = dirty2.id;
-            const diasAnterior = (_m = q == null ? void 0 : q.dias) == null ? void 0 : _m.filter((x) => {
-              var _a2;
-              return parseInt((_a2 = x.name) == null ? void 0 : _a2.split("-")[0]) < current;
-            }).sort(
+            const qOrdena = (_m = quincenaOrdenada.dias) == null ? void 0 : _m.filter(
+              (x) => {
+                var _a2;
+                return parseInt((_a2 = x.name) == null ? void 0 : _a2.split("-")[0]) < current ? x : null;
+              }
+            ).sort(
               (a, b) => {
                 var _a2, _b2;
                 return parseInt((_a2 = b.name) == null ? void 0 : _a2.split("-")[0]) - parseInt((_b2 = a.name) == null ? void 0 : _b2.split("-")[0]);
               }
             );
-            const diaAnterior = (_n = diasAnterior[0]) == null ? void 0 : _n.Dirtys[0];
-            console.log("diaAnterior", diaAnterior);
-            dia.dirty.dia = (diaAnterior == null ? void 0 : diaAnterior.dolares) <= (dirty2 == null ? void 0 : dirty2.dolares) ? dirty2.dolares - (diaAnterior == null ? void 0 : diaAnterior.dolares) : dirty2 == null ? void 0 : dirty2.dolares;
-            console.log("dia.dirty.dia", dia.dirty.dia);
-            dia.dirty.total = dirty2.dolares;
+            const tda = ((_o = (_n = qOrdena[0]) == null ? void 0 : _n.dirty) == null ? void 0 : _o.total) || 0;
+            dia.dirty.dia = tda <= (dirty2 == null ? void 0 : dirty2.dolares) ? (dirty2 == null ? void 0 : dirty2.dolares) - tda : tda > (dirty2 == null ? void 0 : dirty2.dolares) ? tda : dirty2 == null ? void 0 : dirty2.dolares;
+            dia.dirty.total = (dirty2 == null ? void 0 : dirty2.dolares) > 0 ? (dirty2 == null ? void 0 : dirty2.dolares) > tda ? dirty2 == null ? void 0 : dirty2.dolares : tda : tda;
             dia.dirty.mostrar = dirty2.mostrar;
             dia.dirty.qa = 0;
           }
