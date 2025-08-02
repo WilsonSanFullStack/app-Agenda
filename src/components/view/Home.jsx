@@ -251,13 +251,27 @@ export const Home = () => {
                         <h2 className="text-sm text-gray-600">Dirty</h2>
                         <div>
                           Dolares Dia:{" "}
+                          {Intl.NumberFormat("es-ES", {
+                            style: "currency",
+                            currency: "COP",
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          }).format(dia.dirty.pesosDia)}
+                        </div>
+                        <div>
+                          Dolares Dia:
                           {Intl.NumberFormat("en-US", {
                             style: "currency",
                             currency: "USD",
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
-                          }).format(dia.dirty.dia)}
+                          }).format(
+                            dia.dirty.mostrar
+                              ? dia.dirty.total
+                              : 50 - dia.dirty.total
+                          )}
                         </div>
+
                         <div>
                           {dia.dirty.mostrar ? "Dolares Total: " : "Faltan: "}
                           {Intl.NumberFormat("en-US", {
@@ -271,18 +285,58 @@ export const Home = () => {
                               : 50 - dia.dirty.total
                           )}
                         </div>
+                        <div>
+                          {dia.dirty.mostrar
+                            ? `Total Pesos: 
+                          ${Intl.NumberFormat("en-US", {
+                            style: "currency",
+                            currency: "USD",
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          }).format(dia.dirty.pesos)}`
+                            : null}
+                        </div>
                       </section>
                     ) : null}
+
                     {/* vx */}
                     <section>
                       <h2 className="text-sm text-gray-600">VX</h2>
                       <div>
+                        Creditos Dia:{" "}
+                        {Intl.NumberFormat("es-EU", {
+                          style: "currency",
+                          currency: "EUR",
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        }).format(dia.vx.creditosDia)}
+                      </div>
+                      <div>
+                        Euros Dia:{" "}
+                        {Intl.NumberFormat("es-ES", {
+                          style: "currency",
+                          currency: "COP",
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        }).format(dia.vx.pesosDia)}
+                      </div>
+                      <div>
+                        Total Creditos:{" "}
                         {Intl.NumberFormat("es-EU", {
                           style: "currency",
                           currency: "EUR",
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
                         }).format(dia.vx.creditos)}
+                      </div>
+                      <div>
+                        Total Euros:{" "}
+                        {Intl.NumberFormat("es-ES", {
+                          style: "currency",
+                          currency: "COP",
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        }).format(dia.vx.pesos)}
                       </div>
                     </section>
                     {/* live7 */}
