@@ -165,240 +165,15 @@ export const Home = () => {
           );
         })}
       </div>
-      
-      <section>
-        <h1>{data?.name}</h1>
 
-        <div className="grid grid-cols-5 gap-1">
-          {data?.dias?.length > 0 ? (
-            data.dias?.map((dia) => {
-              return (
-                <div key={dia?.name} className=" p-2 border rounded shadow">
-                  <h1 className="font-bold text-lg align-text-top">
-                    {dia?.name}
-                  </h1>
-                  <div className="grid grid-cols-1 gap-1 text-sm">
-                    {/* adult work */}
-                    <section className="bg-gray-200 p-1 rounded">
-                      <h2 className="text-sm text-gray-600">Adult Work</h2>
-
-                      <div className=" bg-gray-400">
-                        {dia.adult.map((x) => {
-                          return (
-                            <div key={x.id}>
-                              <div className="flex flex-row justify-between px-2">
-                                <h2>{x.corte ? "Corte" : "Parcial"}</h2>
-                                {Intl.NumberFormat("en-GB", {
-                                  style: "currency",
-                                  currency: "GBP",
-                                  minimumFractionDigits: 2,
-                                  maximumFractionDigits: 2,
-                                }).format(parseFloat(x.lbr))}
-                              </div>
-                              <div className="flex flex-row justify-between px-2">
-                                <h2>Pesos</h2>
-                                {Intl.NumberFormat("es-ES", {
-                                  style: "currency",
-                                  currency: "COP",
-                                  minimumFractionDigits: 2,
-                                  maximumFractionDigits: 2,
-                                }).format(parseFloat(x.pesos))}
-                              </div>
-                            </div>
-                          );
-                        })}{" "}
-                      </div>
-                    </section>
-                    {/* sender */}
-                    <section className="">
-                      <h2 className="text-sm text-gray-600">Sender</h2>
-                      {dia.sender.coinsDias &&
-                      dia.sender.coinsDias &&
-                      dia.sender.eurosDias !== 0 ? (
-                        <h2>Dia</h2>
-                      ) : null}
-                      {dia.sender.coinsDias !== 0 ? (
-                        <div className="flex flex-row justify-between px-2">
-                          <h2>Coins:</h2>
-                          {Intl.NumberFormat("es-IN", {
-                            minimumFractionDigits: 0,
-                            maximumFractionDigits: 0,
-                          }).format(dia.sender.coinsDias)}
-                        </div>
-                      ) : null}
-                      {dia.sender.eurosDias !== 0 ? (
-                        <div className="flex flex-row justify-between px-2">
-                          <h2>Euros:</h2>
-                          {Intl.NumberFormat("es-EU", {
-                            style: "currency",
-                            currency: "EUR",
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          }).format(dia.sender.eurosDias)}
-                        </div>
-                      ) : null}
-                      {dia.sender.pesosDias !== 0 ? (
-                        <div className="flex flex-row justify-between px-2">
-                          <h2>Pesos:</h2>
-                          {Intl.NumberFormat("es-EU", {
-                            style: "currency",
-                            currency: "EUR",
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          }).format(dia.sender.pesosDias)}
-                        </div>
-                      ) : null}
-                      <h2>Total</h2>
-                      <div className="flex flex-row justify-between px-2">
-                        <h2>Coins:</h2>
-                        {Intl.NumberFormat("es-IN", {
-                          minimumFractionDigits: 0,
-                          maximumFractionDigits: 0,
-                        }).format(dia.sender.totalCoins)}
-                      </div>
-                      <div className="flex flex-row justify-between px-2">
-                        <h2>Euros:</h2>
-                        {Intl.NumberFormat("es-EU", {
-                          style: "currency",
-                          currency: "EUR",
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        }).format(dia.sender.totalEuros)}
-                      </div>
-                      <div className="flex flex-row justify-between px-2">
-                        <h2>Pesos:</h2>
-                        {Intl.NumberFormat("es-EU", {
-                          style: "currency",
-                          currency: "EUR",
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        }).format(dia.sender.totalPesos)}
-                      </div>
-                    </section>
-                    {/* dirty */}
-                    {dia.dirty ? (
-                      <section>
-                        <h2 className="text-sm text-gray-600">Dirty</h2>
-                        <div>
-                          Dolares Dia:{" "}
-                          {Intl.NumberFormat("es-ES", {
-                            style: "currency",
-                            currency: "COP",
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          }).format(dia.dirty.pesosDia)}
-                        </div>
-                        <div>
-                          Dolares Dia:
-                          {Intl.NumberFormat("en-US", {
-                            style: "currency",
-                            currency: "USD",
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          }).format(
-                            dia.dirty.mostrar
-                              ? dia.dirty.total
-                              : 50 - dia.dirty.total
-                          )}
-                        </div>
-
-                        <div>
-                          {dia.dirty.mostrar ? "Dolares Total: " : "Faltan: "}
-                          {Intl.NumberFormat("en-US", {
-                            style: "currency",
-                            currency: "USD",
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          }).format(
-                            dia.dirty.mostrar
-                              ? dia.dirty.total
-                              : 50 - dia.dirty.total
-                          )}
-                        </div>
-                        <div>
-                          {dia.dirty.mostrar
-                            ? `Total Pesos: 
-                          ${Intl.NumberFormat("en-US", {
-                            style: "currency",
-                            currency: "USD",
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          }).format(dia.dirty.pesos)}`
-                            : null}
-                        </div>
-                      </section>
-                    ) : null}
-
-                    {/* vx */}
-                    <section>
-                      <h2 className="text-sm text-gray-600">VX</h2>
-                      <div>
-                        Creditos Dia:{" "}
-                        {Intl.NumberFormat("es-EU", {
-                          style: "currency",
-                          currency: "EUR",
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        }).format(dia.vx.creditosDia)}
-                      </div>
-                      <div>
-                        Euros Dia:{" "}
-                        {Intl.NumberFormat("es-ES", {
-                          style: "currency",
-                          currency: "COP",
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        }).format(dia.vx.pesosDia)}
-                      </div>
-                      <div>
-                        Total Creditos:{" "}
-                        {Intl.NumberFormat("es-EU", {
-                          style: "currency",
-                          currency: "EUR",
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        }).format(dia.vx.creditos)}
-                      </div>
-                      <div>
-                        Total Euros:{" "}
-                        {Intl.NumberFormat("es-ES", {
-                          style: "currency",
-                          currency: "COP",
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        }).format(dia.vx.pesos)}
-                      </div>
-                    </section>
-                    {/* live7 */}
-                    <section>
-                      <h2 className="text-sm text-gray-600">7 live</h2>
-                      <h2>
-                        {Intl.NumberFormat("es-EU", {
-                          style: "currency",
-                          currency: "EUR",
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        }).format(dia.live7.creditos)}
-                      </h2>
-                    </section>
-                  </div>
-                </div>
-              );
-            })
-          ) : (
-            <div>No hay datos</div>
-          )}
-        </div>
-      </section>
-
-      <table className="table-auto border-collapse border border-gray-300 w-full text-sm">
-        <thead className="bg-gray-500 text-white">
+      <table className="table-auto border-collapse border border-gray-100 w-full text-sm">
+        <thead className="bg-gray-500 text-gray-300">
           {/* Fila 1: categorías */}
           <tr>
-            <th rowSpan="2" className="border border-gray-400 px-2 py-1">
+            <th rowSpan="2" className="border border-gray-900 px-2 py-1">
               Día
             </th>
-            <th colSpan="3" className="border border-gray-300 px-2 py-1">
+            <th colSpan="3" className="border border-slate-900 bg-purple-400 px-2 py-1">
               AdultWork
             </th>
             <th colSpan="3" className="border border-gray-300 px-2 py-1">
@@ -524,24 +299,24 @@ export const Home = () => {
             </td>
 
             {/* VX Día */}
-            <td className="border border-gray-300 px-2 py-1">{dia.vx?.creditos ?? "-"}</td>
-            <td className="border border-gray-300 px-2 py-1">{dia.vx?.pesos ?? "-"}</td>
+            <td className="border border-gray-300 px-2 py-1">{dia.vx?.creditosDia ?? "-"}</td>
+            <td className="border border-gray-300 px-2 py-1">{dia.vx?.pesosDia ?? "-"}</td>
 
             {/* VX Total */}
             <td className="border border-gray-300 px-2 py-1">{dia.vx?.creditos ?? "-"}</td>
             <td className="border border-gray-300 px-2 py-1">{dia.vx?.pesos ?? "-"}</td>
 
             {/* 7Live Día */}
-            <td className="border border-gray-300 px-2 py-1">{dia.live7?.creditos ?? "-"}</td>
-            <td className="border border-gray-300 px-2 py-1">{dia.live7?.pesos ?? "-"}</td>
+            <td className="border border-gray-300 px-2 py-1">{dia.live7?.creditosDia ?? "-"}</td>
+            <td className="border border-gray-300 px-2 py-1">{dia.live7?.pesosDia ?? "-"}</td>
 
             {/* 7Live Total */}
             <td className="border border-gray-300 px-2 py-1">{dia.live7?.creditos ?? "-"}</td>
             <td className="border border-gray-300 px-2 py-1">{dia.live7?.pesos ?? "-"}</td>
 
             {/* Dirty Día */}
+            <td className="border border-gray-300 px-2 py-1">{dia.dirty?.dia ?? "-"}</td>
             <td className="border border-gray-300 px-2 py-1">{dia.dirty?.pesosDia ?? "-"}</td>
-            <td className="border border-gray-300 px-2 py-1">{dia.dirty?.total ?? "-"}</td>
 
             {/* Dirty Total */}
             <td className="border border-gray-300 px-2 py-1">{dia.dirty?.total ?? "-"}</td>

@@ -227,6 +227,9 @@ const getAllsQuincenas = async (data) => {
     // console.log("quincena =",quincena[0])
     // console.log("quincena.dias =", quincena[0].dias[0])
     // console.log("quincena.moneda =",quincena[0].Monedas[0])
+    const aranceles = { dolar: 130, euro: 220, lb: 250 };
+    const porcentaje = 0.8;
+    const porcentajeAdult = 0.699947813268342;
     const quincenaOrdenada = {
       id: "",
       name: "",
@@ -235,9 +238,15 @@ const getAllsQuincenas = async (data) => {
         pago: { id: "", dolar: 0, euro: 0, lb: 0 },
         estadisticas: { id: "", dolar: 0, euro: 0, lb: 0 },
       },
-      aranceles: { dolar: 130, euro: 220, lb: 250 },
-      porcentaje: 0.8,
-      adult: 0.699947813268342,
+      totales: {
+        dias: 0,
+        adult: { libras: 0, pesos: 0 },
+        sender: { coins: 0, euros: 0, pesos: 0 },
+        dirty: { dolares: 0, pesos: 0 },
+        vx: { creditos: 0, pesos: 0 },
+        live7: { creditos: 0, pesos: 0 },
+      },
+      totalCredtos: 0,
     };
     for (let q of quincena) {
       if (!q) continue;
@@ -271,7 +280,7 @@ const getAllsQuincenas = async (data) => {
       // y restamos los aranceles
       const precioLb =
         quincenaOrdenada.moneda.pago.lb !== 0
-          ? quincenaOrdenada.moneda.pago.lb - quincenaOrdenada.aranceles.lb
+          ? quincenaOrdenada.moneda.pago.lb - aranceles.lb
           : quincenaOrdenada.moneda.estadisticas.lb;
       //* valor del euro
       //calculamos el valor del euro
@@ -279,7 +288,7 @@ const getAllsQuincenas = async (data) => {
       // y restamos los aranceles
       const valorEuro =
         quincenaOrdenada.moneda.pago.euro !== 0
-          ? quincenaOrdenada.moneda.pago.euro - quincenaOrdenada.aranceles.euro
+          ? quincenaOrdenada.moneda.pago.euro - aranceles.euro
           : quincenaOrdenada.moneda.estadisticas.euro;
       //* valor de dolar
       //calculamos el valor del dolar
@@ -287,8 +296,7 @@ const getAllsQuincenas = async (data) => {
       // y restamos los aranceles
       const valorDolar =
         quincenaOrdenada.moneda.pago.dolar !== 0
-          ? quincenaOrdenada.moneda.pago.dolar -
-            quincenaOrdenada.aranceles.dolar
+          ? quincenaOrdenada.moneda.pago.dolar - aranceles.dolar
           : quincenaOrdenada.moneda.estadisticas.dolar;
       //entrando a las propiedades de dias
       for (let dias of q?.dias) {
@@ -338,9 +346,9 @@ const getAllsQuincenas = async (data) => {
             // console.log("numero del dia", dias.name?.split("-")[0]);
 
             //quitamos a las libras el porcentaje de la pagina
-            const corte = adult.lb * quincenaOrdenada.adult;
+            const corte = adult.lb * porcentajeAdult;
             // libras por el porcentaje del studio
-            const cortePorcentaje = corte * quincenaOrdenada.porcentaje;
+            const cortePorcentaje = corte * porcentaje;
 
             const AdultPesos = cortePorcentaje * precioLb;
             //agregamos todo al array de adult
@@ -367,7 +375,7 @@ const getAllsQuincenas = async (data) => {
             dia.sender.totalCoins = sender.coins;
             const euros = sender.coins * sender.paginaS.valor;
             dia.sender.totalEuros = euros;
-            const eurosPorcentaje = euros * quincenaOrdenada.porcentaje;
+            const eurosPorcentaje = euros * porcentaje;
 
             const totalPesos = eurosPorcentaje * valorEuro;
             dia.sender.totalPesos = totalPesos;
@@ -387,7 +395,7 @@ const getAllsQuincenas = async (data) => {
             //agregamos los euros al total
             dia.sender.totalEuros = euros;
             //calculamos los euros por el porcentaje de la quincena
-            const eurosPorcentaje = euros * quincenaOrdenada.porcentaje;
+            const eurosPorcentaje = euros * porcentaje;
 
             //calculamos los pesos del dia
             const pesos = eurosPorcentaje * valorEuro;
@@ -420,8 +428,8 @@ const getAllsQuincenas = async (data) => {
             dia.sender.totalEuros = euros;
             dia.sender.eurosDias = eurosDia;
             //calculamos los euros por el porcentaje de la quincena
-            const eurosPorcentajeDia = eurosDia * quincenaOrdenada.porcentaje;
-            const eurosPorcentaje = euros * quincenaOrdenada.porcentaje;
+            const eurosPorcentajeDia = eurosDia * porcentaje;
+            const eurosPorcentaje = euros * porcentaje;
             //calculamos el valor del euro
             // si hay moneda de pago, usamos el valor de pago de lo contrario usamos el de estadisticas
             // y restamos los aranceles
@@ -465,8 +473,8 @@ const getAllsQuincenas = async (data) => {
             dia.sender.totalEuros = euros;
             dia.sender.eurosDias = eurosDia;
             //calculamos los euros por el porcentaje de la quincena
-            const eurosPorcentajeDia = eurosDia * quincenaOrdenada.porcentaje;
-            const eurosPorcentaje = euros * quincenaOrdenada.porcentaje;
+            const eurosPorcentajeDia = eurosDia * porcentaje;
+            const eurosPorcentaje = euros * porcentaje;
 
             //ca;lculamos los pesos del dia y el total
             const pesosDias = eurosPorcentajeDia * valorEuro;
@@ -493,7 +501,7 @@ const getAllsQuincenas = async (data) => {
             );
           const tda = qOrdena[0]?.dirty?.total || 0;
           // console.log("qOrdena = ",qOrdena);
-          // console.log("tda", tda);
+          console.log("tda", tda);
 
           dia.dirty.dia =
             tda <= dirty?.dolares
@@ -509,8 +517,8 @@ const getAllsQuincenas = async (data) => {
                 : tda
               : tda;
           dia.dirty.mostrar = dirty.mostrar;
-          const porcentajeDia = dia.dirty.dia * quincenaOrdenada.porcentaje;
-          const porcentajeTotal = dia.dirty.total * quincenaOrdenada.porcentaje;
+          const porcentajeDia = dia.dirty.dia * porcentaje;
+          const porcentajeTotal = dia.dirty.total * porcentaje;
 
           const pesosDia = porcentajeDia * valorDolar;
           const pesosTotal = porcentajeTotal * valorDolar;
@@ -547,9 +555,8 @@ const getAllsQuincenas = async (data) => {
                 ? parseInt(vx?.creditos)
                 : tda
               : tda;
-          const porcentajeDia =
-            dia.vx.creditosDia * quincenaOrdenada.porcentaje;
-          const porcentajeTotal = dia.vx.creditos * quincenaOrdenada.porcentaje;
+          const porcentajeDia = dia.vx.creditosDia * porcentaje;
+          const porcentajeTotal = dia.vx.creditos * porcentaje;
           const pesosDia = porcentajeDia * valorEuro;
           const pesosTotal = porcentajeTotal * valorEuro;
 
@@ -585,21 +592,78 @@ const getAllsQuincenas = async (data) => {
                 ? parseInt(lives?.creditos)
                 : tda
               : tda;
-          const porcentajeDia =
-            dia.live7.creditosDia * quincenaOrdenada.porcentaje;
-          const porcentajeTotal = dia.live7.creditos * quincenaOrdenada.porcentaje;
+          const porcentajeDia = dia.live7.creditosDia * porcentaje;
+          const porcentajeTotal = dia.live7.creditos * porcentaje;
           const pesosDia = porcentajeDia * valorEuro;
           const pesosTotal = porcentajeTotal * valorEuro;
 
           dia.live7.pesosDia = pesosDia;
           dia.live7.pesos = pesosTotal;
         }
-        quincenaOrdenada.dias.push(dia);
+        console.log(dia);
+        const res = {
+          name: dia.name,
+          adult: dia.adult,
+          sender: {
+            id: dia.sender.id,
+            coinsDias: dia.sender.coinsDias,
+            eurosDias: dia.sender.eurosDias,
+            pesosDias: dia.sender.pesosDias,
+            qa: 0,
+          },
+          dirty: {
+            id: dia.dirty.id,
+            dia: dia.dirty.dia,
+            mostrar: dia.dirty.mostrar,
+            pesosDia: dia.dirty.pesosDia,
+            qa: 0,
+          },
+          vx: {
+            id: dia.vx.id,
+            creditosDia: dia.vx.creditosDia,
+            pesosDia: dia.vx.pesosDia,
+            qa: 0,
+          },
+          live7: {
+            id: dia.live7.id,
+            creditosDia: dia.live7.creditosDia,
+            pesosDia: dia.live7.pesosDia,
+            qa: 0,
+          },
+          total: {
+            libras: 0,
+            euros: 0,
+            dolares: 0,
+            pesos: 0,
+          },
+        };
+        res.total.libras = dia.adult.reduce((acc, curr) => acc + curr.lbr, 0);
+        res.total.euros =
+          dia.sender.eurosDias + dia.vx.creditosDia + dia.live7.creditosDia;
+        res.total.dolares = dia.dirty.dia;
+        res.total.pesos =
+          dia.sender.pesosDias +
+          dia.dirty.pesosDia +
+          dia.vx.pesosDia +
+          dia.live7.pesosDia +
+          dia?.adult?.reduce((x, y) => x + y.pesos, 0);
+        console.log("res", res);
+        quincenaOrdenada.dias.push(res);
+      //   totales: {
+      //   dias: 0,
+      //   adult: { libras: 0, pesos: 0 },
+      //   sender: { coins: 0, euros: 0, pesos: 0 },
+      //   dirty: { dolares: 0, pesos: 0 },
+      //   vx: { creditos: 0, pesos: 0 },
+      //   live7: { creditos: 0, pesos: 0 },
+      // },
+      // totalCredtos: 0,
       }
     }
 
     // console.log("quincena", quincena);
-    console.log("quincena ordenada", quincenaOrdenada.dias);
+    // console.log("quincena ordenada", quincenaOrdenada.dias);
+
     return quincenaOrdenada;
   } catch (error) {
     console.log(error);
