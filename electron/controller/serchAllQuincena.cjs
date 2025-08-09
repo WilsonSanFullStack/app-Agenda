@@ -15,56 +15,56 @@ const { Op } = require("sequelize"); // Importar Op
 // const { BrowserWindow } = require("electron");
 function filtrarAdults(dias) {
   const diasSoloAdult = dias.flatMap((dia) =>
-    dia.Adults.map((adult) => ({
+    dia?.Adults.map((adult) => ({
       ...adult,
-      name: dia.name,
+      name: dia?.name,
       // createdAt: new Date(adult.createdAt), // Asegurar que es Date
     }))
   );
 
   const getDia = (item) =>
-    parseInt(item.name.split("-")[0].replace(/\D/g, ""), 10);
+    parseInt(item?.name?.split("-")[0]?.replace(/\D/g, ""), 10);
 
-  const corteTrue = diasSoloAdult.filter((a) => a.corte === true);
-  const corteFalse = diasSoloAdult.filter((a) => a.corte === false);
+  const corteTrue = diasSoloAdult?.filter((a) => a?.corte === true);
+  const corteFalse = diasSoloAdult?.filter((a) => a?.corte === false);
 
-  const maxDiaTrue = Math.max(...corteTrue.map(getDia), 0);
-  const maxDiaFalse = Math.max(...corteFalse.map(getDia), 0);
+  const maxDiaTrue = Math.max(...corteTrue?.map(getDia), 0);
+  const maxDiaFalse = Math.max(...corteFalse?.map(getDia), 0);
 
-  const mostRecentTrue = corteTrue.reduce(
+  const mostRecentTrue = corteTrue?.reduce(
     (latest, current) =>
-      new Date(current.createdAt) > new Date(latest.createdAt) &&
-      parseInt(current.name?.split("-")[0]) === maxDiaTrue
+      new Date(current?.createdAt) > new Date(latest?.createdAt) &&
+      parseInt(current?.name?.split("-")[0]) === maxDiaTrue
         ? current
         : latest,
     corteTrue[0] ?? null
   );
 
-  const mostRecentFalse = corteFalse.reduce(
+  const mostRecentFalse = corteFalse?.reduce(
     (latest, current) =>
-      new Date(current.createdAt) > new Date(latest.createdAt) &&
-      parseInt(current.name?.split("-")[0]) === maxDiaFalse
+      new Date(current?.createdAt) > new Date(latest?.createdAt) &&
+      parseInt(current?.name?.split("-")[0]) === maxDiaFalse
         ? current
         : latest,
     corteFalse[0] ?? null
   );
 
-  return diasSoloAdult.filter((item) => {
-    if (item.corte === true) return true;
+  return diasSoloAdult?.filter((item) => {
+    if (item?.corte === true) return true;
 
     const dia = getDia(item);
-    const isMostRecent = item.id === mostRecentFalse?.id;
+    const isMostRecent = item?.id === mostRecentFalse?.id;
     // Condición 1: Es el corte:false más reciente y su día es >= al corte:true más reciente
     const condition1 =
       isMostRecent &&
-      new Date(mostRecentTrue.createdAt) < new Date(item.createdAt);
+      new Date(mostRecentTrue?.createdAt) < new Date(item?.createdAt);
 
     // Condición 2: Tiene día mayor a todos los corte:true y a todos los corte:false
     const condition2 = dia >= maxDiaTrue && dia >= maxDiaFalse;
     // Condición 3: Tiene el día máximo entre todos los corte:false
     const condition3 =
       dia === maxDiaFalse ||
-      new Date(mostRecentTrue) > new Date(item.createdAt);
+      new Date(mostRecentTrue) > new Date(item?.createdAt);
     // Condición de exclusión
     const removeByOtherFalse = dia < maxDiaFalse && !isMostRecent;
     const removeByTrue = dia < maxDiaTrue;
@@ -325,7 +325,9 @@ const getAllsQuincenas = async (data) => {
           },
           live7: {
             id: "",
+            creditosDia: 0,
             creditos: 0,
+            pesosDia: 0,
             pesos: 0,
             qa: 0,
           },
@@ -558,14 +560,46 @@ const getAllsQuincenas = async (data) => {
         for (let lives of dias?.Lives) {
           // console.log("lives", lives);
           dia.live7.id = lives.id;
-          dia.live7.creditos = lives.creditos;
+          const current = parseInt(dias.name?.split("-")[0]);
+          dia.live7.id = lives.id;
+          const qOrdena = quincenaOrdenada.dias
+            ?.filter((x) =>
+              parseInt(x.name?.split("-")[0]) < current ? x : null
+            )
+            .sort(
+              (a, b) =>
+                parseInt(b.name?.split("-")[0]) -
+                parseInt(a.name?.split("-")[0])
+            );
+          const tda = parseInt(qOrdena[0]?.live7?.creditos) || 0;
+          dia.live7.creditosDia =
+            tda <= parseInt(lives?.creditos)
+              ? parseInt(lives?.creditos) - tda
+              : tda > parseInt(lives?.creditos)
+              ? tda
+              : parseInt(lives?.creditos);
+
+          dia.live7.creditos =
+            parseInt(lives?.creditos) > 0
+              ? parseInt(lives?.creditos) > tda
+                ? parseInt(lives?.creditos)
+                : tda
+              : tda;
+          const porcentajeDia =
+            dia.live7.creditosDia * quincenaOrdenada.porcentaje;
+          const porcentajeTotal = dia.live7.creditos * quincenaOrdenada.porcentaje;
+          const pesosDia = porcentajeDia * valorEuro;
+          const pesosTotal = porcentajeTotal * valorEuro;
+
+          dia.live7.pesosDia = pesosDia;
+          dia.live7.pesos = pesosTotal;
         }
         quincenaOrdenada.dias.push(dia);
       }
     }
 
     // console.log("quincena", quincena);
-    // console.log("quincena ordenada", quincenaOrdenada.dias);
+    console.log("quincena ordenada", quincenaOrdenada.dias);
     return quincenaOrdenada;
   } catch (error) {
     console.log(error);

@@ -50453,45 +50453,48 @@ function requireSerchAllQuincena() {
   const { Op } = requireLib();
   function filtrarAdults(dias) {
     const diasSoloAdult = dias.flatMap(
-      (dia) => dia.Adults.map((adult2) => ({
+      (dia) => dia == null ? void 0 : dia.Adults.map((adult2) => ({
         ...adult2,
-        name: dia.name
+        name: dia == null ? void 0 : dia.name
         // createdAt: new Date(adult.createdAt), // Asegurar que es Date
       }))
     );
-    const getDia = (item) => parseInt(item.name.split("-")[0].replace(/\D/g, ""), 10);
-    const corteTrue = diasSoloAdult.filter((a) => a.corte === true);
-    const corteFalse = diasSoloAdult.filter((a) => a.corte === false);
-    const maxDiaTrue = Math.max(...corteTrue.map(getDia), 0);
-    const maxDiaFalse = Math.max(...corteFalse.map(getDia), 0);
-    const mostRecentTrue = corteTrue.reduce(
+    const getDia = (item) => {
+      var _a, _b;
+      return parseInt((_b = (_a = item == null ? void 0 : item.name) == null ? void 0 : _a.split("-")[0]) == null ? void 0 : _b.replace(/\D/g, ""), 10);
+    };
+    const corteTrue = diasSoloAdult == null ? void 0 : diasSoloAdult.filter((a) => (a == null ? void 0 : a.corte) === true);
+    const corteFalse = diasSoloAdult == null ? void 0 : diasSoloAdult.filter((a) => (a == null ? void 0 : a.corte) === false);
+    const maxDiaTrue = Math.max(...corteTrue == null ? void 0 : corteTrue.map(getDia), 0);
+    const maxDiaFalse = Math.max(...corteFalse == null ? void 0 : corteFalse.map(getDia), 0);
+    const mostRecentTrue = corteTrue == null ? void 0 : corteTrue.reduce(
       (latest, current) => {
         var _a;
-        return new Date(current.createdAt) > new Date(latest.createdAt) && parseInt((_a = current.name) == null ? void 0 : _a.split("-")[0]) === maxDiaTrue ? current : latest;
+        return new Date(current == null ? void 0 : current.createdAt) > new Date(latest == null ? void 0 : latest.createdAt) && parseInt((_a = current == null ? void 0 : current.name) == null ? void 0 : _a.split("-")[0]) === maxDiaTrue ? current : latest;
       },
       corteTrue[0] ?? null
     );
-    const mostRecentFalse = corteFalse.reduce(
+    const mostRecentFalse = corteFalse == null ? void 0 : corteFalse.reduce(
       (latest, current) => {
         var _a;
-        return new Date(current.createdAt) > new Date(latest.createdAt) && parseInt((_a = current.name) == null ? void 0 : _a.split("-")[0]) === maxDiaFalse ? current : latest;
+        return new Date(current == null ? void 0 : current.createdAt) > new Date(latest == null ? void 0 : latest.createdAt) && parseInt((_a = current == null ? void 0 : current.name) == null ? void 0 : _a.split("-")[0]) === maxDiaFalse ? current : latest;
       },
       corteFalse[0] ?? null
     );
-    return diasSoloAdult.filter((item) => {
-      if (item.corte === true) return true;
+    return diasSoloAdult == null ? void 0 : diasSoloAdult.filter((item) => {
+      if ((item == null ? void 0 : item.corte) === true) return true;
       const dia = getDia(item);
-      const isMostRecent = item.id === (mostRecentFalse == null ? void 0 : mostRecentFalse.id);
-      const condition1 = isMostRecent && new Date(mostRecentTrue.createdAt) < new Date(item.createdAt);
+      const isMostRecent = (item == null ? void 0 : item.id) === (mostRecentFalse == null ? void 0 : mostRecentFalse.id);
+      const condition1 = isMostRecent && new Date(mostRecentTrue == null ? void 0 : mostRecentTrue.createdAt) < new Date(item == null ? void 0 : item.createdAt);
       const condition2 = dia >= maxDiaTrue && dia >= maxDiaFalse;
-      const condition3 = dia === maxDiaFalse || new Date(mostRecentTrue) > new Date(item.createdAt);
+      const condition3 = dia === maxDiaFalse || new Date(mostRecentTrue) > new Date(item == null ? void 0 : item.createdAt);
       const removeByOtherFalse = dia < maxDiaFalse && !isMostRecent;
       const removeByTrue = dia < maxDiaTrue;
       return condition1 && condition2 && condition3 && !removeByOtherFalse && !removeByTrue;
     });
   }
   const getAllsQuincenas = async (data) => {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w;
     try {
       const pages = await Quincena.findAll({
         where: { id: data.q },
@@ -50705,7 +50708,9 @@ function requireSerchAllQuincena() {
             },
             live7: {
               id: "",
+              creditosDia: 0,
               creditos: 0,
+              pesosDia: 0,
               pesos: 0,
               qa: 0
             }
@@ -50848,11 +50853,33 @@ function requireSerchAllQuincena() {
           }
           for (let lives of dias2 == null ? void 0 : dias2.Lives) {
             dia.live7.id = lives.id;
-            dia.live7.creditos = lives.creditos;
+            const current = parseInt((_t = dias2.name) == null ? void 0 : _t.split("-")[0]);
+            dia.live7.id = lives.id;
+            const qOrdena = (_u = quincenaOrdenada.dias) == null ? void 0 : _u.filter(
+              (x) => {
+                var _a2;
+                return parseInt((_a2 = x.name) == null ? void 0 : _a2.split("-")[0]) < current ? x : null;
+              }
+            ).sort(
+              (a, b) => {
+                var _a2, _b2;
+                return parseInt((_a2 = b.name) == null ? void 0 : _a2.split("-")[0]) - parseInt((_b2 = a.name) == null ? void 0 : _b2.split("-")[0]);
+              }
+            );
+            const tda = parseInt((_w = (_v = qOrdena[0]) == null ? void 0 : _v.live7) == null ? void 0 : _w.creditos) || 0;
+            dia.live7.creditosDia = tda <= parseInt(lives == null ? void 0 : lives.creditos) ? parseInt(lives == null ? void 0 : lives.creditos) - tda : tda > parseInt(lives == null ? void 0 : lives.creditos) ? tda : parseInt(lives == null ? void 0 : lives.creditos);
+            dia.live7.creditos = parseInt(lives == null ? void 0 : lives.creditos) > 0 ? parseInt(lives == null ? void 0 : lives.creditos) > tda ? parseInt(lives == null ? void 0 : lives.creditos) : tda : tda;
+            const porcentajeDia = dia.live7.creditosDia * quincenaOrdenada.porcentaje;
+            const porcentajeTotal = dia.live7.creditos * quincenaOrdenada.porcentaje;
+            const pesosDia = porcentajeDia * valorEuro;
+            const pesosTotal = porcentajeTotal * valorEuro;
+            dia.live7.pesosDia = pesosDia;
+            dia.live7.pesos = pesosTotal;
           }
           quincenaOrdenada.dias.push(dia);
         }
       }
+      console.log("quincena ordenada", quincenaOrdenada.dias);
       return quincenaOrdenada;
     } catch (error) {
       console.log(error);
