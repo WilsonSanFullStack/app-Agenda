@@ -439,7 +439,7 @@ export const Home = () => {
         data.totalQuincena?.total?.dolares ?? 0
       )}
     </td>
-    <td className="border border-gray-300 px-2 py-1">
+    <td className="border border-gray-400 px-2 py-1">
       {Intl.NumberFormat("es-ES", { style: "currency", currency: "COP" }).format(
         data.totalQuincena?.total?.pesos ?? 0
       )}
