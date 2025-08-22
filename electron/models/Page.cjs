@@ -11,26 +11,30 @@ module.exports = (sequelize) => {
       },
       name: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
         unique: true,
       },
       coins: {
-        type: DataTypes.BOOLEAN,
+        type: DataTypes.FLOAT,
+        allowNull: false,
+      },
+      valorCoins: {
+        type: DataTypes.FLOAT,
         allowNull: false,
       },
       moneda: {
-        type: DataTypes.STRING,
+        type: DataTypes.ENUM[("USD", "EUR", "GBP")],
         allowNull: false,
       },
       mensual: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
       },
-      valor: {
+      tope: {
         type: DataTypes.FLOAT,
         allowNull: false,
       },
-      tope: {
+      descuento: {
         type: DataTypes.FLOAT,
         allowNull: false,
       },

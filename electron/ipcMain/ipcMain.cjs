@@ -47,30 +47,6 @@ ipcMain.handle("add-page", async (_, data) => {
 ipcMain.handle("get-page", async () => {
   return await getAllPage();
 });
-//sender
-ipcMain.handle("add-sender", async (_, data) => {
-  return await postSender(data);
-});
-// buscar sender
-ipcMain.handle("get-sender", async () => {
-  return await getAllCoins();
-});
-//dirty
-ipcMain.handle("add-dirty", async (_, data) => {
-  return await postDirty(data);
-});
-//adult
-ipcMain.handle("add-adult", async (_, data) => {
-  return await postAdult(data);
-});
-//vx
-ipcMain.handle("add-vx", async (_, data) => {
-  return await postVx(data);
-});
-//7live
-ipcMain.handle("add-live7", async (_, data) => {
-  return await postLive7(data);
-});
 //monedas
 ipcMain.handle("add-moneda", async (_, data) => {
   return await postMoneda(data);

@@ -17,7 +17,7 @@ module.exports = (sequelize) => {
         type: DataTypes.FLOAT,
         allowNull: false,
       },
-      lb: {
+      gbp: {
         type: DataTypes.FLOAT,
         allowNull: false,
       },

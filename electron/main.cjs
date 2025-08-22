@@ -1,69 +1,15 @@
 const { app, BrowserWindow, ipcMain, Menu, nativeImage } = require("electron");
 const path = require("path");
 const chokidar = require("chokidar");
-const { sequelize, Page } = require("./db.cjs");
+const { sequelize } = require("./db.cjs");
 
 require("./ipcMain/ipcMain.cjs");
-const pagina = [
-  {
-    name: "adultwork",
-    coins: false,
-    moneda: "libras esterlinas",
-    mensual: false,
-    valor: 1,
-    tope: 0,
-  },
-  {
-    name: "sender",
-    coins: true,
-    moneda: "euros",
-    mensual: true,
-    valor: 0.11,
-    tope: 0,
-  },
-  {
-    name: "dirty",
-    coins: false,
-    moneda: "dolares",
-    mensual: true,
-    valor: 1,
-    tope: 50,
-  },
-  {
-    name: "vx",
-    coins: false,
-    moneda: "euros",
-    mensual: true,
-    valor: 1,
-    tope: 0,
-  },
-  {
-    name: "7live",
-    coins: false,
-    moneda: "euros",
-    mensual: true,
-    valor: 1,
-    tope: 0,
-  },
-];
 
 let mainWindow;
 
 app.whenReady().then(async () => {
   await sequelize.sync({ force: false }); //sincroniza la db sin eliminar datos
   console.log("🔹 Base de datos lista");
-
-  const count = await Page.count();
-  if (count === 0) {
-    try {
-      await Page.bulkCreate(pagina);
-      console.log("✅ Registros iniciales insertados.");
-    } catch (error) {
-      console.error("❌ Error al insertar registros:", error);
-    }
-  }
-
-
 
   mainWindow = new BrowserWindow({
     width: 1280,
@@ -100,14 +46,12 @@ app.whenReady().then(async () => {
       mainWindow.webContents.openDevTools();
     }
   });
-  
-  
-  
+
   // Eventos para manejar acciones de la ventana desde el frontend
   ipcMain.on("window:minimize", () => {
     mainWindow.minimize();
   });
-  
+
   ipcMain.on("window:maximize", () => {
     if (mainWindow.isMaximized()) {
       mainWindow.unmaximize();
@@ -115,7 +59,7 @@ app.whenReady().then(async () => {
       mainWindow.maximize();
     }
   });
-  
+
   ipcMain.on("window:close", () => {
     mainWindow.close();
   });

@@ -2,7 +2,7 @@ const { DataTypes, UUIDV4 } = require("sequelize");
 
 module.exports = (sequelize) => {
   sequelize.define(
-    "Day",
+    "CerradoQ",
     {
       id: {
         type: DataTypes.UUID,
@@ -13,49 +13,80 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      usd: {
+      diasTrabajados: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+      },
+      mejorDia: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: "",
+      },
+      peorDia: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: "",
+      },
+      dirty: {
         type: DataTypes.FLOAT,
         allowNull: false,
         defaultValue: 0,
       },
-      euro: {
+      sender: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+      },
+      vx: {
         type: DataTypes.FLOAT,
         allowNull: false,
         defaultValue: 0,
       },
-      gbp: {
+      live7: {
         type: DataTypes.FLOAT,
         allowNull: false,
         defaultValue: 0,
       },
-      gbpParcial: {
+      adultwork: {
         type: DataTypes.FLOAT,
         allowNull: false,
         defaultValue: 0,
       },
-      cop: {
+      totalUsd: {
         type: DataTypes.FLOAT,
         allowNull: false,
         defaultValue: 0,
       },
-      mostrar: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-      },
-      adelantos: {
+      totalEuro: {
         type: DataTypes.FLOAT,
         allowNull: false,
         defaultValue: 0,
       },
-      creditos: {
+      totalGbp: {
         type: DataTypes.FLOAT,
         allowNull: false,
         defaultValue: 0,
       },
-      worked: {
-        type: DataTypes.BOOLEAN,
+      totalCop: {
+        type: DataTypes.FLOAT,
         allowNull: false,
-        defaultValue: false,
+        defaultValue: 0,
+      },
+      totalPrestamos: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+        defaultValue: 0,
+      },
+      totalCreditos: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+        defaultValue: 0,
+      },
+      promedioDiario: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+        defaultValue: 0,
       },
     },
     {
