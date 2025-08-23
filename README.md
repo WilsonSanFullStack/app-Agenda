@@ -10,3 +10,4 @@ Currently, two official plugins are available:
 
 error para cargar monedas ojo
 ojo mirar bien los creditos de sender y revisar el funcionamineto de todo getAllData
+cre la branch v2
