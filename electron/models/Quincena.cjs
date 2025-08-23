@@ -15,11 +15,11 @@ module.exports = (sequelize) => {
         unique: true,
       },
       inicio: {
-        type: DataTypes.STRING,
+        type: DataTypes.DATE,
         allowNull: false,
       },
       fin: {
-        type: DataTypes.STRING,
+        type: DataTypes.DATE,
         allowNull: false,
       },
     },

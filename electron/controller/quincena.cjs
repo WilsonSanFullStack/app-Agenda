@@ -3,7 +3,7 @@ const { BrowserWindow } = require("electron");
 
 const postQuincena = async (data) => {
   try {
-    const [nuevaQuincena, created] = await Quincena.findOrCreate({
+    const [quincena, created] = await Quincena.findOrCreate({
       where: { name: data.name },
       defaults: {
         name: data.name,
@@ -17,9 +17,9 @@ const postQuincena = async (data) => {
     }
     // 🔹 Enviar evento a React para actualizar la lista
     BrowserWindow.getAllWindows().forEach((win) => {
-      win.webContents.send("quincenaActualizada", nuevaQuincena);
+      win.webContents.send("quincenaActualizada", quincena);
     });
-    return nuevaQuincena;
+    return quincena;
   } catch (error) {
     return {
       success: false,
@@ -28,8 +28,22 @@ const postQuincena = async (data) => {
     };
   }
 };
-
-const getAllQuincenas = async () => {
+const getAllQuincenaYear= async (year) =>{
+  try {
+    const res = await Quincena.findAll({
+    where: where(fn('strftime', '%Y', col('inicio')), year.toString())
+  });
+  return res;
+  } catch (error) {
+    return {
+      success: false,
+      message: "Error al obtener Quincenas",
+      error: error,
+    };
+  }
+}
+const getAllQuincenas = async (date) => {
+  console.log(date)
   try {
     const months = [
       "enero",
@@ -45,36 +59,23 @@ const getAllQuincenas = async () => {
       "noviembre",
       "diciembre",
     ];
-    const today = new Date();
-    const day = today.getDate();
-    const monthIndex = today.getMonth();
-    const year = today.getFullYear();
+    const data = date?.split("-");
+    const day = parseInt(data[1]);
+    const monthIndex = months.indexOf(data[0].toLowerCase())+1;
+    const year = parseInt(data[2]);
+    console.log("dia", day, "mes", monthIndex, "año", year);
 
-    // Determinar quincena actual
-    const currentQuincena =
-      day <= 15
-        ? `${months[monthIndex]}-1-${year}` // Primera quincena
-        : `${months[monthIndex]}-2-${year}`; // Segunda quincena
+
 
     const respuesta = await Quincena?.findAll({
+      where: {name: date},
       order: [["inicio", "ASC"]],
       attributes: ["id", "name", "inicio", "fin"],
+      limit: 5,
     }); 
     // Ordenar por "inicio" de mayor a menor
-    const res = respuesta?.map((x) => x.get({ plain: true }));
-    const sortedData = res?.sort((a, b) => {
-      const dateA = a?.inicio?.split("/")?.reverse()?.join("-"); // Convierte '01/01/2025' a '2025-01-01'
-      const dateB = b?.inicio?.split("/")?.reverse()?.join("-"); // Convierte '16/01/2025' a '2025-01-16'
-      return new Date(dateA) - new Date(dateB);
-    });
-    // Encontrar el índice de la quincena actual
-    const indexActual = sortedData.findIndex((q) => q.name === currentQuincena);
-    // Seleccionar 2 anteriores y 2 posteriores (máximo 5 elementos)
-    const filteredQuincenas = sortedData.slice(
-      Math.max(0, indexActual - 2),
-      indexActual + 3
-    );
-    return filteredQuincenas;
+    
+    return respuesta;
   } catch (error) {
     return {
       success: false,
@@ -127,6 +128,7 @@ const deleteQuincena = async (quincenaId) => {
 
 module.exports = {
   postQuincena,
+  getAllQuincenaYear,
   getAllQuincenas,
   getQuincenaById,
   deleteQuincena,

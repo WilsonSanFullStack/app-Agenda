@@ -7,7 +7,8 @@ contextBridge.exposeInMainWorld("Electron", {
   openDevTools: () => ipcRenderer.send("open-devtools"),
   //eventos para quincenas
   addQuincena: (data) => ipcRenderer.invoke("add-quincena", data),
-  getQuincena: () => ipcRenderer.invoke("get-quincena"),
+  getQuincena: (date) => ipcRenderer.invoke("get-quincena", date),
+  getQuincenaYear: (year) => ipcRenderer.invoke("get-quincena-year", year),
   getQuincenaById: (id) => ipcRenderer.invoke("get-quincena-By-Id", id),
   deleteQuincena: (id) => ipcRenderer.invoke("delete-quincena", id),
   //eventos para dias

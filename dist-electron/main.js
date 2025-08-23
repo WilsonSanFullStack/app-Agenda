@@ -589,11 +589,11 @@ function requireHandler() {
       "zipx"
     ]);
     const isBinaryPath = (filePath) => binaryExtensions.has(sysPath.extname(filePath).slice(1).toLowerCase());
-    const foreach = (val, fn) => {
+    const foreach = (val, fn2) => {
       if (val instanceof Set) {
-        val.forEach(fn);
+        val.forEach(fn2);
       } else {
-        fn(val);
+        fn2(val);
       }
     };
     const addAndConvert = (main2, prop, item) => {
@@ -4161,8 +4161,8 @@ function requireLodash() {
         function createBind(func, bitmask, thisArg) {
           var isBind = bitmask & WRAP_BIND_FLAG, Ctor = createCtor(func);
           function wrapper() {
-            var fn = this && this !== root && this instanceof wrapper ? Ctor : func;
-            return fn.apply(isBind ? thisArg : this, arguments);
+            var fn2 = this && this !== root && this instanceof wrapper ? Ctor : func;
+            return fn2.apply(isBind ? thisArg : this, arguments);
           }
           return wrapper;
         }
@@ -4228,8 +4228,8 @@ function requireLodash() {
                 arity - length
               );
             }
-            var fn = this && this !== root && this instanceof wrapper ? Ctor : func;
-            return apply(fn, this, args);
+            var fn2 = this && this !== root && this instanceof wrapper ? Ctor : func;
+            return apply(fn2, this, args);
           }
           return wrapper;
         }
@@ -4317,7 +4317,7 @@ function requireLodash() {
                 arity - length
               );
             }
-            var thisBinding = isBind ? thisArg : this, fn = isBindKey ? thisBinding[func] : func;
+            var thisBinding = isBind ? thisArg : this, fn2 = isBindKey ? thisBinding[func] : func;
             length = args.length;
             if (argPos) {
               args = reorder(args, argPos);
@@ -4328,9 +4328,9 @@ function requireLodash() {
               args.length = ary2;
             }
             if (this && this !== root && this instanceof wrapper) {
-              fn = Ctor || createCtor(fn);
+              fn2 = Ctor || createCtor(fn2);
             }
-            return fn.apply(thisBinding, args);
+            return fn2.apply(thisBinding, args);
           }
           return wrapper;
         }
@@ -4387,14 +4387,14 @@ function requireLodash() {
         function createPartial(func, bitmask, thisArg, partials) {
           var isBind = bitmask & WRAP_BIND_FLAG, Ctor = createCtor(func);
           function wrapper() {
-            var argsIndex = -1, argsLength = arguments.length, leftIndex = -1, leftLength = partials.length, args = Array2(leftLength + argsLength), fn = this && this !== root && this instanceof wrapper ? Ctor : func;
+            var argsIndex = -1, argsLength = arguments.length, leftIndex = -1, leftLength = partials.length, args = Array2(leftLength + argsLength), fn2 = this && this !== root && this instanceof wrapper ? Ctor : func;
             while (++leftIndex < leftLength) {
               args[leftIndex] = partials[leftIndex];
             }
             while (argsLength--) {
               args[leftIndex++] = arguments[++argsIndex];
             }
-            return apply(fn, isBind ? thisArg : this, args);
+            return apply(fn2, isBind ? thisArg : this, args);
           }
           return wrapper;
         }
@@ -11795,11 +11795,11 @@ function requireIsDate() {
         if (dateObj.m.length === 1) {
           month = "0".concat(dateObj.m);
         }
-        var day2 = dateObj.d;
+        var day = dateObj.d;
         if (dateObj.d.length === 1) {
-          day2 = "0".concat(dateObj.d);
+          day = "0".concat(dateObj.d);
         }
-        return new Date("".concat(fullYear, "-").concat(month, "-").concat(day2, "T00:00:00.000Z")).getUTCDate() === +dateObj.d;
+        return new Date("".concat(fullYear, "-").concat(month, "-").concat(day, "T00:00:00.000Z")).getUTCDate() === +dateObj.d;
       }
       if (!options.strictMode) {
         return Object.prototype.toString.call(input) === "[object Date]" && isFinite(input);
@@ -14683,14 +14683,14 @@ function requireIsTaxID() {
         T: "12"
       };
       var month = month_replace[chars[8]];
-      var day2 = parseInt(chars[9] + chars[10], 10);
-      if (day2 > 40) {
-        day2 -= 40;
+      var day = parseInt(chars[9] + chars[10], 10);
+      if (day > 40) {
+        day -= 40;
       }
-      if (day2 < 10) {
-        day2 = "0".concat(day2);
+      if (day < 10) {
+        day = "0".concat(day);
       }
-      var date = "".concat(chars[6]).concat(chars[7], "/").concat(month, "/").concat(day2);
+      var date = "".concat(chars[6]).concat(chars[7], "/").concat(month, "/").concat(day);
       if (!(0, _isDate.default)(date, "YY/MM/DD")) {
         return false;
       }
@@ -14753,8 +14753,8 @@ function requireIsTaxID() {
     }
     function lvLvCheck(tin) {
       tin = tin.replace(/\W/, "");
-      var day2 = tin.slice(0, 2);
-      if (day2 !== "32") {
+      var day = tin.slice(0, 2);
+      if (day !== "32") {
         var month = tin.slice(2, 4);
         if (month !== "00") {
           var full_year = tin.slice(4, 6);
@@ -14769,7 +14769,7 @@ function requireIsTaxID() {
               full_year = "20".concat(full_year);
               break;
           }
-          var date = "".concat(full_year, "/").concat(tin.slice(2, 4), "/").concat(day2);
+          var date = "".concat(full_year, "/").concat(tin.slice(2, 4), "/").concat(day);
           if (!(0, _isDate.default)(date, "YYYY/MM/DD")) {
             return false;
           }
@@ -15019,12 +15019,12 @@ function requireIsTaxID() {
       }
       var full_year = "";
       var month = tin_copy.slice(2, 4);
-      var day2 = parseInt(tin_copy.slice(4, 6), 10);
+      var day = parseInt(tin_copy.slice(4, 6), 10);
       if (tin.length > 11) {
         full_year = tin.slice(0, 4);
       } else {
         full_year = tin.slice(0, 2);
-        if (tin.length === 11 && day2 < 60) {
+        if (tin.length === 11 && day < 60) {
           var current_year = (/* @__PURE__ */ new Date()).getFullYear().toString();
           var current_century = parseInt(current_year.slice(0, 2), 10);
           current_year = parseInt(current_year, 10);
@@ -15042,13 +15042,13 @@ function requireIsTaxID() {
           }
         }
       }
-      if (day2 > 60) {
-        day2 -= 60;
+      if (day > 60) {
+        day -= 60;
       }
-      if (day2 < 10) {
-        day2 = "0".concat(day2);
+      if (day < 10) {
+        day = "0".concat(day);
       }
-      var date = "".concat(full_year, "/").concat(month, "/").concat(day2);
+      var date = "".concat(full_year, "/").concat(month, "/").concat(day);
       if (date.length === 8) {
         if (!(0, _isDate.default)(date, "YY/MM/DD")) {
           return false;
@@ -15610,12 +15610,12 @@ function requireIsISO8601() {
       var match = str.match(/(\d{4})-?(\d{0,2})-?(\d*)/).map(Number);
       var year = match[1];
       var month = match[2];
-      var day2 = match[3];
+      var day = match[3];
       var monthString = month ? "0".concat(month).slice(-2) : month;
-      var dayString = day2 ? "0".concat(day2).slice(-2) : day2;
+      var dayString = day ? "0".concat(day).slice(-2) : day;
       var d = new Date("".concat(year, "-").concat(monthString || "01", "-").concat(dayString || "01"));
-      if (month && day2) {
-        return d.getUTCFullYear() === year && d.getUTCMonth() + 1 === month && d.getUTCDate() === day2;
+      if (month && day) {
+        return d.getUTCFullYear() === year && d.getUTCMonth() + 1 === month && d.getUTCDate() === day;
       }
       return true;
     };
@@ -17319,10 +17319,10 @@ function isNumber(input) {
 function isDate(input) {
   return input instanceof Date || Object.prototype.toString.call(input) === "[object Date]";
 }
-function map(arr, fn) {
+function map(arr, fn2) {
   var res = [], i, arrLen = arr.length;
   for (i = 0; i < arrLen; ++i) {
-    res.push(fn(arr[i], i));
+    res.push(fn2(arr[i], i));
   }
   return res;
 }
@@ -17475,7 +17475,7 @@ function warn(msg) {
     console.warn("Deprecation warning: " + msg);
   }
 }
-function deprecate(msg, fn) {
+function deprecate(msg, fn2) {
   var firstTime = true;
   return extend(function() {
     if (hooks$1.deprecationHandler != null) {
@@ -17503,8 +17503,8 @@ function deprecate(msg, fn) {
       );
       firstTime = false;
     }
-    return fn.apply(this, arguments);
-  }, fn);
+    return fn2.apply(this, arguments);
+  }, fn2);
 }
 var deprecations$1 = {};
 function deprecateSimple(name, msg) {
@@ -18537,12 +18537,12 @@ function getSetDayOfWeek(input) {
   if (!this.isValid()) {
     return input != null ? this : NaN;
   }
-  var day2 = get(this, "Day");
+  var day = get(this, "Day");
   if (input != null) {
     input = parseWeekday(input, this.localeData());
-    return this.add(input - day2, "d");
+    return this.add(input - day, "d");
   } else {
-    return day2;
+    return day;
   }
 }
 function getSetLocaleDayOfWeek(input) {
@@ -19471,7 +19471,7 @@ var prototypeMin = deprecate(
     }
   }
 );
-function pickBy(fn, moments) {
+function pickBy(fn2, moments) {
   var res, i;
   if (moments.length === 1 && isArray(moments[0])) {
     moments = moments[0];
@@ -19481,7 +19481,7 @@ function pickBy(fn, moments) {
   }
   res = moments[0];
   for (i = 1; i < moments.length; ++i) {
-    if (!moments[i].isValid() || moments[i][fn](res)) {
+    if (!moments[i].isValid() || moments[i][fn2](res)) {
       res = moments[i];
     }
   }
@@ -21283,8 +21283,8 @@ function requireValidatorExtras() {
   const validator2 = _.cloneDeep(/* @__PURE__ */ requireValidator());
   const moment2 = require$$6;
   const extensions = {
-    extend(name, fn) {
-      this[name] = fn;
+    extend(name, fn2) {
+      this[name] = fn2;
       return this;
     },
     notEmpty(str) {
@@ -21807,7 +21807,7 @@ function requireMomentTimezone$1() {
       tz.moveAmbiguousForward = false;
       tz.countries = getCountryNames;
       tz.zonesForCountry = zonesForCountry;
-      var fn = moment2.fn;
+      var fn2 = moment2.fn;
       moment2.tz = tz;
       moment2.defaultZone = null;
       moment2.updateOffset = function(mom, keepTime) {
@@ -21833,7 +21833,7 @@ function requireMomentTimezone$1() {
           }
         }
       };
-      fn.tz = function(name, keepTime) {
+      fn2.tz = function(name, keepTime) {
         if (name) {
           if (typeof name !== "string") {
             throw new Error("Time zone name must be a string, got " + name + " [" + typeof name + "]");
@@ -21870,11 +21870,11 @@ function requireMomentTimezone$1() {
           return old.apply(this, arguments);
         };
       }
-      fn.zoneName = abbrWrap(fn.zoneName);
-      fn.zoneAbbr = abbrWrap(fn.zoneAbbr);
-      fn.utc = resetZoneWrap(fn.utc);
-      fn.local = resetZoneWrap(fn.local);
-      fn.utcOffset = resetZoneWrap2(fn.utcOffset);
+      fn2.zoneName = abbrWrap(fn2.zoneName);
+      fn2.zoneAbbr = abbrWrap(fn2.zoneAbbr);
+      fn2.utc = resetZoneWrap(fn2.utc);
+      fn2.local = resetZoneWrap(fn2.local);
+      fn2.utcOffset = resetZoneWrap2(fn2.utcOffset);
       moment2.tz.setDefault = function(name) {
         if (major < 2 || major === 2 && minor < 9) {
           logError("Moment Timezone setDefault() requires Moment.js >= 2.9.0. You are using Moment.js " + moment2.version + ".");
@@ -27537,9 +27537,9 @@ function requireUtils() {
           }, Model).where;
         }
         if (Array.isArray(attributes[attribute])) {
-          attributes[attribute].forEach((where, index) => {
-            if (_.isPlainObject(where)) {
-              attributes[attribute][index] = mapWhereFieldNames(where, Model);
+          attributes[attribute].forEach((where2, index) => {
+            if (_.isPlainObject(where2)) {
+              attributes[attribute][index] = mapWhereFieldNames(where2, Model);
             }
           });
         }
@@ -27672,9 +27672,9 @@ function requireUtils() {
   }
   utils.SequelizeMethod = SequelizeMethod;
   class Fn extends SequelizeMethod {
-    constructor(fn, args) {
+    constructor(fn2, args) {
       super();
-      this.fn = fn;
+      this.fn = fn2;
       this.args = args;
     }
     clone() {
@@ -27683,12 +27683,12 @@ function requireUtils() {
   }
   utils.Fn = Fn;
   class Col extends SequelizeMethod {
-    constructor(col, ...args) {
+    constructor(col2, ...args) {
       super();
       if (args.length > 0) {
-        col = args;
+        col2 = args;
       }
-      this.col = col;
+      this.col = col2;
     }
   }
   utils.Col = Col;
@@ -28143,7 +28143,7 @@ function requireBelongsTo() {
       Helpers.mixinMethods(this, obj, methods);
     }
     async get(instances, options) {
-      const where = {};
+      const where2 = {};
       let Target = this.target;
       let instance;
       options = Utils.cloneDeep(options);
@@ -28162,17 +28162,17 @@ function requireBelongsTo() {
         instances = void 0;
       }
       if (instances) {
-        where[this.targetKey] = {
+        where2[this.targetKey] = {
           [Op.in]: instances.map((_instance) => _instance.get(this.foreignKey))
         };
       } else {
         if (this.targetKeyIsPrimary && !options.where) {
           return Target.findByPk(instance.get(this.foreignKey), options);
         }
-        where[this.targetKey] = instance.get(this.foreignKey);
+        where2[this.targetKey] = instance.get(this.foreignKey);
         options.limit = null;
       }
-      options.where = options.where ? { [Op.and]: [where, options.where] } : where;
+      options.where = options.where ? { [Op.and]: [where2, options.where] } : where2;
       if (instances) {
         const results = await Target.findAll(options);
         const result = {};
@@ -28356,7 +28356,7 @@ function requireHasMany() {
       Helpers.mixinMethods(this, obj, methods, aliases2);
     }
     async get(instances, options = {}) {
-      const where = {};
+      const where2 = {};
       let Model = this.target;
       let instance;
       let values;
@@ -28366,7 +28366,7 @@ function requireHasMany() {
       }
       options = __spreadValues({}, options);
       if (this.scope) {
-        Object.assign(where, this.scope);
+        Object.assign(where2, this.scope);
       }
       if (instances) {
         values = instances.map((_instance) => _instance.get(this.sourceKey, { raw: true }));
@@ -28378,15 +28378,15 @@ function requireHasMany() {
           };
           delete options.limit;
         } else {
-          where[this.foreignKey] = {
+          where2[this.foreignKey] = {
             [Op.in]: values
           };
           delete options.groupedLimit;
         }
       } else {
-        where[this.foreignKey] = instance.get(this.sourceKey, { raw: true });
+        where2[this.foreignKey] = instance.get(this.sourceKey, { raw: true });
       }
-      options.where = options.where ? { [Op.and]: [where, options.where] } : where;
+      options.where = options.where ? { [Op.and]: [where2, options.where] } : where2;
       if (Object.prototype.hasOwnProperty.call(options, "scope")) {
         if (!options.scope) {
           Model = Model.unscoped();
@@ -28423,7 +28423,7 @@ function requireHasMany() {
       return parseInt(result.count, 10);
     }
     async has(sourceInstance, targetInstances, options) {
-      const where = {};
+      const where2 = {};
       if (!Array.isArray(targetInstances)) {
         targetInstances = [targetInstances];
       }
@@ -28432,7 +28432,7 @@ function requireHasMany() {
         attributes: [this.target.primaryKeyAttribute],
         raw: true
       });
-      where[Op.or] = targetInstances.map((instance) => {
+      where2[Op.or] = targetInstances.map((instance) => {
         if (instance instanceof this.target) {
           return instance.where();
         }
@@ -28442,7 +28442,7 @@ function requireHasMany() {
       });
       options.where = {
         [Op.and]: [
-          where,
+          where2,
           options.where
         ]
       };
@@ -28491,10 +28491,10 @@ function requireHasMany() {
       const update = __spreadValues({
         [this.foreignKey]: sourceInstance.get(this.sourceKey)
       }, this.scope);
-      const where = {
+      const where2 = {
         [this.target.primaryKeyAttribute]: targetInstances.map((unassociatedObject) => unassociatedObject.get(this.target.primaryKeyAttribute))
       };
-      await this.target.unscoped().update(update, __spreadProps(__spreadValues({}, options), { where }));
+      await this.target.unscoped().update(update, __spreadProps(__spreadValues({}, options), { where: where2 }));
       return sourceInstance;
     }
     async remove(sourceInstance, targetInstances, options = {}) {
@@ -28502,11 +28502,11 @@ function requireHasMany() {
         [this.foreignKey]: null
       };
       targetInstances = this.toInstanceArray(targetInstances);
-      const where = {
+      const where2 = {
         [this.foreignKey]: sourceInstance.get(this.sourceKey),
         [this.target.primaryKeyAttribute]: targetInstances.map((targetInstance) => targetInstance.get(this.target.primaryKeyAttribute))
       };
-      await this.target.unscoped().update(update, __spreadProps(__spreadValues({}, options), { where }));
+      await this.target.unscoped().update(update, __spreadProps(__spreadValues({}, options), { where: where2 }));
       return this;
     }
     async create(sourceInstance, values, options = {}) {
@@ -28643,7 +28643,7 @@ function requireHasOne() {
       Helpers.mixinMethods(this, obj, methods);
     }
     async get(instances, options) {
-      const where = {};
+      const where2 = {};
       let Target = this.target;
       let instance;
       options = Utils.cloneDeep(options);
@@ -28662,16 +28662,16 @@ function requireHasOne() {
         instances = void 0;
       }
       if (instances) {
-        where[this.foreignKey] = {
+        where2[this.foreignKey] = {
           [Op.in]: instances.map((_instance) => _instance.get(this.sourceKey))
         };
       } else {
-        where[this.foreignKey] = instance.get(this.sourceKey);
+        where2[this.foreignKey] = instance.get(this.sourceKey);
       }
       if (this.scope) {
-        Object.assign(where, this.scope);
+        Object.assign(where2, this.scope);
       }
-      options.where = options.where ? { [Op.and]: [where, options.where] } : where;
+      options.where = options.where ? { [Op.and]: [where2, options.where] } : where2;
       if (instances) {
         const results = await Target.findAll(options);
         const result = {};
@@ -29146,7 +29146,7 @@ function requireBelongsToMany() {
       } else {
         newAssociatedObjects = this.toInstanceArray(newAssociatedObjects);
       }
-      const where = __spreadValues({
+      const where2 = __spreadValues({
         [identifier2]: sourceInstance.get(sourceKey)
       }, this.through.scope);
       const updateAssociations = (currentRows) => {
@@ -29194,7 +29194,7 @@ function requireBelongsToMany() {
         return Promise.all(promises);
       };
       try {
-        const currentRows = await this.through.model.findAll(__spreadProps(__spreadValues({}, options), { where, raw: true }));
+        const currentRows = await this.through.model.findAll(__spreadProps(__spreadValues({}, options), { where: where2, raw: true }));
         return await updateAssociations(currentRows);
       } catch (error) {
         if (error instanceof EmptyResultError)
@@ -29213,7 +29213,7 @@ function requireBelongsToMany() {
       const foreignIdentifier = association.foreignIdentifier;
       const defaultAttributes = options.through || {};
       newInstances = association.toInstanceArray(newInstances);
-      const where = __spreadValues({
+      const where2 = __spreadValues({
         [identifier2]: sourceInstance.get(sourceKey),
         [foreignIdentifier]: newInstances.map((newInstance) => newInstance.get(targetKey))
       }, association.through.scope);
@@ -29258,7 +29258,7 @@ function requireBelongsToMany() {
         return Promise.all(promises);
       };
       try {
-        const currentRows = await association.through.model.findAll(__spreadProps(__spreadValues({}, options), { where, raw: true }));
+        const currentRows = await association.through.model.findAll(__spreadProps(__spreadValues({}, options), { where: where2, raw: true }));
         const [associations2] = await updateAssociations(currentRows);
         return associations2;
       } catch (error) {
@@ -29271,11 +29271,11 @@ function requireBelongsToMany() {
       const association = this;
       options = options || {};
       oldAssociatedObjects = association.toInstanceArray(oldAssociatedObjects);
-      const where = {
+      const where2 = {
         [association.identifier]: sourceInstance.get(association.sourceKey),
         [association.foreignIdentifier]: oldAssociatedObjects.map((newInstance) => newInstance.get(association.targetKey))
       };
-      return association.through.model.destroy(__spreadProps(__spreadValues({}, options), { where }));
+      return association.through.model.destroy(__spreadProps(__spreadValues({}, options), { where: where2 }));
     }
     async create(sourceInstance, values, options) {
       const association = this;
@@ -29654,16 +29654,16 @@ function requireHooks() {
         await hook.apply(this, hookArgs);
       }
     },
-    addHook(hookType, name, fn) {
+    addHook(hookType, name, fn2) {
       if (typeof name === "function") {
-        fn = name;
+        fn2 = name;
         name = null;
       }
       debug(`adding hook ${hookType}`);
       hookType = getProxiedHooks(hookType);
       hookType.forEach((type) => {
         const hooks2 = getHooks(this, type);
-        hooks2.push(name ? { name, fn } : fn);
+        hooks2.push(name ? { name, fn: fn2 } : fn2);
         this.options.hooks[type] = hooks2;
       });
       return this;
@@ -31140,12 +31140,12 @@ See https://sequelize.org/main/manual/model-basics.html#caveat-with-public-class
       if (options.hooks) {
         await this.runHooks("beforeCount", options);
       }
-      let col = options.col || "*";
+      let col2 = options.col || "*";
       if (options.include) {
-        col = `${this.name}.${options.col || this.primaryKeyField}`;
+        col2 = `${this.name}.${options.col || this.primaryKeyField}`;
       }
-      if (options.distinct && col === "*") {
-        col = this.primaryKeyField;
+      if (options.distinct && col2 === "*") {
+        col2 = this.primaryKeyField;
       }
       options.plain = !options.group;
       options.dataType = new DataTypes.INTEGER();
@@ -31153,7 +31153,7 @@ See https://sequelize.org/main/manual/model-basics.html#caveat-with-public-class
       options.limit = null;
       options.offset = null;
       options.order = null;
-      const result = await this.aggregate(col, "count", options);
+      const result = await this.aggregate(col2, "count", options);
       if (Array.isArray(result)) {
         return result.map((item) => __spreadProps(__spreadValues({}, item), {
           count: Number(item.count)
@@ -31679,11 +31679,11 @@ See https://sequelize.org/main/manual/model-basics.html#caveat-with-public-class
         const attrValueHash = {};
         const deletedAtAttribute = this.rawAttributes[this._timestampAttributes.deletedAt];
         const field = this.rawAttributes[this._timestampAttributes.deletedAt].field;
-        const where = {
+        const where2 = {
           [field]: Object.prototype.hasOwnProperty.call(deletedAtAttribute, "defaultValue") ? deletedAtAttribute.defaultValue : null
         };
         attrValueHash[field] = Utils.now(this.sequelize.options.dialect);
-        result = await this.queryInterface.bulkUpdate(this.getTableName(options), attrValueHash, Object.assign(where, options.where), options, this.rawAttributes);
+        result = await this.queryInterface.bulkUpdate(this.getTableName(options), attrValueHash, Object.assign(where2, options.where), options, this.rawAttributes);
       } else {
         result = await this.queryInterface.bulkDelete(this.getTableName(options), options.where, options, this);
       }
@@ -31938,7 +31938,7 @@ See https://sequelize.org/main/manual/model-basics.html#caveat-with-public-class
       });
       const isSubtraction = !options.increment;
       Utils.mapOptionFieldNames(options, this);
-      const where = __spreadValues({}, options.where);
+      const where2 = __spreadValues({}, options.where);
       let incrementAmountsByField = {};
       if (Array.isArray(fields)) {
         incrementAmountsByField = {};
@@ -31960,9 +31960,9 @@ See https://sequelize.org/main/manual/model-basics.html#caveat-with-public-class
       const tableName = this.getTableName(options);
       let affectedRows;
       if (isSubtraction) {
-        affectedRows = await this.queryInterface.decrement(this, tableName, where, incrementAmountsByField, extraAttributesToBeUpdated, options);
+        affectedRows = await this.queryInterface.decrement(this, tableName, where2, incrementAmountsByField, extraAttributesToBeUpdated, options);
       } else {
-        affectedRows = await this.queryInterface.increment(this, tableName, where, incrementAmountsByField, extraAttributesToBeUpdated, options);
+        affectedRows = await this.queryInterface.increment(this, tableName, where2, incrementAmountsByField, extraAttributesToBeUpdated, options);
       }
       if (options.returning) {
         return [affectedRows, affectedRows.length];
@@ -31981,18 +31981,18 @@ See https://sequelize.org/main/manual/model-basics.html#caveat-with-public-class
       assert(_.isPlainObject(options.where) || Array.isArray(options.where) || options.where instanceof Utils.SequelizeMethod, "Expected plain object, array or sequelize method in the options.where parameter");
     }
     where(checkVersion) {
-      const where = this.constructor.primaryKeyAttributes.reduce((result, attribute) => {
+      const where2 = this.constructor.primaryKeyAttributes.reduce((result, attribute) => {
         result[attribute] = this.get(attribute, { raw: true });
         return result;
       }, {});
-      if (_.size(where) === 0) {
+      if (_.size(where2) === 0) {
         return this.constructor.options.whereCollection;
       }
       const versionAttr = this.constructor._versionAttribute;
       if (checkVersion && versionAttr) {
-        where[versionAttr] = this.get(versionAttr, { raw: true });
+        where2[versionAttr] = this.get(versionAttr, { raw: true });
       }
-      return Utils.mapWhereFieldNames(where, this.constructor);
+      return Utils.mapWhereFieldNames(where2, this.constructor);
     }
     toString() {
       return `[object SequelizeInstance:${this.constructor.name}]`;
@@ -32325,17 +32325,17 @@ See https://sequelize.org/main/manual/model-basics.html#caveat-with-public-class
       const values = Utils.mapValueFieldNames(this.dataValues, options.fields, this.constructor);
       let query2 = null;
       let args = [];
-      let where;
+      let where2;
       if (this.isNewRecord) {
         query2 = "insert";
         args = [this, this.constructor.getTableName(options), values, options];
       } else {
-        where = this.where(true);
+        where2 = this.where(true);
         if (versionAttr) {
           values[versionFieldName] = parseInt(values[versionFieldName], 10) + 1;
         }
         query2 = "update";
-        args = [this, this.constructor.getTableName(options), values, where, options];
+        args = [this, this.constructor.getTableName(options), values, where2, options];
       }
       const [result, rowsUpdated] = await this.constructor.queryInterface[query2](...args);
       if (versionAttr) {
@@ -32343,7 +32343,7 @@ See https://sequelize.org/main/manual/model-basics.html#caveat-with-public-class
           throw new sequelizeErrors.OptimisticLockError({
             modelName: this.constructor.name,
             values,
-            where
+            where: where2
           });
         } else {
           result.dataValues[versionAttr] = values[versionFieldName];
@@ -32461,7 +32461,7 @@ See https://sequelize.org/main/manual/model-basics.html#caveat-with-public-class
       if (options.hooks) {
         await this.constructor.runHooks("beforeDestroy", this, options);
       }
-      const where = this.where(true);
+      const where2 = this.where(true);
       let result;
       if (this.constructor._timestampAttributes.deletedAt && options.force === false) {
         const attributeName = this.constructor._timestampAttributes.deletedAt;
@@ -32474,7 +32474,7 @@ See https://sequelize.org/main/manual/model-basics.html#caveat-with-public-class
         }
         result = await this.save(__spreadProps(__spreadValues({}, options), { hooks: false }));
       } else {
-        result = await this.constructor.queryInterface.delete(this, this.constructor.getTableName(options), where, __spreadValues({ type: QueryTypes.DELETE, limit: null }, options));
+        result = await this.constructor.queryInterface.delete(this, this.constructor.getTableName(options), where2, __spreadValues({ type: QueryTypes.DELETE, limit: null }, options));
       }
       if (options.hooks) {
         await this.constructor.runHooks("afterDestroy", this, options);
@@ -32562,18 +32562,18 @@ See https://sequelize.org/main/manual/model-basics.html#caveat-with-public-class
     static belongsTo(target, options) {
     }
   }
-  function unpackAnd(where) {
-    if (!_.isObject(where)) {
-      return where;
+  function unpackAnd(where2) {
+    if (!_.isObject(where2)) {
+      return where2;
     }
-    const keys2 = Utils.getComplexKeys(where);
+    const keys2 = Utils.getComplexKeys(where2);
     if (keys2.length === 0) {
       return;
     }
     if (keys2.length !== 1 || keys2[0] !== Op.and) {
-      return where;
+      return where2;
     }
-    const andParts = where[Op.and];
+    const andParts = where2[Op.and];
     return andParts;
   }
   function combineWheresWithAnd(whereA, whereB) {
@@ -33062,11 +33062,11 @@ function requireTransaction$1() {
         }
       }
     }
-    afterCommit(fn) {
-      if (!fn || typeof fn !== "function") {
+    afterCommit(fn2) {
+      if (!fn2 || typeof fn2 !== "function") {
         throw new Error('"fn" must be a function');
       }
-      this._afterCommitHooks.push(fn);
+      this._afterCommitHooks.push(fn2);
     }
     static get TYPES() {
       return {
@@ -33467,7 +33467,7 @@ function requireQueryInterface$7() {
         results[0].isNewRecord = false;
       return results;
     }
-    async upsert(tableName, insertValues, updateValues, where, options) {
+    async upsert(tableName, insertValues, updateValues, where2, options) {
       options = __spreadValues({}, options);
       const model2 = options.model;
       options.type = QueryTypes.UPSERT;
@@ -33549,30 +33549,30 @@ function requireQueryInterface$7() {
       options.instance = instance;
       return await this.sequelize.query(sql2, options);
     }
-    async bulkDelete(tableName, where, options, model2) {
+    async bulkDelete(tableName, where2, options, model2) {
       options = Utils.cloneDeep(options);
       options = _.defaults(options, { limit: null });
       if (options.truncate === true) {
         return this.sequelize.query(this.queryGenerator.truncateTableQuery(tableName, options), options);
       }
       if (typeof identifier === "object")
-        where = Utils.cloneDeep(where);
-      return await this.sequelize.query(this.queryGenerator.deleteQuery(tableName, where, options, model2), options);
+        where2 = Utils.cloneDeep(where2);
+      return await this.sequelize.query(this.queryGenerator.deleteQuery(tableName, where2, options, model2), options);
     }
     async select(model2, tableName, optionsArg) {
       const options = __spreadProps(__spreadValues({}, optionsArg), { type: QueryTypes.SELECT, model: model2 });
       return await this.sequelize.query(this.queryGenerator.selectQuery(tableName, options, model2), options);
     }
-    async increment(model2, tableName, where, incrementAmountsByField, extraAttributesToBeUpdated, options) {
+    async increment(model2, tableName, where2, incrementAmountsByField, extraAttributesToBeUpdated, options) {
       options = Utils.cloneDeep(options);
-      const sql2 = this.queryGenerator.arithmeticQuery("+", tableName, where, incrementAmountsByField, extraAttributesToBeUpdated, options);
+      const sql2 = this.queryGenerator.arithmeticQuery("+", tableName, where2, incrementAmountsByField, extraAttributesToBeUpdated, options);
       options.type = QueryTypes.UPDATE;
       options.model = model2;
       return await this.sequelize.query(sql2, options);
     }
-    async decrement(model2, tableName, where, incrementAmountsByField, extraAttributesToBeUpdated, options) {
+    async decrement(model2, tableName, where2, incrementAmountsByField, extraAttributesToBeUpdated, options) {
       options = Utils.cloneDeep(options);
-      const sql2 = this.queryGenerator.arithmeticQuery("-", tableName, where, incrementAmountsByField, extraAttributesToBeUpdated, options);
+      const sql2 = this.queryGenerator.arithmeticQuery("-", tableName, where2, incrementAmountsByField, extraAttributesToBeUpdated, options);
       options.type = QueryTypes.UPDATE;
       options.model = model2;
       return await this.sequelize.query(sql2, options);
@@ -38024,7 +38024,7 @@ function requireQueryGenerator$8() {
         ";"
       ]);
     }
-    updateQuery(tableName, attrValueHash, where, options, attributes) {
+    updateQuery(tableName, attrValueHash, where2, options, attributes) {
       options = options || {};
       _.defaults(options, this.options);
       attrValueHash = Utils.removeNullValuesFromHash(attrValueHash, options.omitNull, options);
@@ -38042,7 +38042,7 @@ function requireQueryGenerator$8() {
         if (!["mssql", "db2", "oracle"].includes(this.dialect)) {
           suffix = ` LIMIT ${this.escape(options.limit)} `;
         } else if (this.dialect === "oracle") {
-          if (where && (where.length && where.length > 0 || Object.keys(where).length > 0)) {
+          if (where2 && (where2.length && where2.length > 0 || Object.keys(where2).length > 0)) {
             suffix += " AND ";
           } else {
             suffix += " WHERE ";
@@ -38082,14 +38082,14 @@ function requireQueryGenerator$8() {
       if (values.length === 0) {
         return "";
       }
-      const query2 = `${tmpTable}UPDATE ${this.quoteTable(tableName)} SET ${values.join(",")}${outputFragment} ${this.whereQuery(where, whereOptions)}${suffix}`.trim();
+      const query2 = `${tmpTable}UPDATE ${this.quoteTable(tableName)} SET ${values.join(",")}${outputFragment} ${this.whereQuery(where2, whereOptions)}${suffix}`.trim();
       const result = { query: query2 };
       if (options.bindParam !== false) {
         result.bind = bind;
       }
       return result;
     }
-    arithmeticQuery(operator, tableName, where, incrementAmountsByField, extraAttributesToBeUpdated, options) {
+    arithmeticQuery(operator, tableName, where2, incrementAmountsByField, extraAttributesToBeUpdated, options) {
       options = options || {};
       _.defaults(options, { returning: true });
       extraAttributesToBeUpdated = Utils.removeNullValuesFromHash(extraAttributesToBeUpdated, this.options.omitNull);
@@ -38119,7 +38119,7 @@ function requireQueryGenerator$8() {
         "SET",
         updateSetSqlFragments.join(","),
         outputFragment,
-        this.whereQuery(where),
+        this.whereQuery(where2),
         returningFragment
       ]);
     }
@@ -38621,7 +38621,7 @@ function requireQueryGenerator$8() {
           if (!mainTable.as) {
             mainTable.as = mainTable.quotedName;
           }
-          const where = __spreadValues({}, options.where);
+          const where2 = __spreadValues({}, options.where);
           let groupedLimitOrder, whereKey, include, groupedTableName = mainTable.as;
           if (typeof options.groupedLimit.on === "string") {
             whereKey = options.groupedLimit.on;
@@ -38667,7 +38667,7 @@ function requireQueryGenerator$8() {
             if (!this._dialect.supports.topLevelOrderByRequired) {
               delete options.order;
             }
-            where[Op.placeholder] = true;
+            where2[Op.placeholder] = true;
           }
           const baseQuery = `SELECT * FROM (${this.selectQuery(tableName, {
             attributes: options.attributes,
@@ -38676,7 +38676,7 @@ function requireQueryGenerator$8() {
             order: groupedLimitOrder,
             aliasesMapping: options.aliasesMapping,
             aliasesByTable: options.aliasesByTable,
-            where,
+            where: where2,
             include,
             model: model2
           }, model2).replace(/;$/, "")}) ${this.getAliasToken()} sub`;
@@ -39427,31 +39427,31 @@ https://github.com/sequelize/sequelize/discussions/15694`);
       }
       return smth.toString(this, factory);
     }
-    whereQuery(where, options) {
-      const query2 = this.whereItemsQuery(where, options);
+    whereQuery(where2, options) {
+      const query2 = this.whereItemsQuery(where2, options);
       if (query2 && query2.length) {
         return `WHERE ${query2}`;
       }
       return "";
     }
-    whereItemsQuery(where, options, binding) {
-      if (where === null || where === void 0 || Utils.getComplexSize(where) === 0) {
+    whereItemsQuery(where2, options, binding) {
+      if (where2 === null || where2 === void 0 || Utils.getComplexSize(where2) === 0) {
         return "";
       }
-      if (typeof where === "string") {
+      if (typeof where2 === "string") {
         throw new Error("Support for `{where: 'raw query'}` has been removed.");
       }
       const items = [];
       binding = binding || "AND";
       if (binding[0] !== " ")
         binding = ` ${binding} `;
-      if (_.isPlainObject(where)) {
-        Utils.getComplexKeys(where).forEach((prop) => {
-          const item = where[prop];
+      if (_.isPlainObject(where2)) {
+        Utils.getComplexKeys(where2).forEach((prop) => {
+          const item = where2[prop];
           items.push(this.whereItemQuery(prop, item, options));
         });
       } else {
-        items.push(this.whereItemQuery(void 0, where, options));
+        items.push(this.whereItemQuery(void 0, where2, options));
       }
       return items.length && items.filter((item) => item && item.length).join(binding) || "";
     }
@@ -39592,10 +39592,10 @@ https://github.com/sequelize/sequelize/discussions/15694`);
         }
       }
       Utils.getOperators(value).forEach((op) => {
-        const where = {
+        const where2 = {
           [op]: value[op]
         };
-        items.push(this.whereItemQuery(key, where, __spreadProps(__spreadValues({}, options), { json: false })));
+        items.push(this.whereItemQuery(key, where2, __spreadProps(__spreadValues({}, options), { json: false })));
       });
       _.forOwn(value, (item, prop) => {
         this._traverseJSON(items, baseKey, prop, item, [prop]);
@@ -39774,7 +39774,7 @@ https://github.com/sequelize/sequelize/discussions/15694`);
       return this._joinKeyValue(key, this.escape(value, field, escapeOptions), comparator2, options.prefix);
     }
     getWhereConditions(smth, tableName, factory, options, prepend) {
-      const where = {};
+      const where2 = {};
       if (Array.isArray(tableName)) {
         tableName = tableName[0];
         if (Array.isArray(tableName)) {
@@ -39802,8 +39802,8 @@ https://github.com/sequelize/sequelize/discussions/15694`);
         } else {
           primaryKeys = "id";
         }
-        where[primaryKeys] = smth;
-        return this.whereItemsQuery(where, {
+        where2[primaryKeys] = smth;
+        return this.whereItemsQuery(where2, {
           model: factory,
           prefix: prepend && tableName
         });
@@ -40125,15 +40125,15 @@ function requireQueryGenerator$7() {
     truncateTableQuery(tableName) {
       return `TRUNCATE ${this.quoteTable(tableName)}`;
     }
-    deleteQuery(tableName, where, options = {}, model2) {
+    deleteQuery(tableName, where2, options = {}, model2) {
       let limit = "";
       let query2 = `DELETE FROM ${this.quoteTable(tableName)}`;
       if (options.limit) {
         limit = ` LIMIT ${this.escape(options.limit)}`;
       }
-      where = this.getWhereConditions(where, null, model2, options);
-      if (where) {
-        query2 += ` WHERE ${where}`;
+      where2 = this.getWhereConditions(where2, null, model2, options);
+      if (where2) {
+        query2 += ` WHERE ${where2}`;
       }
       return query2 + limit;
     }
@@ -40444,7 +40444,7 @@ function requireQueryInterface$6() {
       }
       return await this.sequelize.query(this.queryGenerator.removeColumnQuery(tableName, columnName), __spreadValues({ raw: true }, options));
     }
-    async upsert(tableName, insertValues, updateValues, where, options) {
+    async upsert(tableName, insertValues, updateValues, where2, options) {
       options = __spreadValues({}, options);
       options.type = QueryTypes.UPSERT;
       options.updateOnDuplicate = Object.keys(updateValues);
@@ -41392,15 +41392,15 @@ function requireQueryGenerator$5() {
       }
       return commands.join(";");
     }
-    updateQuery(tableName, attrValueHash, where, options, attributes) {
-      const sql2 = super.updateQuery(tableName, attrValueHash, where, options, attributes);
+    updateQuery(tableName, attrValueHash, where2, options, attributes) {
+      const sql2 = super.updateQuery(tableName, attrValueHash, where2, options, attributes);
       if (options.limit) {
         const updateArgs = `UPDATE TOP(${this.escape(options.limit)})`;
         sql2.query = sql2.query.replace("UPDATE", updateArgs);
       }
       return sql2;
     }
-    upsertQuery(tableName, insertValues, updateValues, where, model2) {
+    upsertQuery(tableName, insertValues, updateValues, where2, model2) {
       const targetTableAlias = this.quoteTable(`${tableName}_target`);
       const sourceTableAlias = this.quoteTable(`${tableName}_source`);
       const primaryKeysAttrs = [];
@@ -41440,7 +41440,7 @@ function requireQueryGenerator$5() {
           needIdentityInsertWrapper = true;
         }
       });
-      const clauses = where[Op.or].filter((clause) => {
+      const clauses = where2[Op.or].filter((clause) => {
         let valid2 = true;
         for (const key in clause) {
           if (typeof clause[key] === "undefined" || clause[key] == null) {
@@ -41487,9 +41487,9 @@ function requireQueryGenerator$5() {
     truncateTableQuery(tableName) {
       return `TRUNCATE TABLE ${this.quoteTable(tableName)}`;
     }
-    deleteQuery(tableName, where, options = {}, model2) {
+    deleteQuery(tableName, where2, options = {}, model2) {
       const table = this.quoteTable(tableName);
-      const whereClause = this.getWhereConditions(where, null, model2, options);
+      const whereClause = this.getWhereConditions(where2, null, model2, options);
       return Utils.joinSQLFragments([
         "DELETE",
         options.limit && `TOP(${this.escape(options.limit)})`,
@@ -41702,7 +41702,7 @@ function requireQueryGenerator$5() {
       }
       return "ROLLBACK TRANSACTION;";
     }
-    selectFromTableFragment(options, model2, attributes, tables, mainTableAs, where) {
+    selectFromTableFragment(options, model2, attributes, tables, mainTableAs, where2) {
       this._throwOnEmptyAttributes(attributes, { modelName: model2 && model2.name, as: mainTableAs });
       const dbVersion = this.sequelize.options.databaseVersion;
       const isSQLServer2008 = semver2.valid(dbVersion) && semver2.lt(dbVersion, "11.0.0");
@@ -41757,7 +41757,7 @@ function requireQueryGenerator$5() {
                   "SELECT DISTINCT",
                   `${tmpTable}.* FROM ${tables} AS ${tmpTable}`,
                   mainJoinQueries,
-                  where && `WHERE ${where}`
+                  where2 && `WHERE ${where2}`
                 ],
                 `) AS ${tmpTable}`
               ],
@@ -41781,7 +41781,7 @@ function requireQueryGenerator$5() {
                 orders.mainQueryOrder.join(", ")
               ],
               `) as row_num, * FROM ${tables} AS ${tmpTable}`,
-              where && `WHERE ${where}`
+              where2 && `WHERE ${where2}`
             ],
             `) AS ${tmpTable} WHERE row_num > ${offset2}`
           ],
@@ -41910,29 +41910,29 @@ function requireQueryInterface$5() {
       const removeSql = this.queryGenerator.removeColumnQuery(tableName, attributeName);
       return this.sequelize.query(removeSql, options);
     }
-    async upsert(tableName, insertValues, updateValues, where, options) {
+    async upsert(tableName, insertValues, updateValues, where2, options) {
       const model2 = options.model;
       const wheres = [];
       options = __spreadValues({}, options);
-      if (!Utils.isWhereEmpty(where)) {
-        wheres.push(where);
+      if (!Utils.isWhereEmpty(where2)) {
+        wheres.push(where2);
       }
       let indexes = Object.values(model2.uniqueKeys).map((item) => item.fields);
       indexes = indexes.concat(Object.values(model2._indexes).filter((item) => item.unique).map((item) => item.fields));
       const attributes = Object.keys(insertValues);
       for (const index of indexes) {
         if (_.intersection(attributes, index).length === index.length) {
-          where = {};
+          where2 = {};
           for (const field of index) {
-            where[field] = insertValues[field];
+            where2[field] = insertValues[field];
           }
-          wheres.push(where);
+          wheres.push(where2);
         }
       }
-      where = { [Op.or]: wheres };
+      where2 = { [Op.or]: wheres };
       options.type = QueryTypes.UPSERT;
       options.raw = true;
-      const sql2 = this.queryGenerator.upsertQuery(tableName, insertValues, updateValues, where, model2, options);
+      const sql2 = this.queryGenerator.upsertQuery(tableName, insertValues, updateValues, where2, model2, options);
       return await this.sequelize.query(sql2, options);
     }
   }
@@ -43581,9 +43581,9 @@ function requireQueryGenerator$4() {
         });
         options.outBindAttributes = outBindAttributes;
       }
-      upsertQuery(tableName, insertValues, updateValues, where, model2, options) {
+      upsertQuery(tableName, insertValues, updateValues, where2, model2, options) {
         const rawAttributes = model2.rawAttributes;
-        const updateQuery = this.updateQuery(tableName, updateValues, where, options, rawAttributes);
+        const updateQuery = this.updateQuery(tableName, updateValues, where2, options, rawAttributes);
         options.bind = updateQuery.bind;
         const insertQuery = this.insertQuery(tableName, insertValues, rawAttributes, options);
         const sql2 = [
@@ -43691,16 +43691,16 @@ function requireQueryGenerator$4() {
       truncateTableQuery(tableName) {
         return `TRUNCATE TABLE ${this.quoteTable(tableName)}`;
       }
-      deleteQuery(tableName, where, options, model2) {
+      deleteQuery(tableName, where2, options, model2) {
         options = options || {};
         const table = tableName;
-        where = this.getWhereConditions(where, null, model2, options);
+        where2 = this.getWhereConditions(where2, null, model2, options);
         let queryTmpl;
         if (options.limit) {
-          const whereTmpl = where ? ` AND ${where}` : "";
+          const whereTmpl = where2 ? ` AND ${where2}` : "";
           queryTmpl = `DELETE FROM ${this.quoteTable(table)} WHERE rowid IN (SELECT rowid FROM ${this.quoteTable(table)} WHERE rownum <= ${this.escape(options.limit)}${whereTmpl})`;
         } else {
-          const whereTmpl = where ? ` WHERE ${where}` : "";
+          const whereTmpl = where2 ? ` WHERE ${where2}` : "";
           queryTmpl = `DELETE FROM ${this.quoteTable(table)}${whereTmpl}`;
         }
         return queryTmpl;
@@ -44099,7 +44099,7 @@ function requireQueryInterface$4() {
     const QueryTypes = requireQueryTypes();
     const _ = requireLodash();
     class OracleQueryInterface extends QueryInterface {
-      async upsert(tableName, insertValues, updateValues, where, options) {
+      async upsert(tableName, insertValues, updateValues, where2, options) {
         options = __spreadValues({}, options);
         const model2 = options.model;
         const primaryKeys = Object.values(model2.primaryKeys).map((item) => item.field);
@@ -44126,17 +44126,17 @@ function requireQueryInterface$4() {
         options.upsertKeys = _.uniq(options.upsertKeys);
         let whereHasNull = false;
         primaryKeys.forEach((element) => {
-          if (where[element] === null) {
+          if (where2[element] === null) {
             whereHasNull = true;
           }
         });
         if (whereHasNull === true) {
-          where = options.upsertKeys.reduce((result, attribute) => {
+          where2 = options.upsertKeys.reduce((result, attribute) => {
             result[attribute] = insertValues[attribute];
             return result;
           }, {});
         }
-        const sql2 = this.queryGenerator.upsertQuery(tableName, insertValues, updateValues, where, model2, options);
+        const sql2 = this.queryGenerator.upsertQuery(tableName, insertValues, updateValues, where2, model2, options);
         if (sql2.bind) {
           options.bind = void 0;
         }
@@ -45061,9 +45061,9 @@ function requireQueryGenerator$3() {
         options.cascade ? " CASCADE" : ""
       ].join("");
     }
-    deleteQuery(tableName, where, options = {}, model2) {
+    deleteQuery(tableName, where2, options = {}, model2) {
       const table = this.quoteTable(tableName);
-      let whereClause = this.getWhereConditions(where, null, model2, options);
+      let whereClause = this.getWhereConditions(where2, null, model2, options);
       const limit = options.limit ? ` LIMIT ${this.escape(options.limit)}` : "";
       let primaryKeys = "";
       let primaryKeysSelection = "";
@@ -46336,7 +46336,7 @@ function requireQueryGenerator$2() {
     showTablesQuery() {
       return "SELECT name FROM `sqlite_master` WHERE type='table' and name!='sqlite_sequence';";
     }
-    updateQuery(tableName, attrValueHash, where, options, attributes) {
+    updateQuery(tableName, attrValueHash, where2, options, attributes) {
       options = options || {};
       _.defaults(options, this.options);
       attrValueHash = Utils.removeNullValuesFromHash(attrValueHash, options.omitNull, options);
@@ -46363,9 +46363,9 @@ function requireQueryGenerator$2() {
       let query2;
       const whereOptions = __spreadProps(__spreadValues({}, options), { bindParam });
       if (options.limit) {
-        query2 = `UPDATE ${this.quoteTable(tableName)} SET ${values.join(",")} WHERE rowid IN (SELECT rowid FROM ${this.quoteTable(tableName)} ${this.whereQuery(where, whereOptions)} LIMIT ${this.escape(options.limit)})`;
+        query2 = `UPDATE ${this.quoteTable(tableName)} SET ${values.join(",")} WHERE rowid IN (SELECT rowid FROM ${this.quoteTable(tableName)} ${this.whereQuery(where2, whereOptions)} LIMIT ${this.escape(options.limit)})`;
       } else {
-        query2 = `UPDATE ${this.quoteTable(tableName)} SET ${values.join(",")} ${this.whereQuery(where, whereOptions)}`;
+        query2 = `UPDATE ${this.quoteTable(tableName)} SET ${values.join(",")} ${this.whereQuery(where2, whereOptions)}`;
       }
       return { query: query2, bind };
     }
@@ -46375,9 +46375,9 @@ function requireQueryGenerator$2() {
         options.restartIdentity ? `; DELETE FROM ${this.quoteTable("sqlite_sequence")} WHERE ${this.quoteIdentifier("name")} = ${Utils.addTicks(Utils.removeTicks(this.quoteTable(tableName), "`"), "'")};` : ""
       ].join("");
     }
-    deleteQuery(tableName, where, options = {}, model2) {
+    deleteQuery(tableName, where2, options = {}, model2) {
       _.defaults(options, this.options);
-      let whereClause = this.getWhereConditions(where, null, model2, options);
+      let whereClause = this.getWhereConditions(where2, null, model2, options);
       if (whereClause) {
         whereClause = `WHERE ${whereClause}`;
       }
@@ -47616,8 +47616,8 @@ function requireQueryGenerator$1() {
       const generatedQuery = _.template(allQueries.join(";"), this._templateSettings)(replacements);
       return generatedQuery;
     }
-    updateQuery(tableName, attrValueHash, where, options, attributes) {
-      const sql2 = super.updateQuery(tableName, attrValueHash, where, options, attributes);
+    updateQuery(tableName, attrValueHash, where2, options, attributes) {
+      const sql2 = super.updateQuery(tableName, attrValueHash, where2, options, attributes);
       options = options || {};
       _.defaults(options, this.options);
       if (!options.limit) {
@@ -47647,11 +47647,11 @@ function requireQueryGenerator$1() {
       }
       let query2;
       const whereOptions = _.defaults({ bindParam }, options);
-      query2 = `UPDATE (SELECT * FROM ${this.quoteTable(tableName)} ${this.whereQuery(where, whereOptions)} FETCH NEXT ${this.escape(options.limit)} ROWS ONLY) SET ${values.join(",")}`;
+      query2 = `UPDATE (SELECT * FROM ${this.quoteTable(tableName)} ${this.whereQuery(where2, whereOptions)} FETCH NEXT ${this.escape(options.limit)} ROWS ONLY) SET ${values.join(",")}`;
       query2 = `SELECT * FROM FINAL TABLE (${query2});`;
       return { query: query2, bind };
     }
-    upsertQuery(tableName, insertValues, updateValues, where, model2) {
+    upsertQuery(tableName, insertValues, updateValues, where2, model2) {
       const targetTableAlias = this.quoteTable(`${tableName}_target`);
       const sourceTableAlias = this.quoteTable(`${tableName}_source`);
       const primaryKeysAttrs = [];
@@ -47685,7 +47685,7 @@ function requireQueryGenerator$1() {
       const insertValuesEscaped = insertKeys.map((key) => this.escape(insertValues[key])).join(", ");
       const sourceTableQuery = `VALUES(${insertValuesEscaped})`;
       let joinCondition;
-      const clauses = where[Op.or].filter((clause) => {
+      const clauses = where2[Op.or].filter((clause) => {
         let valid2 = true;
         for (const key in clause) {
           if (!clause[key]) {
@@ -47734,10 +47734,10 @@ function requireQueryGenerator$1() {
     truncateTableQuery(tableName) {
       return `TRUNCATE TABLE ${this.quoteTable(tableName)} IMMEDIATE`;
     }
-    deleteQuery(tableName, where, options = {}, model2) {
+    deleteQuery(tableName, where2, options = {}, model2) {
       const table = this.quoteTable(tableName);
       const query2 = "DELETE FROM <%= table %><%= where %><%= limit %>";
-      where = this.getWhereConditions(where, null, model2, options);
+      where2 = this.getWhereConditions(where2, null, model2, options);
       let limit = "";
       if (options.offset > 0) {
         limit = ` OFFSET ${this.escape(options.offset)} ROWS`;
@@ -47748,7 +47748,7 @@ function requireQueryGenerator$1() {
       const replacements = {
         limit,
         table,
-        where
+        where: where2
       };
       if (replacements.where) {
         replacements.where = ` WHERE ${replacements.where}`;
@@ -48063,7 +48063,7 @@ function requireQueryInterface$1() {
       const query2 = this.queryGenerator.getForeignKeysQuery(tableName, this.sequelize.config.username.toUpperCase());
       return this.sequelize.query(query2, queryOptions);
     }
-    async upsert(tableName, insertValues, updateValues, where, options) {
+    async upsert(tableName, insertValues, updateValues, where2, options) {
       options = __spreadValues({}, options);
       const model2 = options.model;
       const wheres = [];
@@ -48071,8 +48071,8 @@ function requireQueryInterface$1() {
       let indexes = [];
       let indexFields;
       options = _.clone(options);
-      if (!Utils.isWhereEmpty(where)) {
-        wheres.push(where);
+      if (!Utils.isWhereEmpty(where2)) {
+        wheres.push(where2);
       }
       indexes = _.map(model2.uniqueKeys, (value) => {
         return value.fields;
@@ -48090,17 +48090,17 @@ function requireQueryInterface$1() {
       });
       for (const index of indexes) {
         if (_.intersection(attributes, index).length === index.length) {
-          where = {};
+          where2 = {};
           for (const field of index) {
-            where[field] = insertValues[field];
+            where2[field] = insertValues[field];
           }
-          wheres.push(where);
+          wheres.push(where2);
         }
       }
-      where = { [Op.or]: wheres };
+      where2 = { [Op.or]: wheres };
       options.type = QueryTypes.UPSERT;
       options.raw = true;
-      const sql2 = this.queryGenerator.upsertQuery(tableName, insertValues, updateValues, where, model2, options);
+      const sql2 = this.queryGenerator.upsertQuery(tableName, insertValues, updateValues, where2, model2, options);
       const result = await this.sequelize.query(sql2, options);
       return [result, void 0];
     }
@@ -48884,9 +48884,9 @@ function requireQueryGenerator() {
         this.quoteTable(tableName)
       ]);
     }
-    deleteQuery(tableName, where, options = {}, model2) {
+    deleteQuery(tableName, where2, options = {}, model2) {
       const table = this.quoteTable(tableName);
-      let whereClause = this.getWhereConditions(where, null, model2, options);
+      let whereClause = this.getWhereConditions(where2, null, model2, options);
       const limit = options.limit && ` LIMIT ${this.escape(options.limit)}`;
       let primaryKeys = "";
       let primaryKeysSelection = "";
@@ -49186,7 +49186,7 @@ function requireQueryInterface() {
       }
       return await this.sequelize.query(this.queryGenerator.removeColumnQuery(tableName, columnName), __spreadValues({ raw: true }, options));
     }
-    async upsert(tableName, insertValues, updateValues, where, options) {
+    async upsert(tableName, insertValues, updateValues, where2, options) {
       options = __spreadValues({}, options);
       options.type = QueryTypes.UPSERT;
       options.updateOnDuplicate = Object.keys(updateValues);
@@ -49761,11 +49761,11 @@ function requireSequelize() {
       }
       return this.fn("RAND");
     }
-    static fn(fn, ...args) {
-      return new Utils.Fn(fn, args);
+    static fn(fn2, ...args) {
+      return new Utils.Fn(fn2, args);
     }
-    static col(col) {
-      return new Utils.Col(col);
+    static col(col2) {
+      return new Utils.Col(col2);
     }
     static cast(val, type) {
       return new Utils.Cast(val, type);
@@ -49817,12 +49817,12 @@ function requireSequelize() {
       Sequelize._cls = ns;
       return this;
     }
-    static _clsRun(fn) {
+    static _clsRun(fn2) {
       const ns = Sequelize._cls;
       if (!ns)
-        return fn();
+        return fn2();
       let res;
-      ns.run((context) => res = fn(context));
+      ns.run((context) => res = fn2(context));
       return res;
     }
     log(...args) {
@@ -49977,31 +49977,6 @@ function requireDb() {
   ]);
   sequelize2.models = Object.fromEntries(capsEntries);
   const { Quincena, Day, Page, Sender, Dirty, Vx, Adult, Live7, Moneda } = sequelize2.models;
-  //! relaciones entre modelos
-  Quincena.hasMany(Day, { as: "dias", foreignKey: "quincena" });
-  Day.belongsTo(Quincena, { foreignKey: "quincena" });
-  Quincena.hasMany(Moneda, { as: "Monedas", foreignKey: "quincenaId" });
-  Moneda.belongsTo(Quincena, { foreignKey: "quincenaId" });
-  Day.hasMany(Sender, { as: "Senders", foreignKey: "dayId" });
-  Sender.belongsTo(Day, { foreignKey: "dayId" });
-  Page.hasMany(Sender, { as: "paginaS", foreignKey: "pageId" });
-  Sender.belongsTo(Page, { foreignKey: "pageId", as: "paginaS" });
-  Day.hasMany(Dirty, { as: "Dirtys", foreignKey: "dayId" });
-  Dirty.belongsTo(Day, { foreignKey: "dayId" });
-  Page.hasMany(Dirty, { as: "paginaD", foreignKey: "pageId" });
-  Dirty.belongsTo(Page, { foreignKey: "pageId", as: "paginaD" });
-  Day.hasMany(Adult, { as: "Adults", foreignKey: "dayId" });
-  Adult.belongsTo(Day, { foreignKey: "dayId" });
-  Page.hasMany(Adult, { as: "paginaA", foreignKey: "pageId" });
-  Adult.belongsTo(Page, { foreignKey: "pageId", as: "paginaA" });
-  Day.hasMany(Vx, { as: "Vxs", foreignKey: "dayId" });
-  Vx.belongsTo(Day, { foreignKey: "dayId" });
-  Page.hasMany(Vx, { as: "paginaV", foreignKey: "pageId" });
-  Vx.belongsTo(Page, { foreignKey: "pageId", as: "paginaV" });
-  Day.hasMany(Live7, { as: "Lives", foreignKey: "dayId" });
-  Live7.belongsTo(Day, { foreignKey: "dayId" });
-  Page.hasMany(Live7, { as: "paginaL", foreignKey: "pageId" });
-  Live7.belongsTo(Page, { foreignKey: "pageId", as: "paginaL" });
   db = {
     sequelize: sequelize2,
     Quincena,
@@ -50026,7 +50001,7 @@ function requireQuincena() {
   const { BrowserWindow } = require$$1$5;
   const postQuincena = async (data) => {
     try {
-      const [nuevaQuincena, created] = await Quincena.findOrCreate({
+      const [quincena2, created] = await Quincena.findOrCreate({
         where: { name: data.name },
         defaults: {
           name: data.name,
@@ -50038,9 +50013,9 @@ function requireQuincena() {
         return { error: "La quincena ya existe" };
       }
       BrowserWindow.getAllWindows().forEach((win) => {
-        win.webContents.send("quincenaActualizada", nuevaQuincena);
+        win.webContents.send("quincenaActualizada", quincena2);
       });
-      return nuevaQuincena;
+      return quincena2;
     } catch (error) {
       return {
         success: false,
@@ -50049,7 +50024,22 @@ function requireQuincena() {
       };
     }
   };
-  const getAllQuincenas = async () => {
+  const getAllQuincenaYear = async (year) => {
+    try {
+      const res = await Quincena.findAll({
+        where: where(fn("strftime", "%Y", col("inicio")), year.toString())
+      });
+      return res;
+    } catch (error) {
+      return {
+        success: false,
+        message: "Error al obtener Quincenas",
+        error
+      };
+    }
+  };
+  const getAllQuincenas = async (date) => {
+    console.log(date);
     try {
       const months2 = [
         "enero",
@@ -50065,28 +50055,18 @@ function requireQuincena() {
         "noviembre",
         "diciembre"
       ];
-      const today = /* @__PURE__ */ new Date();
-      const day2 = today.getDate();
-      const monthIndex = today.getMonth();
-      const year = today.getFullYear();
-      const currentQuincena = day2 <= 15 ? `${months2[monthIndex]}-1-${year}` : `${months2[monthIndex]}-2-${year}`;
+      const data = date == null ? void 0 : date.split("-");
+      const day = parseInt(data[1]);
+      const monthIndex = months2.indexOf(data[0].toLowerCase()) + 1;
+      const year = parseInt(data[2]);
+      console.log("dia", day, "mes", monthIndex, "año", year);
       const respuesta = await (Quincena == null ? void 0 : Quincena.findAll({
+        where: { name: date },
         order: [["inicio", "ASC"]],
-        attributes: ["id", "name", "inicio", "fin"]
+        attributes: ["id", "name", "inicio", "fin"],
+        limit: 5
       }));
-      const res = respuesta == null ? void 0 : respuesta.map((x) => x.get({ plain: true }));
-      const sortedData = res == null ? void 0 : res.sort((a, b) => {
-        var _a, _b, _c, _d, _e, _f;
-        const dateA = (_c = (_b = (_a = a == null ? void 0 : a.inicio) == null ? void 0 : _a.split("/")) == null ? void 0 : _b.reverse()) == null ? void 0 : _c.join("-");
-        const dateB = (_f = (_e = (_d = b == null ? void 0 : b.inicio) == null ? void 0 : _d.split("/")) == null ? void 0 : _e.reverse()) == null ? void 0 : _f.join("-");
-        return new Date(dateA) - new Date(dateB);
-      });
-      const indexActual = sortedData.findIndex((q) => q.name === currentQuincena);
-      const filteredQuincenas = sortedData.slice(
-        Math.max(0, indexActual - 2),
-        indexActual + 3
-      );
-      return filteredQuincenas;
+      return respuesta;
     } catch (error) {
       return {
         success: false,
@@ -50135,51 +50115,12 @@ function requireQuincena() {
   };
   quincena = {
     postQuincena,
+    getAllQuincenaYear,
     getAllQuincenas,
     getQuincenaById,
     deleteQuincena
   };
   return quincena;
-}
-var day;
-var hasRequiredDay;
-function requireDay() {
-  if (hasRequiredDay) return day;
-  hasRequiredDay = 1;
-  const { Day, Quincena } = requireDb();
-  const { BrowserWindow } = require$$1$5;
-  const postDay = async (data) => {
-    try {
-      const quince = await Quincena.findByPk(data.q);
-      const [nuevoDia, created] = await Day.findOrCreate({
-        where: { name: data.dia },
-        defaults: {
-          name: data.dia
-        }
-      });
-      if (!created) {
-        return { error: "El dia ya existe" };
-      }
-      await nuevoDia.setQuincena(quince);
-      BrowserWindow.getAllWindows().forEach((win) => {
-        win.webContents.send("dayActualizado", nuevoDia);
-      });
-      return nuevoDia;
-    } catch (error) {
-      return { success: false, message: "Error al crear el Day", error };
-    }
-  };
-  const getAllDay = async () => {
-    try {
-      const respuesta = await Day.findAll();
-      const res = respuesta.map((x) => x.dataValues);
-      return res;
-    } catch (error) {
-      return { success: false, message: "Error al obtener Day", error };
-    }
-  };
-  day = { postDay, getAllDay };
-  return day;
 }
 var page;
 var hasRequiredPage;
@@ -50234,176 +50175,6 @@ function requirePage() {
   page = { postPage, getAllPage };
   return page;
 }
-var Sender_1;
-var hasRequiredSender;
-function requireSender() {
-  if (hasRequiredSender) return Sender_1;
-  hasRequiredSender = 1;
-  const { Day, Sender, Page } = requireDb();
-  const { BrowserWindow } = require$$1$5;
-  const postSender = async ({ page: page2, day: day2, coins }) => {
-    try {
-      const dayId = await Day.findOne({ where: { id: day2 } });
-      const pageId = await Page.findOne({ where: { id: page2 } });
-      const sender = await Sender.create({
-        coins
-      });
-      if (sender) {
-        await sender.setPaginaS(pageId);
-        await sender.setDay(dayId);
-      }
-      BrowserWindow.getAllWindows().forEach((win) => {
-        win.webContents.send("senderaActualizado", sender);
-      });
-      return sender;
-    } catch (error) {
-      return {
-        success: false,
-        message: "Error al subir los coins",
-        error
-      };
-    }
-  };
-  const getAllCoins = async () => {
-    try {
-      const res = await Sender.findAll({ attributes: ["id", "coins"] });
-      const sender = res.map((x) => x.dataValues);
-      return sender;
-    } catch (error) {
-      return {
-        success: false,
-        message: "Error al obtener los coins",
-        error
-      };
-    }
-  };
-  Sender_1 = { postSender, getAllCoins };
-  return Sender_1;
-}
-var dirty;
-var hasRequiredDirty;
-function requireDirty() {
-  if (hasRequiredDirty) return dirty;
-  hasRequiredDirty = 1;
-  const { Day, Dirty, Page } = requireDb();
-  const { BrowserWindow } = require$$1$5;
-  const postDirty = async ({ dolares, mostrar, page: page2, day: day2 }) => {
-    try {
-      const dayId = await Day.findOne({ where: { id: day2 } });
-      const pageId = await Page.findOne({ where: { id: page2 } });
-      const newDirty = await Dirty.create({ dolares, mostrar });
-      if (newDirty) {
-        await newDirty.setDay(dayId);
-        await newDirty.setPaginaD(pageId);
-      }
-      BrowserWindow.getAllWindows().forEach((win) => {
-        win.webContents.send("dirtyaActualizado", newDirty);
-      });
-      return newDirty;
-    } catch (error) {
-      return {
-        success: false,
-        message: "Error al subir los dolares",
-        error
-      };
-    }
-  };
-  dirty = { postDirty };
-  return dirty;
-}
-var adult;
-var hasRequiredAdult;
-function requireAdult() {
-  if (hasRequiredAdult) return adult;
-  hasRequiredAdult = 1;
-  const { Day, Adult, Page } = requireDb();
-  const { BrowserWindow } = require$$1$5;
-  const postAdult = async ({ page: page2, day: day2, lb, corte }) => {
-    try {
-      const dayId = await Day.findOne({ where: { id: day2 } });
-      const pageId = await Page.findOne({ where: { id: page2 } });
-      const newAdult = await Adult.create({ lb, corte });
-      if (newAdult) {
-        await newAdult.setDay(dayId);
-        await newAdult.setPaginaA(pageId);
-      }
-      BrowserWindow.getAllWindows().forEach((win) => {
-        win.webContents.send("adultActualizado", newAdult);
-      });
-      return newAdult;
-    } catch (error) {
-      return {
-        success: false,
-        message: "Error al subir los creditos de adult",
-        error
-      };
-    }
-  };
-  adult = { postAdult };
-  return adult;
-}
-var vx;
-var hasRequiredVx;
-function requireVx() {
-  if (hasRequiredVx) return vx;
-  hasRequiredVx = 1;
-  const { Day, Vx, Page } = requireDb();
-  const { BrowserWindow } = require$$1$5;
-  const postVx = async ({ euros, page: page2, day: day2 }) => {
-    try {
-      const dayId = await Day.findOne({ where: { id: day2 } });
-      const pageId = await Page.findOne({ where: { id: page2 } });
-      const newVx = await Vx.create({ creditos: euros });
-      if (newVx) {
-        await newVx.setDay(dayId);
-        await newVx.setPaginaV(pageId);
-      }
-      BrowserWindow.getAllWindows().forEach((win) => {
-        win.webContents.send("VxaActualizado", newVx);
-      });
-      return newVx;
-    } catch (error) {
-      return {
-        success: false,
-        message: "Error al subir los Euros",
-        error
-      };
-    }
-  };
-  vx = { postVx };
-  return vx;
-}
-var live7;
-var hasRequiredLive7;
-function requireLive7() {
-  if (hasRequiredLive7) return live7;
-  hasRequiredLive7 = 1;
-  const { Day, Live7, Page } = requireDb();
-  const { BrowserWindow } = require$$1$5;
-  const postLive7 = async ({ creditos, page: page2, day: day2 }) => {
-    try {
-      const dayId = await Day.findOne({ where: { id: day2 } });
-      const pageId = await Page.findOne({ where: { id: page2 } });
-      const newLive7 = await Live7.create({ creditos });
-      if (newLive7) {
-        await newLive7.setDay(dayId);
-        await newLive7.setPaginaL(pageId);
-      }
-      BrowserWindow.getAllWindows().forEach((win) => {
-        win.webContents.send("live7aActualizado", newLive7);
-      });
-      return newLive7;
-    } catch (error) {
-      return {
-        success: false,
-        message: "Error al subir los euros",
-        error
-      };
-    }
-  };
-  live7 = { postLive7 };
-  return live7;
-}
 var moneda;
 var hasRequiredMoneda;
 function requireMoneda() {
@@ -50453,8 +50224,8 @@ function requireSerchAllQuincena() {
   const { Op } = requireLib();
   function filtrarAdults(dias) {
     const diasSoloAdult = dias.flatMap(
-      (dia) => dia == null ? void 0 : dia.Adults.map((adult2) => ({
-        ...adult2,
+      (dia) => dia == null ? void 0 : dia.Adults.map((adult) => ({
+        ...adult,
         name: dia == null ? void 0 : dia.name
         // createdAt: new Date(adult.createdAt), // Asegurar que es Date
       }))
@@ -50724,15 +50495,15 @@ function requireSerchAllQuincena() {
               qa: 0
             }
           };
-          for (let adult2 of diasSoloAdult) {
-            if (adult2.name === dias2.name) {
-              const corte = adult2.lb * porcentajeAdult;
+          for (let adult of diasSoloAdult) {
+            if (adult.name === dias2.name) {
+              const corte = adult.lb * porcentajeAdult;
               const cortePorcentaje = corte * porcentaje;
               const AdultPesos = cortePorcentaje * precioLb;
               dia.adult.push({
-                id: adult2.id,
-                lb: adult2.lb,
-                corte: adult2.corte,
+                id: adult.id,
+                lb: adult.lb,
+                corte: adult.corte,
                 lbr: corte,
                 pesos: AdultPesos
               });
@@ -50809,9 +50580,9 @@ function requireSerchAllQuincena() {
               dia.sender.pesosDias = pesosDias;
             }
           }
-          for (let dirty2 of dias2 == null ? void 0 : dias2.Dirtys) {
+          for (let dirty of dias2 == null ? void 0 : dias2.Dirtys) {
             const current = parseInt((_l = dias2.name) == null ? void 0 : _l.split("-")[0]);
-            dia.dirty.id = dirty2.id;
+            dia.dirty.id = dirty.id;
             const qOrdena = (_m = quincenaOrdenada.dias) == null ? void 0 : _m.filter(
               (x) => {
                 var _a2;
@@ -50825,9 +50596,9 @@ function requireSerchAllQuincena() {
             );
             const tda = ((_o = (_n = qOrdena[0]) == null ? void 0 : _n.dirty) == null ? void 0 : _o.total) || 0;
             console.log("tda", tda);
-            dia.dirty.dia = tda <= (dirty2 == null ? void 0 : dirty2.dolares) ? (dirty2 == null ? void 0 : dirty2.dolares) - tda : tda > (dirty2 == null ? void 0 : dirty2.dolares) ? tda : dirty2 == null ? void 0 : dirty2.dolares;
-            dia.dirty.total = (dirty2 == null ? void 0 : dirty2.dolares) > 0 ? (dirty2 == null ? void 0 : dirty2.dolares) > tda ? dirty2 == null ? void 0 : dirty2.dolares : tda : tda;
-            dia.dirty.mostrar = dirty2.mostrar;
+            dia.dirty.dia = tda <= (dirty == null ? void 0 : dirty.dolares) ? (dirty == null ? void 0 : dirty.dolares) - tda : tda > (dirty == null ? void 0 : dirty.dolares) ? tda : dirty == null ? void 0 : dirty.dolares;
+            dia.dirty.total = (dirty == null ? void 0 : dirty.dolares) > 0 ? (dirty == null ? void 0 : dirty.dolares) > tda ? dirty == null ? void 0 : dirty.dolares : tda : tda;
+            dia.dirty.mostrar = dirty.mostrar;
             const porcentajeDia = dia.dirty.dia * porcentaje;
             const porcentajeTotal = dia.dirty.total * porcentaje;
             const pesosDia = porcentajeDia * valorDolar;
@@ -50836,10 +50607,10 @@ function requireSerchAllQuincena() {
             dia.dirty.pesos = pesosTotal;
             dia.dirty.qa = 0;
           }
-          for (let vx2 of dias2 == null ? void 0 : dias2.Vxs) {
-            dia.vx.id = vx2.id;
+          for (let vx of dias2 == null ? void 0 : dias2.Vxs) {
+            dia.vx.id = vx.id;
             const current = parseInt((_p = dias2.name) == null ? void 0 : _p.split("-")[0]);
-            dia.vx.id = vx2.id;
+            dia.vx.id = vx.id;
             const qOrdena = (_q = quincenaOrdenada.dias) == null ? void 0 : _q.filter(
               (x) => {
                 var _a2;
@@ -50852,8 +50623,8 @@ function requireSerchAllQuincena() {
               }
             );
             const tda = parseInt((_s = (_r = qOrdena[0]) == null ? void 0 : _r.vx) == null ? void 0 : _s.creditos) || 0;
-            dia.vx.creditosDia = tda <= parseInt(vx2 == null ? void 0 : vx2.creditos) ? parseInt(vx2 == null ? void 0 : vx2.creditos) - tda : tda > parseInt(vx2 == null ? void 0 : vx2.creditos) ? tda : parseInt(vx2 == null ? void 0 : vx2.creditos);
-            dia.vx.creditos = parseInt(vx2 == null ? void 0 : vx2.creditos) > 0 ? parseInt(vx2 == null ? void 0 : vx2.creditos) > tda ? parseInt(vx2 == null ? void 0 : vx2.creditos) : tda : tda;
+            dia.vx.creditosDia = tda <= parseInt(vx == null ? void 0 : vx.creditos) ? parseInt(vx == null ? void 0 : vx.creditos) - tda : tda > parseInt(vx == null ? void 0 : vx.creditos) ? tda : parseInt(vx == null ? void 0 : vx.creditos);
+            dia.vx.creditos = parseInt(vx == null ? void 0 : vx.creditos) > 0 ? parseInt(vx == null ? void 0 : vx.creditos) > tda ? parseInt(vx == null ? void 0 : vx.creditos) : tda : tda;
             const porcentajeDia = dia.vx.creditosDia * porcentaje;
             const porcentajeTotal = dia.vx.creditos * porcentaje;
             const pesosDia = porcentajeDia * valorEuro;
@@ -50952,20 +50723,18 @@ function requireIpcMain() {
   const {
     postQuincena,
     getAllQuincenas,
+    getAllQuincenaYear,
     getQuincenaById,
     deleteQuincena
   } = requireQuincena();
-  const { postDay, getAllDay } = requireDay();
   const { postPage, getAllPage } = requirePage();
-  const { postSender, getAllCoins } = requireSender();
-  const { postDirty } = requireDirty();
-  const { postAdult } = requireAdult();
-  const { postVx } = requireVx();
-  const { postLive7 } = requireLive7();
   const { postMoneda } = requireMoneda();
   const { getAllsQuincenas } = requireSerchAllQuincena();
-  ipcMain$1.handle("get-quincena", async () => {
-    return await getAllQuincenas();
+  ipcMain$1.handle("get-quincena", async (_, date) => {
+    return await getAllQuincenas(date);
+  });
+  ipcMain$1.handle("get-quincena-year", async (_, year) => {
+    return await getAllQuincenaYear(year);
   });
   ipcMain$1.handle("get-quincena-By-Id", async (_, id) => {
     return await getQuincenaById(id);
@@ -50975,36 +50744,6 @@ function requireIpcMain() {
   });
   ipcMain$1.handle("delete-quincena", async (_, quincenaId) => {
     return await deleteQuincena(quincenaId);
-  });
-  ipcMain$1.handle("add-day", async (_, data) => {
-    return await postDay(data);
-  });
-  ipcMain$1.handle("get-day", async () => {
-    return await getAllDay();
-  });
-  ipcMain$1.handle("add-page", async (_, data) => {
-    return await postPage(data);
-  });
-  ipcMain$1.handle("get-page", async () => {
-    return await getAllPage();
-  });
-  ipcMain$1.handle("add-sender", async (_, data) => {
-    return await postSender(data);
-  });
-  ipcMain$1.handle("get-sender", async () => {
-    return await getAllCoins();
-  });
-  ipcMain$1.handle("add-dirty", async (_, data) => {
-    return await postDirty(data);
-  });
-  ipcMain$1.handle("add-adult", async (_, data) => {
-    return await postAdult(data);
-  });
-  ipcMain$1.handle("add-vx", async (_, data) => {
-    return await postVx(data);
-  });
-  ipcMain$1.handle("add-live7", async (_, data) => {
-    return await postLive7(data);
   });
   ipcMain$1.handle("add-moneda", async (_, data) => {
     return await postMoneda(data);
@@ -51021,63 +50760,12 @@ function requireMain() {
   const { app, BrowserWindow, ipcMain: ipcMain2, Menu, nativeImage } = require$$1$5;
   const path = require$$1$3;
   const chokidar2 = /* @__PURE__ */ requireChokidar();
-  const { sequelize: sequelize2, Page } = requireDb();
+  const { sequelize: sequelize2 } = requireDb();
   requireIpcMain();
-  const pagina = [
-    {
-      name: "adultwork",
-      coins: false,
-      moneda: "libras esterlinas",
-      mensual: false,
-      valor: 1,
-      tope: 0
-    },
-    {
-      name: "sender",
-      coins: true,
-      moneda: "euros",
-      mensual: true,
-      valor: 0.11,
-      tope: 0
-    },
-    {
-      name: "dirty",
-      coins: false,
-      moneda: "dolares",
-      mensual: true,
-      valor: 1,
-      tope: 50
-    },
-    {
-      name: "vx",
-      coins: false,
-      moneda: "euros",
-      mensual: true,
-      valor: 1,
-      tope: 0
-    },
-    {
-      name: "7live",
-      coins: false,
-      moneda: "euros",
-      mensual: true,
-      valor: 1,
-      tope: 0
-    }
-  ];
   let mainWindow;
   app.whenReady().then(async () => {
     await sequelize2.sync({ force: false });
     console.log("🔹 Base de datos lista");
-    const count = await Page.count();
-    if (count === 0) {
-      try {
-        await Page.bulkCreate(pagina);
-        console.log("✅ Registros iniciales insertados.");
-      } catch (error) {
-        console.error("❌ Error al insertar registros:", error);
-      }
-    }
     mainWindow = new BrowserWindow({
       width: 1280,
       height: 720,
