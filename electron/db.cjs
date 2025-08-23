@@ -34,44 +34,44 @@ sequelize.models = Object.fromEntries(capsEntries);
 const { Quincena, Day, Page, Sender, Dirty, Vx, Adult, Live7, Moneda } =
   sequelize.models;
 
-//! relaciones entre modelos
-Quincena.hasMany(Day, { as: "dias", foreignKey: "quincena" });
-Day.belongsTo(Quincena, { foreignKey: "quincena" });
+// //! relaciones entre modelos
+// Quincena.hasMany(Day, { as: "dias", foreignKey: "quincena" });
+// Day.belongsTo(Quincena, { foreignKey: "quincena" });
 
-Quincena.hasMany(Moneda, { as: "Monedas", foreignKey: "quincenaId" });
-Moneda.belongsTo(Quincena, { foreignKey: "quincenaId" });
-//relacion sender
-Day.hasMany(Sender, { as: "Senders", foreignKey: "dayId" });
-Sender.belongsTo(Day, { foreignKey: "dayId" });
+// Quincena.hasMany(Moneda, { as: "Monedas", foreignKey: "quincenaId" });
+// Moneda.belongsTo(Quincena, { foreignKey: "quincenaId" });
+// //relacion sender
+// Day.hasMany(Sender, { as: "Senders", foreignKey: "dayId" });
+// Sender.belongsTo(Day, { foreignKey: "dayId" });
 
-Page.hasMany(Sender, { as: "paginaS", foreignKey: "pageId" });
-Sender.belongsTo(Page, { foreignKey: "pageId", as: "paginaS" });
-//relacion dirty
-Day.hasMany(Dirty, { as: "Dirtys", foreignKey: "dayId" });
-Dirty.belongsTo(Day, { foreignKey: "dayId" });
+// Page.hasMany(Sender, { as: "paginaS", foreignKey: "pageId" });
+// Sender.belongsTo(Page, { foreignKey: "pageId", as: "paginaS" });
+// //relacion dirty
+// Day.hasMany(Dirty, { as: "Dirtys", foreignKey: "dayId" });
+// Dirty.belongsTo(Day, { foreignKey: "dayId" });
 
-Page.hasMany(Dirty, { as: "paginaD", foreignKey: "pageId" });
-Dirty.belongsTo(Page, { foreignKey: "pageId", as: "paginaD" });
-//relacion Adult
-Day.hasMany(Adult, { as: "Adults", foreignKey: "dayId" });
-Adult.belongsTo(Day, { foreignKey: "dayId" });
+// Page.hasMany(Dirty, { as: "paginaD", foreignKey: "pageId" });
+// Dirty.belongsTo(Page, { foreignKey: "pageId", as: "paginaD" });
+// //relacion Adult
+// Day.hasMany(Adult, { as: "Adults", foreignKey: "dayId" });
+// Adult.belongsTo(Day, { foreignKey: "dayId" });
 
-Page.hasMany(Adult, { as: "paginaA", foreignKey: "pageId" });
-Adult.belongsTo(Page, { foreignKey: "pageId", as: "paginaA" });
+// Page.hasMany(Adult, { as: "paginaA", foreignKey: "pageId" });
+// Adult.belongsTo(Page, { foreignKey: "pageId", as: "paginaA" });
 
-//relacion VX
-Day.hasMany(Vx, { as: "Vxs", foreignKey: "dayId" });
-Vx.belongsTo(Day, { foreignKey: "dayId" });
+// //relacion VX
+// Day.hasMany(Vx, { as: "Vxs", foreignKey: "dayId" });
+// Vx.belongsTo(Day, { foreignKey: "dayId" });
 
-Page.hasMany(Vx, { as: "paginaV", foreignKey: "pageId" });
-Vx.belongsTo(Page, { foreignKey: "pageId", as: "paginaV" });
-//relacion VX
-Day.hasMany(Live7, { as: "Lives", foreignKey: "dayId" });
-Live7.belongsTo(Day, { foreignKey: "dayId" });
+// Page.hasMany(Vx, { as: "paginaV", foreignKey: "pageId" });
+// Vx.belongsTo(Page, { foreignKey: "pageId", as: "paginaV" });
+// //relacion VX
+// Day.hasMany(Live7, { as: "Lives", foreignKey: "dayId" });
+// Live7.belongsTo(Day, { foreignKey: "dayId" });
 
-Page.hasMany(Live7, { as: "paginaL", foreignKey: "pageId" });
-Live7.belongsTo(Page, { foreignKey: "pageId", as: "paginaL" });
-// Sincronizar base de datos
+// Page.hasMany(Live7, { as: "paginaL", foreignKey: "pageId" });
+// Live7.belongsTo(Page, { foreignKey: "pageId", as: "paginaL" });
+// // Sincronizar base de datos
 
 module.exports = {
   sequelize,
