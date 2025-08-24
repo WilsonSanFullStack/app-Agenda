@@ -18,6 +18,10 @@ module.exports = (sequelize) => {
         type: DataTypes.DATE,
         allowNull: false,
       },
+      year: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
       fin: {
         type: DataTypes.DATE,
         allowNull: false,

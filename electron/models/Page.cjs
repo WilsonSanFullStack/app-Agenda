@@ -15,7 +15,7 @@ module.exports = (sequelize) => {
         unique: true,
       },
       coins: {
-        type: DataTypes.FLOAT,
+        type: DataTypes.BOOLEAN,
         allowNull: false,
       },
       valorCoins: {

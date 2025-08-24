@@ -38,14 +38,14 @@ ipcMain.handle("delete-quincena", async (_, quincenaId) => {
 // ipcMain.handle("get-day", async () => {
 //   return await getAllDay();
 // });
-//Pages
-// ipcMain.handle("add-page", async (_, data) => {
-//   return await postPage(data);
-// });
-// // buscar pages
-// ipcMain.handle("get-page", async () => {
-//   return await getAllPage();
-// });
+// Pages
+ipcMain.handle("add-page", async (_, data) => {
+  return await postPage(data);
+});
+// buscar pages
+ipcMain.handle("get-page", async () => {
+  return await getAllPage();
+});
 //monedas
 ipcMain.handle("add-moneda", async (_, data) => {
   return await postMoneda(data);

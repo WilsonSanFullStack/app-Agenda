@@ -1,7 +1,15 @@
 const { Page } = require("../db.cjs");
 const { BrowserWindow } = require("electron");
 
-const postPage = async ({ name, coins, moneda, mensual, valor, tope }) => {
+const postPage = async ({
+  name,
+  coins,
+  valorCoins,
+  moneda,
+  mensual,
+  tope,
+  descuento,
+}) => {
   try {
     const [nuevaPage, created] = await Page.findOrCreate({
       where: { name: name },
@@ -10,8 +18,9 @@ const postPage = async ({ name, coins, moneda, mensual, valor, tope }) => {
         coins: coins,
         moneda: moneda,
         mensual: mensual,
-        valor: valor,
+        valorCoins: valorCoins,
         tope: tope,
+        descuento: descuento,
       },
     });
     if (!created) {
@@ -34,7 +43,16 @@ const postPage = async ({ name, coins, moneda, mensual, valor, tope }) => {
 const getAllPage = async () => {
   try {
     const pages = await Page.findAll({
-      attributes: ["name", "id", "coins", "moneda", "mensual", "valor", "tope"],
+      attributes: [
+        "name",
+        "id",
+        "coins",
+        "moneda",
+        "mensual",
+        "valorCoins",
+        "tope",
+        "descuento",
+      ],
     });
     const res = pages.map((x) => x.dataValues);
     return res;

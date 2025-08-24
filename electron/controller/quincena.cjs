@@ -6,12 +6,12 @@ const postQuincena = async (data) => {
     const [quincena, created] = await Quincena.findOrCreate({
       where: { name: data.name },
       defaults: {
+        year: data.year,
         name: data.name,
         inicio: data.inicio,
         fin: data.fin,
       },
     });
-
     if (!created) {
       return { error: "La quincena ya existe" };
     }
@@ -31,9 +31,12 @@ const postQuincena = async (data) => {
 const getAllQuincenaYear= async (year) =>{
   try {
     const res = await Quincena.findAll({
-    where: where(fn('strftime', '%Y', col('inicio')), year.toString())
+    where:{ year: year },
+    order: [["inicio", "ASC"]],
+    attributes: ["id", "name", "inicio", "fin", "year"],
   });
-  return res;
+  const quincena = res?.map((x) => x.get({ plain: true }));
+  return quincena;
   } catch (error) {
     return {
       success: false,
@@ -42,6 +45,8 @@ const getAllQuincenaYear= async (year) =>{
     };
   }
 }
+
+//falta de auditoria para esta funciones 
 const getAllQuincenas = async (date) => {
   console.log(date)
   try {
