@@ -50767,6 +50767,12 @@ function requireIpcMain() {
   ipcMain$1.handle("delete-quincena", async (_, quincenaId) => {
     return await deleteQuincena(quincenaId);
   });
+  ipcMain$1.handle("add-day", async (_, data) => {
+    return await postDay(data);
+  });
+  ipcMain$1.handle("get-day", async (_, id) => {
+    return await getDay(id);
+  });
   ipcMain$1.handle("add-page", async (_, data) => {
     return await postPage(data);
   });
@@ -50792,7 +50798,7 @@ function requireMain() {
   requireIpcMain();
   let mainWindow;
   app.whenReady().then(async () => {
-    await sequelize2.sync({ force: true });
+    await sequelize2.sync({ force: false });
     console.log("🔹 Base de datos lista");
     mainWindow = new BrowserWindow({
       width: 1280,

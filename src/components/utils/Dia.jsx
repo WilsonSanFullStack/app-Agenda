@@ -1,176 +1,117 @@
-// import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import React, { useState } from "react";
+export const Dia = ({ setError }) => {
+  const [dia, setdia] = useState({
+    name: "",
+    usd: 0,
+    euro: 0,
+    gbp: 0,
+    gbpParcial: 0,
+    mostrar: 0,
+    adelantos: 0,
+    worked: 0,
+    q: ''
+  });
+  const [q, setQ] = useState([])
+  const [dias, setDias] = useState([])
 
-// const getAllQuincena = async () => {
-//   try {
-//     const respuesta = await window.Electron.getQuincena();
-//     return respuesta;
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
-// const getAllDay = async () => {
-//   try {
-//     const respuesta = await window.Electron.getDay();
-//     return respuesta;
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
-// export const Dia = () => {
-//   const [q, setQ] = useState([]);
-//   const [selectedQuincena, setSelectedQuincena] = useState({
-//     name: "",
-//     id: "",
-//   });
-//   const [days, setDays] = useState([]);
-//   const [d, setD] = useState([]);
+  const getQuincenaYear = async ()
 
-//   const handleQ = async () => {
-//     const quincena = await getAllQuincena();
-//     const days = await getAllDay();
-//     setQ(quincena);
-//     setD(days || []);
-//   };
+  const handleName = (e) => {
+    setdia({ ...dia, name: e.target.value });
+  };
+  const handleUsd = (e) => {
+    setdia({ ...dia, usd: parseFloat(e.target.value) });
+  };
+  const handleEuro = (e) => {
+    setdia({ ...dia, euro: parseFloat(e.target.value) });
+  };
+  const handleGbp = (e) => {
+    setdia({ ...dia, gbp: parseFloat(e.target.value) });
+  };
+  const handleGbpParcial = (e) => {
+    setdia({ ...dia, gbpParcial: parseFloat(e.target.value) });
+  };
+  const handleAdelantos = (e) => {
+    setdia({ ...dia, adelantos: parseFloat(e.target.value) });
+  };
+  const handleMostrar = (e) => {
+    setdia({ ...dia, mostrar: e.target.checked });
+  };
+  const handleWorked = (e) => {
+    setdia({ ...dia, worked: e.target.checked });
+  };
 
-//   useEffect(() => {
-//     handleQ();
-//   }, []);
+  const crearDia = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await window.Electrom.addDay(dia);
+      if (res.error) {
+        setError(res.error);
+      } else {
+        setError("Dia creado correctamente ✅");
+        setdia({
+          name: "",
+          usd: 0,
+          euro: 0,
+          gbp: 0,
+          gbpParcial: 0,
+          mostrar: 0,
+          adelantos: 0,
+          worked: 0,
+          q: ''
+        });
+      }
+    } catch (error) {
+      setError("Error al crear Dia: " + error);
+    }
+  };
 
-//   const months = [
-//     "enero",
-//     "febrero",
-//     "marzo",
-//     "abril",
-//     "mayo",
-//     "junio",
-//     "julio",
-//     "agosto",
-//     "septiembre",
-//     "octubre",
-//     "noviembre",
-//     "diciembre",
-//   ];
-//   useEffect(() => {
-//     if (q.length === 0) return; // No ejecutar hasta que `q` tenga datos
-//     // Obtener fecha actual
-//     const today = new Date();
-//     const day = today.getDate();
-//     const monthIndex = today.getMonth(); // Enero es 0
-//     const year = today.getFullYear();
-//     // Determinar quincena actual
-//     const currentQuincena =
-//       day <= 15
-//         ? `${months[monthIndex]}-1-${year}` // Primera quincena
-//         : `${months[monthIndex]}-2-${year}`; // Segunda quincena
-
-//     // Buscar si la quincena actual existe en el array `q`
-//     const foundQuincena = q?.find((x) => x?.name === currentQuincena);
-//     if (foundQuincena) {
-//       setSelectedQuincena({name: foundQuincena.name, id: foundQuincena.id });
-//     }
-//   }, [q]);
-//   // Efecto para calcular los días según la quincena seleccionada
-//   useEffect(() => {
-//     if (!selectedQuincena.name) return;
-
-//     const parts = selectedQuincena?.name;
-//     const partsspli = parts.split("-")
-//     console.log(partsspli)
-//     if (partsspli.length !== 3) return;
-
-//     const monthName = partsspli[0]; // Nombre del mes
-//     const quincena = partsspli[1]; // '1' o '2'
-//     const year = parseInt(partsspli[2]); // Año en número
-
-//     const monthIndex = months.indexOf(monthName);
-//     if (monthIndex === -1) return;
-
-//     const lastDay = new Date(year, monthIndex + 1, 0).getDate(); // Último día del mes
-
-//     const newDays = (
-//       quincena === "1"
-//         ? Array.from(
-//             { length: 15 },
-//             (_, i) =>
-//               `${i + 1}-${monthName.slice(0, 3)}-${year.toString().slice(2, 4)}`
-//           ).filter((day) => Array.isArray(d) && !d?.some((d) => d.name === day)) // Evita duplicados
-//         : Array.from(
-//             { length: lastDay - 15 },
-//             (_, i) =>
-//               `${i + 16}-${monthName.slice(0, 3)}-${year
-//                 .toString()
-//                 .slice(2, 4)}`
-//           )
-//     ).filter((day) => Array.isArray(d) && !d?.some((d) => d.name === day)); // Evita duplicados
-//     setDays(newDays || []); // Agrega solo los nuevos días
-//   }, [selectedQuincena, d]);
-
-
-//   const CreateDay = async ({dia, q}) => {
-//     try {
-//       console.log(dia, q)
-//       const data = {dia: dia,
-//         q: q
-//       }
-//       console.log(data)
-//       const respuesta = await window.Electron.addDay(data);
-//       if (respuesta.error) {
-//         console.log("respuesta negativa", respuesta.error);
-//         // setSelectedQuincena({name: "", id: ""})
-//       } else {
-//         console.log("respuesta positiva", respuesta);
-//         const days = await getAllDay();
-//         setD(days || []);
-//         // setSelectedQuincena({name: "", id: ""})
-//       }
-//     } catch (error) {
-//       // setSelectedQuincena({name: "", id: ""})
-//       console.log("error en create day", error);
-//     }
-//   };
-//   return (
-//     <div>
-//       <form>
-//         <section className="text-center m-1 p-1 pt-10">
-//           <h1>Seleccione una quincena</h1>
-//           <select
-//             className="bg-slate-950 m-1 rounded-md p-1"
-//             value={selectedQuincena.name}
-//             onChange={(e) => {
-//               const selected = q.find((x) => x.name === e.target.value);
-//               if (selected) {
-//                 setSelectedQuincena({ name: selected.name, id: selected.id });
-//               }
-//             }}          >
-//             {q?.map((x) => {
-//               return (
-//                 <option key={x.name} value={x.name} className="m-0.5">
-//                   {x.name}
-//                 </option>
-//               );
-//             })}
-//           </select>
-//         </section>
-
-//         <section className="grid grid-cols-7">
-//           {days?.map((x) => {
-//             return (
-//               <div
-//                 key={x}
-//                 className="text-center border border-slate-300 m-1 p-1 hover:bg-slate-950"
-//               >
-//                 <h1>{x}</h1>
-//                 <button
-//                   className="border border-slate-400 rounded-lg p-1 hover:bg-emerald-500 hover:uppercase"
-//                   onClick={() => CreateDay({dia: x, q: selectedQuincena.id})}
-//                 >
-//                   crear
-//                 </button>
-//               </div>
-//             );
-//           })}
-//         </section>
-//       </form>
-//     </div>
-//   );
-// };
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="w-full max-w-md p-8 bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-700"
+      >
+        <h1 className="text-3xl font-bold text-center text-emerald-400 mb-6 tracking-wide">
+          Registro Creditos diarios
+        </h1>
+        <form onSubmit={crearDia} className="space-y-4">
+          {/* Moneda */}
+          <div>
+            <label className="block mb-1 text-sm font-medium text-slate-300">
+              Nombre
+            </label>
+            <select
+              value={dia.name}
+              onChange={handleName}
+              className="w-full bg-slate-900/70 text-white px-3 py-2 rounded-lg border border-slate-600 focus:ring-2 focus:ring-emerald-400"
+            >
+              <option value="" hidden>
+                Seleccione un dia
+              </option>
+              <option value="USD">Dólar</option>
+              <option value="EURO">Euro</option>
+              <option value="GBP">Libra Esterlina</option>
+            </select>
+          </div>
+          {/* Nombre */}
+          <div>
+            <label className="block mb-1 text-sm font-medium to-slate-300">
+              Nombre
+            </label>
+            <input
+            className="w-full px-4 py-2 bg-slate-900/70 border border-slate-600 rounded-lg shadow-sm focus:ring-emerald-400 focus:outline-none text-white"
+            type="text" 
+            value={page.name}
+            onChange={handleName}
+            placeholder=""
+            />
+          </div>
+        </form>
+      </motion.div>
+    </div>
+  );
+};

@@ -31,13 +31,13 @@ ipcMain.handle("delete-quincena", async (_, quincenaId) => {
   return await deleteQuincena(quincenaId);
 });
 // Dias 
-// ipcMain.handle("add-day", async (_, data) => {
-//   return await postDay(data);
-// });
-// // buscar dias
-// ipcMain.handle("get-day", async () => {
-//   return await getAllDay();
-// });
+ipcMain.handle("add-day", async (_, data) => {
+  return await postDay(data);
+});
+// buscar dias
+ipcMain.handle("get-day", async (_, id) => {
+  return await getDay(id);
+});
 // Pages
 ipcMain.handle("add-page", async (_, data) => {
   return await postPage(data);

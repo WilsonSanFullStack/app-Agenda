@@ -37,3 +37,15 @@
   margin: 0;
 }
 
+/* en tu index.css o globals.css */
+.bg-aurora {
+  background: linear-gradient(-45deg, #0f172a, #1e293b, #334155, #1e3a8a);
+  background-size: 400% 400%;
+  animation: gradientShift 12s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}

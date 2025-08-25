@@ -13,21 +13,10 @@ contextBridge.exposeInMainWorld("Electron", {
   deleteQuincena: (id) => ipcRenderer.invoke("delete-quincena", id),
   //eventos para dias
   addDay: (data) => ipcRenderer.invoke("add-day", data),
-  getDay: () => ipcRenderer.invoke("get-day"),
+  getDay: (id) => ipcRenderer.invoke("get-day", id),
   //eventos para pages
   addPage: (data) => ipcRenderer.invoke("add-page", data),
   getPage: () => ipcRenderer.invoke("get-page"),
-  //eventos para sender
-  addSender: (data) => ipcRenderer.invoke("add-sender", data),
-  getSender: () => ipcRenderer.invoke("get-sender"),
-  //eventos para dirty
-  addDirty: (data) => ipcRenderer.invoke("add-dirty", data),
-  //eventos para adult
-  addAdult: (data) => ipcRenderer.invoke("add-adult", data),
-  //eventos para vx
-  addVx: (data) => ipcRenderer.invoke("add-vx", data),
-  //eventos para 7Live
-  addLive7: (data) => ipcRenderer.invoke("add-live7", data),
   //eventos para monedas
   addMoneda: (data) => ipcRenderer.invoke("add-moneda", data),
   //eventos para buscar todas las quincenas
@@ -44,5 +33,5 @@ contextBridge.exposeInMainWorld("Electron", {
   //eventos para actualizar dias en react
   onDayActualizado: (callback) => ipcRenderer.on("dayActualizado", callback),
   //eventos para actualizar pages en react
-  onDayActualizado: (callback) => ipcRenderer.on("pageActualizado", callback),
+  onPageActualizado: (callback) => ipcRenderer.on("pageActualizado", callback),
 });

@@ -1,25 +1,20 @@
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 export const Quincena = ({ setError }) => {
   const navigate = useNavigate();
   const [quincenas, setQuincenas] = useState([]);
-  //estado para almacenas las quincenas ya creadas
   const [q, setQ] = useState([]);
   const [creado, setCreado] = useState(false);
-  //estado para guardar el year actual y luego seleccionar el deseado
-  //vemos cual es el year actual
-  const currentYear = new Date().getFullYear(); //year actual
+
+  const currentYear = new Date().getFullYear();
   const [yearS, setYearS] = useState(currentYear);
-  //para cambiar el year actual y mostrar las quincenas de ese year
-  const handleYearS = (y) => {
-    setYearS(y);
-  };
-  //use effect para navegar a la creacion de quincenas
+
   useEffect(() => {
     window.Electron.onAbrirRegistroQuincena(() => {
       setError("Cambiando vista a Registro Quincena");
-      navigate("/register/quincena"); // 🔹 Cambia la vista
+      navigate("/register/quincena");
     });
   }, []);
 
@@ -27,11 +22,10 @@ export const Quincena = ({ setError }) => {
     try {
       const respuesta = await window.Electron.addQuincena(data);
       if (respuesta.error) {
-        setError(error);
+        setError(respuesta.error);
       } else {
-        setCreado((prev) => (prev = !prev));
-        setError("Quincena creada");
-        // Actualizar la lista de quincenas después de crear una nueva
+        setCreado((prev) => !prev);
+        setError("✅ Quincena creada");
         const nuevasQuincenas = await fetchQ(yearS);
         setQ(nuevasQuincenas || []);
       }
@@ -40,37 +34,34 @@ export const Quincena = ({ setError }) => {
     }
   };
 
-  const fetchQ = async () => {
+  const fetchQ = async (y) => {
     try {
-      const result = await window.Electron.getQuincenaYear(yearS);
+      const result = await window.Electron.getQuincenaYear(y);
       return result;
     } catch (error) {
-      setError("Error fetching data:", error);
+      setError("Error fetching data: " + error);
     }
   };
 
-  const handleQuincena = async (yearS) => {
-    const creadas = await fetchQ(yearS);
+  const handleQuincena = async (y) => {
+    const creadas = await fetchQ(y);
     setQ(creadas || []);
-    nombres(yearS);
+    nombres(y);
   };
+
   useEffect(() => {
     handleQuincena(yearS);
-    // 📌 Escuchar evento de Electron para actualizar quincenas
     window.Electron.onQuincenaActualizada(() => {
-      setError("Quincena actualizada, recargando datos...");
+      setError("🔄 Quincena actualizada, recargando datos...");
       fetchQ(yearS);
     });
-
     return () => {
       window.Electron.removeQuincenaActualizada();
     };
   }, [creado]);
 
-  //seleccion de los years que vamos a mostrar para crear quincenas
-  const years = Array.from({ length: 21 }, (_, i) => currentYear - 10 + i); //rango de 10 years atras y adelante
+  const years = Array.from({ length: 21 }, (_, i) => currentYear - 10 + i);
 
-  //creacion de nombres de la quincenas y el resto de propiedades
   const nombres = (yearC) => {
     const quincena = [];
     const meses = Array.from({ length: 12 }, (_, i) =>
@@ -78,88 +69,75 @@ export const Quincena = ({ setError }) => {
     );
 
     meses.forEach((mes, index) => {
-      const year =
-        yearC !== undefined && yearC !== currentYear ? yearC : currentYear;
-      const ultimoDiaMes = new Date(year, index + 1, 0).getDate(); // ultimo día del mes
+      const year = yearC || currentYear;
+      const ultimoDiaMes = new Date(year, index + 1, 0).getDate();
 
-      // primera quincena: 1 al 15
-      if (
-        Array.isArray(q) &&
-        q !== undefined &&
-        q !== null &&
-        !q?.some((x) => x.name === `${mes}-1-${year}`)
-      ) {
+      if (!q?.some((x) => x.name === `${mes}-1-${year}`)) {
         quincena.push({
-          year: yearC,
+          year,
           name: `${mes}-1-${year}`,
-          inicio: new Date(year, index, 1), // 1 del mes
-          fin: new Date(year, index, 15), // 15 del mes
+          inicio: new Date(year, index, 1),
+          fin: new Date(year, index, 15),
         });
       }
-
-      // segunda quincena: 16 al último día
       if (!q?.some((x) => x.name === `${mes}-2-${year}`)) {
         quincena.push({
-          year: yearC,
+          year,
           name: `${mes}-2-${year}`,
-          inicio: new Date(year, index, 16), // 16 del mes
-          fin: new Date(year, index, ultimoDiaMes), // último día
+          inicio: new Date(year, index, 16),
+          fin: new Date(year, index, ultimoDiaMes),
         });
       }
     });
 
     setQuincenas(quincena);
   };
-
-  console.log(yearS);
-  useEffect(() => {
+useEffect(() => {
     nombres(yearS);
   }, [q, yearS]);
-
   return (
-    <div>
-      <form className="pt-12">
-        <div className="flex flex-wrap  mx-2 px-1">
-          {years?.map((y) => {
-            return (
+    <div className="pt-12 text-white">
+      {/* Botones de años */}
+      <div className="flex flex-wrap justify-center gap-1">
+        {years.map((y) => (
+          <button
+            key={y}
+            type="button"
+            className={`w-12 py-1 rounded-lg font-semibold transition-colors
+              ${
+                yearS === y ? "bg-emerald-600" : "bg-gray-600 hover:bg-gray-700"
+              }`}
+            onClick={() => setYearS(y)}
+          >
+            {y}
+          </button>
+        ))}
+      </div>
+
+      {/* Lista de quincenas */}
+      <section className="text-center mt-6">
+        <h1 className="text-xl font-bold mb-4">📅 Quincenas {yearS}</h1>
+        <div className="flex flex-wrap justify-center gap-3">
+          {quincenas.map((qItem, i) => (
+            <motion.div
+              key={qItem.name}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.05 }}
+              className="border border-slate-500 bg-slate-800/70 rounded-lg p-3 w-48 shadow-md"
+            >
+              <h2 className="font-semibold text-amber-400">{qItem.name}</h2>
               <button
-                key={y}
-                className="bg-gray-500 m-1 p-1 rounded-lg cursor-pointer w-12"
-                onClick={() => handleYearS(y)}
+                type="button"
+                onClick={() => crearQuincena(qItem)}
+                className="mt-2 px-3 py-1 rounded-md text-sm border border-emerald-400 text-emerald-300 hover:bg-emerald-500 hover:text-white transition-colors"
               >
-                {`${y}`}
+                Crear
               </button>
-            );
-          })}
+            </motion.div>
+          ))}
         </div>
-        <section className="text-center text-white mt-2">
-          <h1>quincenas para {yearS}</h1>
-          <section className="text-white flex flex-wrap justify-center gap-2">
-            {quincenas?.map((q) => {
-              return (
-                <div
-                  key={q.name}
-                  className="border-2 w-48 m-1 p-1 border-slate-500 rounded-lg"
-                >
-                  <h1 key={q.name}>{q.name}</h1>
-                  {q?.creada ? (
-                    <></>
-                  ) : (
-                    <button
-                      key={q.name + 1}
-                      onChange={handleQuincena}
-                      onClick={() => crearQuincena(q)}
-                      className=" focus:bg-red-500 active:bg-amber-700 hover:bg-emerald-500 border-2 border-amber-400 w-fit m-0.5 p-0.5 text-white rounded-md"
-                    >
-                      Crear
-                    </button>
-                  )}
-                </div>
-              );
-            })}
-          </section>
-        </section>
-      </form>
+      </section>
     </div>
   );
 };

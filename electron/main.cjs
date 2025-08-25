@@ -8,7 +8,7 @@ require("./ipcMain/ipcMain.cjs");
 let mainWindow;
 
 app.whenReady().then(async () => {
-  await sequelize.sync({ force: true }); //sincroniza la db sin eliminar datos
+  await sequelize.sync({ force: false }); //sincroniza la db sin eliminar datos
   console.log("🔹 Base de datos lista");
 
   mainWindow = new BrowserWindow({
