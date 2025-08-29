@@ -110,7 +110,7 @@ export const Navbar = () => {
       {/* Botones de ventana */}
       <div className="flex space-x-2">
         <button
-          onClick={() => window.Electron.minimize()}
+          onClick={() => window.Electrom.minimize()}
           className="p-1 rounded-md hover:bg-slate-700 transition"
         >
           <BsZoomOut className="text-lg text-yellow-400" />

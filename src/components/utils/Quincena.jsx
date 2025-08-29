@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { yearsFive, quincenasYear } from "../../date";
+import { AiOutlineArrowRight } from "react-icons/ai";
+import { AiOutlineArrowLeft } from "react-icons/ai";
 
 export const Quincena = ({ setError }) => {
   const navigate = useNavigate();
@@ -10,6 +13,7 @@ export const Quincena = ({ setError }) => {
 
   const currentYear = new Date().getFullYear();
   const [yearS, setYearS] = useState(currentYear);
+  const [yearFives, setYearFives] = useState([]);
 
   useEffect(() => {
     window.Electron.onAbrirRegistroQuincena(() => {
@@ -34,19 +38,20 @@ export const Quincena = ({ setError }) => {
     }
   };
 
-  const fetchQ = async (y) => {
+  const fetchQ = async (year) => {
     try {
-      const result = await window.Electron.getQuincenaYear(y);
+      const result = await window.Electron.getQuincenaYear(year);
       return result;
     } catch (error) {
       setError("Error fetching data: " + error);
     }
   };
 
-  const handleQuincena = async (y) => {
-    const creadas = await fetchQ(y);
+  const handleQuincena = async (year) => {
+    const creadas = await fetchQ(year);
     setQ(creadas || []);
-    nombres(y);
+    const quincenaDate = quincenasYear(yearS, q);
+    setQuincenas(quincenaDate)
   };
 
   useEffect(() => {
@@ -60,58 +65,46 @@ export const Quincena = ({ setError }) => {
     };
   }, [creado]);
 
-  const years = Array.from({ length: 21 }, (_, i) => currentYear - 10 + i);
-
-  const nombres = (yearC) => {
-    const quincena = [];
-    const meses = Array.from({ length: 12 }, (_, i) =>
-      new Date(2000, i, 1).toLocaleString("es-ES", { month: "long" })
-    );
-
-    meses.forEach((mes, index) => {
-      const year = yearC || currentYear;
-      const ultimoDiaMes = new Date(year, index + 1, 0).getDate();
-
-      if (!q?.some((x) => x.name === `${mes}-1-${year}`)) {
-        quincena.push({
-          year,
-          name: `${mes}-1-${year}`,
-          inicio: new Date(year, index, 1),
-          fin: new Date(year, index, 15),
-        });
-      }
-      if (!q?.some((x) => x.name === `${mes}-2-${year}`)) {
-        quincena.push({
-          year,
-          name: `${mes}-2-${year}`,
-          inicio: new Date(year, index, 16),
-          fin: new Date(year, index, ultimoDiaMes),
-        });
-      }
-    });
-
-    setQuincenas(quincena);
-  };
-useEffect(() => {
-    nombres(yearS);
-  }, [q, yearS]);
+  useEffect(() => {
+    const year5 = yearsFive(yearS);
+    setYearFives(year5);
+    const quincenaDate = quincenasYear(yearS, q);
+    setQuincenas(quincenaDate)
+  }, [yearS, q]);
   return (
     <div className="pt-12 text-white">
       {/* Botones de años */}
       <div className="flex flex-wrap justify-center gap-1">
-        {years.map((y) => (
+        <button
+          type="button"
+          className="p-0.5 text-center rounded-xl bg-blue-200 hover:bg-yellow-100"
+          onClick={() => setYearS(yearS - 1)}
+        >
+          <AiOutlineArrowLeft className="text-blue-600 text-2xl" />
+        </button>
+
+        {yearFives?.map((year) => (
           <button
-            key={y}
+            key={year}
             type="button"
             className={`w-12 py-1 rounded-lg font-semibold transition-colors
               ${
-                yearS === y ? "bg-emerald-600" : "bg-gray-600 hover:bg-gray-700"
+                yearS === year
+                  ? "bg-emerald-600"
+                  : "bg-gray-600 hover:bg-gray-700"
               }`}
-            onClick={() => setYearS(y)}
+            onClick={() => setYearS(year)}
           >
-            {y}
+            {year}
           </button>
         ))}
+        <button
+          type="button"
+          className="p-0.5 text-center rounded-xl bg-blue-200 hover:bg-yellow-100"
+          onClick={() => setYearS(yearS + 1)}
+        >
+          <AiOutlineArrowRight className="text-blue-600 text-2xl" />
+        </button>
       </div>
 
       {/* Lista de quincenas */}

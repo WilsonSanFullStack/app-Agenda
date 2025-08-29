@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-export const Home = () => {
+import React from "react";
 
-  return <div>Home</div>;
+export const Home = () => {
+  return <div className="pt-12">soy el home</div>;
 };
