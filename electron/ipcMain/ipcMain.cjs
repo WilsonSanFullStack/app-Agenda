@@ -7,10 +7,13 @@ const {
   deleteQuincena,
 } = require("../controller/quincena.cjs");
 // const { postDay, getAllDay } = require("../controller/day.cjs");
-const { postPage, getAllPage } = require("../controller/page.cjs");
+const {
+  postPage,
+  getAllPage,
+  getAllPageName,
+} = require("../controller/page.cjs");
 const { postMoneda } = require("../controller/moneda.cjs");
 const { getAllsQuincenas } = require("../controller/serchAllQuincena.cjs");
-
 
 //quincenas
 ipcMain.handle("get-quincena", async (_, date) => {
@@ -30,7 +33,7 @@ ipcMain.handle("add-quincena", async (_, data) => {
 ipcMain.handle("delete-quincena", async (_, quincenaId) => {
   return await deleteQuincena(quincenaId);
 });
-// Dias 
+// Dias
 ipcMain.handle("add-day", async (_, data) => {
   return await postDay(data);
 });
@@ -45,6 +48,10 @@ ipcMain.handle("add-page", async (_, data) => {
 // buscar pages
 ipcMain.handle("get-page", async () => {
   return await getAllPage();
+});
+// buscar pages return solo name
+ipcMain.handle("get-page-name", async () => {
+  return await getAllPageName();
 });
 //monedas
 ipcMain.handle("add-moneda", async (_, data) => {

@@ -23,7 +23,7 @@ module.exports = (sequelize) => {
         allowNull: false,
       },
       moneda: {
-        type: DataTypes.ENUM("USD", "EUR", "GBP"),
+        type: DataTypes.ENUM("USD", "EUR", "GBP", "COP"),
         allowNull: false,
       },
       mensual: {

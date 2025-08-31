@@ -50194,7 +50194,22 @@ function requirePage() {
       };
     }
   };
-  page = { postPage, getAllPage };
+  const getAllPageName = async () => {
+    try {
+      const pages = await Page.findAll({
+        attributes: ["name", "id", "moneda"]
+      });
+      const res = pages.map((x) => x.dataValues);
+      return res;
+    } catch (error) {
+      return {
+        success: false,
+        message: "Error al obtener las Paginas",
+        error
+      };
+    }
+  };
+  page = { postPage, getAllPage, getAllPageName };
   return page;
 }
 var moneda;
@@ -50749,7 +50764,11 @@ function requireIpcMain() {
     getQuincenaById,
     deleteQuincena
   } = requireQuincena();
-  const { postPage, getAllPage } = requirePage();
+  const {
+    postPage,
+    getAllPage,
+    getAllPageName
+  } = requirePage();
   const { postMoneda } = requireMoneda();
   const { getAllsQuincenas } = requireSerchAllQuincena();
   ipcMain$1.handle("get-quincena", async (_, date) => {
@@ -50778,6 +50797,9 @@ function requireIpcMain() {
   });
   ipcMain$1.handle("get-page", async () => {
     return await getAllPage();
+  });
+  ipcMain$1.handle("get-page-name", async () => {
+    return await getAllPageName();
   });
   ipcMain$1.handle("add-moneda", async (_, data) => {
     return await postMoneda(data);

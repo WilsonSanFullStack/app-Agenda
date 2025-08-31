@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
-export const Page = ({setError}) => {
+export const Page = ({ setError }) => {
   const [pages, setPages] = useState([]);
 
   const getPages = async () => {
@@ -40,9 +40,7 @@ export const Page = ({setError}) => {
               scale: 1.05,
               boxShadow: "0px 8px 25px rgba(0,0,0,0.4)",
             }}
-            className="border border-slate-700 bg-slate-800/70 backdrop-blur-md 
-                       rounded-2xl p-5 w-72 shadow-lg hover:shadow-2xl 
-                       transition-all duration-300"
+            className="border border-slate-700 bg-slate-800/70 backdrop-blur-md rounded-2xl p-5 w-72 shadow-lg hover:shadow-2xl transition-all duration-300"
           >
             <section className="uppercase text-xl font-bold text-emerald-400 mb-3">
               {page.name}
@@ -69,13 +67,15 @@ export const Page = ({setError}) => {
             </section>
 
             <section className="capitalize font-medium flex justify-between mb-2">
-              <h3>Descuentos:</h3>
+              <h3>Descuentos(%):</h3>
               <p
                 className={
                   page.descuento > 0 ? "text-emerald-400" : "text-red-400"
                 }
               >
-                {page.descuento > 0 ? `${page.descuento}%` : "No"}
+                {page.descuento > 0 ? `${Intl.NumberFormat("es-IN",{minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                }).format(page.descuento)}` : "No"}
               </p>
             </section>
 

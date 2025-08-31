@@ -100,6 +100,7 @@ export const CreatePage = ({ setError }) => {
               <option value="USD">Dólar</option>
               <option value="EURO">Euro</option>
               <option value="GBP">Libra Esterlina</option>
+              <option value="COP">Pesos Colombianos</option>
             </select>
           </div>
 

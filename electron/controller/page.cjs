@@ -64,5 +64,20 @@ const getAllPage = async () => {
     };
   }
 };
+const getAllPageName = async () => {
+  try {
+    const pages = await Page.findAll({
+      attributes: ["name", "id", "moneda"],
+    });
+    const res = pages.map((x) => x.dataValues);
+    return res;
+  } catch (error) {
+    return {
+      success: false,
+      message: "Error al obtener las Paginas",
+      error: error,
+    };
+  }
+};
 
-module.exports = { postPage, getAllPage };
+module.exports = { postPage, getAllPage, getAllPageName };

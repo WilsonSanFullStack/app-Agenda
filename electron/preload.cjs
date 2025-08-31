@@ -17,6 +17,7 @@ contextBridge.exposeInMainWorld("Electron", {
   //eventos para pages
   addPage: (data) => ipcRenderer.invoke("add-page", data),
   getPage: () => ipcRenderer.invoke("get-page"),
+  getPageName: () => ipcRenderer.invoke("get-page-name"),
   //eventos para monedas
   addMoneda: (data) => ipcRenderer.invoke("add-moneda", data),
   //eventos para buscar todas las quincenas
