@@ -13,6 +13,11 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      coins: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+      },
       usd: {
         type: DataTypes.FLOAT,
         allowNull: false,
@@ -33,21 +38,11 @@ module.exports = (sequelize) => {
         allowNull: false,
         defaultValue: 0,
       },
-      cop: {
-        type: DataTypes.FLOAT,
-        allowNull: false,
-        defaultValue: 0,
-      },
       mostrar: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
       },
       adelantos: {
-        type: DataTypes.FLOAT,
-        allowNull: false,
-        defaultValue: 0,
-      },
-      creditos: {
         type: DataTypes.FLOAT,
         allowNull: false,
         defaultValue: 0,

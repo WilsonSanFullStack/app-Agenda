@@ -1,135 +1,136 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-const fetchQ = async (year) => {
-    try {
-      const result = await window.Electron.getQuincenaYear(year);
-      return result;
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
+import { motion } from "framer-motion";
+import { yearsFive, quincenasYear } from "../../date";
+import { AiOutlineArrowRight } from "react-icons/ai";
+import { AiOutlineArrowLeft } from "react-icons/ai";
+
+export const Quincena = ({ setError }) => {
+  const navigate = useNavigate();
+  const [quincenas, setQuincenas] = useState([]);
+  const [q, setQ] = useState([]);
+  const [creado, setCreado] = useState(false);
+
+  const currentYear = new Date().getFullYear();
+  const [yearS, setYearS] = useState(currentYear);
+  const [yearFives, setYearFives] = useState([]);
+
+  useEffect(() => {
+    window.Electron.onAbrirRegistroQuincena(() => {
+      setError("Cambiando vista a Registro Quincena");
+      navigate("/register/quincena");
+    });
+  }, []);
+
   const crearQuincena = async (data) => {
     try {
       const respuesta = await window.Electron.addQuincena(data);
       if (respuesta.error) {
-        console.log(error);
+        setError(respuesta.error);
       } else {
-        console.log("Quincena creada:", respuesta);
-        // Actualizar la lista de quincenas después de crear una nueva
-        fetchQ(yearS);
+        setCreado((prev) => !prev);
+        setError("✅ Quincena creada");
+        const nuevasQuincenas = await fetchQ(yearS);
+        setQ(nuevasQuincenas || []);
       }
     } catch (error) {
-      console.log(error);
+      setError("Error al crear la quincena: " + error);
     }
   };
-export const Quincena = () => {
-  const navigate = useNavigate();
-  const [quincenas, setQuincenas] = useState([]);
-  //estado para almacenas las quincenas ya creadas
-  const [q, setQ] = useState([]);
-  //estado para guardar el year actual y luego seleccionar el deseado
-  //vemos cual es el year actual
-  const currentYear = new Date().getFullYear(); //year actual
-  const [yearS, setYearS] = useState(currentYear);
-  //para cambiar el year actual y mostrar las quincenas de ese year
-  const handleYearS = (y) => {
-    setYearS(y);
+
+  const fetchQ = async (year) => {
+    try {
+      const result = await window.Electron.getQuincenaYear(year);
+      return result;
+    } catch (error) {
+      setError("Error fetching data: " + error);
+    }
   };
-  //seleccion de los years que vamos a mostrar para crear quincenas
-  const years = Array.from({ length: 21 }, (_, i) => currentYear - 10 + i); //rango de 10 years atras y adelante
 
- //creacion de nombres de la quincenas y el resto de propiedades
-const nombres = (yearS) => {
-  const quincena = [];
-  const meses = Array.from({ length: 12 }, (_, i) =>
-    new Date(2000, i, 1).toLocaleString("es-ES", { month: "long" })
-  );
-
-  meses.forEach((mes, index) => {
-    const year = yearS !== undefined && yearS !== currentYear ? yearS : currentYear;
-    const ultimoDiaMes = new Date(year, index + 1, 0).getDate(); // ultimo día del mes
-
-    // primera quincena: 1 al 15
-    if (!q?.some((x) => x.name === `${mes}-1-${year}`)) {
-      quincena.push({
-        name: `${mes}-1-${year}`,
-        inicio: new Date(year, index, 1),   // 1 del mes
-        fin: new Date(year, index, 15),     // 15 del mes
-      });
-    }
-
-    // segunda quincena: 16 al último día
-    if (!q?.some((x) => x.name === `${mes}-2-${year}`)) {
-      quincena.push({
-        name: `${mes}-2-${year}`,
-        inicio: new Date(year, index, 16),             // 16 del mes
-        fin: new Date(year, index, ultimoDiaMes),      // último día
-      });
-    }
-  });
-
-  setQuincenas(quincena);
-};
-
-  useEffect(() => {
-    fetchQ(yearS);
-  }, [yearS]);
-  useEffect(() => {
-    nombres(yearS);
-  }, [q, yearS]);
-  console.log("q", q);
-  console.log("quincenas", quincenas);
-
-  const handleQuincena = async () => {
-    const creadas = await fetchQ(yearS);
+  const handleQuincena = async (year) => {
+    const creadas = await fetchQ(year);
     setQ(creadas || []);
-    nombres(yearS);
+    const quincenaDate = quincenasYear(yearS, q);
+    setQuincenas(quincenaDate)
   };
 
+  useEffect(() => {
+    handleQuincena(yearS);
+    window.Electron.onQuincenaActualizada(() => {
+      setError("🔄 Quincena actualizada, recargando datos...");
+      fetchQ(yearS);
+    });
+    return () => {
+      window.Electron.removeQuincenaActualizada();
+    };
+  }, [creado]);
+
+  useEffect(() => {
+    const year5 = yearsFive(yearS);
+    setYearFives(year5);
+    const quincenaDate = quincenasYear(yearS, q);
+    setQuincenas(quincenaDate)
+  }, [yearS, q]);
   return (
-    <div>
-      <form className="pt-12">
-        <div className="flex flex-wrap  mx-2 px-1">
-          {years?.map((y) => {
-            return (
+    <div className="pt-12 text-white">
+      {/* Botones de años */}
+      <div className="flex flex-wrap justify-center gap-1">
+        <button
+          type="button"
+          className="p-0.5 text-center rounded-xl bg-blue-200 hover:bg-yellow-100"
+          onClick={() => setYearS(yearS - 1)}
+        >
+          <AiOutlineArrowLeft className="text-blue-600 text-2xl" />
+        </button>
+
+        {yearFives?.map((year) => (
+          <button
+            key={year}
+            type="button"
+            className={`w-12 py-1 rounded-lg font-semibold transition-colors
+              ${
+                yearS === year
+                  ? "bg-emerald-600"
+                  : "bg-gray-600 hover:bg-gray-700"
+              }`}
+            onClick={() => setYearS(year)}
+          >
+            {year}
+          </button>
+        ))}
+        <button
+          type="button"
+          className="p-0.5 text-center rounded-xl bg-blue-200 hover:bg-yellow-100"
+          onClick={() => setYearS(yearS + 1)}
+        >
+          <AiOutlineArrowRight className="text-blue-600 text-2xl" />
+        </button>
+      </div>
+
+      {/* Lista de quincenas */}
+      <section className="text-center mt-6">
+        <h1 className="text-xl font-bold mb-4">📅 Quincenas {yearS}</h1>
+        <div className="flex flex-wrap justify-center gap-3">
+          {quincenas.map((qItem, i) => (
+            <motion.div
+              key={qItem.name}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.05 }}
+              className="border border-slate-500 bg-slate-800/70 rounded-lg p-3 w-48 shadow-md"
+            >
+              <h2 className="font-semibold text-amber-400">{qItem.name}</h2>
               <button
-                key={y}
-                className="bg-gray-500 m-1 p-1 rounded-lg cursor-pointer w-12"
-                onClick={() => handleYearS(y)}
+                type="button"
+                onClick={() => crearQuincena(qItem)}
+                className="mt-2 px-3 py-1 rounded-md text-sm border border-emerald-400 text-emerald-300 hover:bg-emerald-500 hover:text-white transition-colors"
               >
-                {`${y}`}{" "}
+                Crear
               </button>
-            );
-          })}
+            </motion.div>
+          ))}
         </div>
-        <section className="text-center text-white mt-2">
-          <h1>quincenas para {yearS}</h1>
-          <section className="text-white flex flex-wrap justify-center gap-2">
-            {quincenas?.map((q) => {
-              return (
-                <div
-                  key={q.name}
-                  className="border-2 w-48 m-1 p-1 border-slate-500 rounded-lg"
-                >
-                  <h1 key={q.name}>{q.name}</h1>
-                  {q?.creada ? (
-                    <></>
-                  ) : (
-                    <button
-                      key={q.name + 1}
-                      onChange={handleQuincena}
-                      onClick={() => crearQuincena(q)}
-                      className=" focus:bg-red-500 active:bg-amber-700 hover:bg-emerald-500 border-2 border-amber-400 w-fit m-0.5 p-0.5 text-white rounded-md"
-                    >
-                      Crear
-                    </button>
-                  )}
-                </div>
-              );
-            })}
-          </section>
-        </section>
-      </form>
+      </section>
     </div>
   );
 };
