@@ -9,7 +9,8 @@ import { Quincena } from "./components/utils/Quincena.jsx";
 import {ErrorAlert} from "./components/plugin/ErrorAlert.jsx";
 import { CreatePage } from "./components/utils/CreatePage.jsx";
 import { Page } from "./components/view/Page.jsx";
-// import { Moneda } from "./components/utils/Moneda.jsx";
+import { Moneda } from "./components/utils/Moneda.jsx";
+
 function App() {
   const navigate = useNavigate();
  const [error, setError] = useState(""); // estado global de errores
@@ -31,7 +32,7 @@ function App() {
         <Route path="/register/dia" element={<Dia setError={setError}/>} />
         <Route path="/register/pagina" element={<CreatePage setError={setError}/>} />
         <Route path="/paginas" element={<Page setError={setError}/>} />
-        {/* <Route path="/register/moneda" element={<Moneda />} /> */}
+        <Route path="/register/moneda" element={<Moneda setError={setError} />} />
       </Routes>
     </div>
   );

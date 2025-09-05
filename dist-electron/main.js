@@ -50197,7 +50197,7 @@ function requirePage() {
   const getAllPageName = async () => {
     try {
       const pages = await Page.findAll({
-        attributes: ["name", "id", "moneda"]
+        attributes: ["name", "id", "moneda", "coins", "valorCoins", "tope"]
       });
       const res = pages.map((x) => x.dataValues);
       return res;

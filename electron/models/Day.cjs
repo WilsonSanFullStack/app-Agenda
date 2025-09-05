@@ -13,6 +13,11 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      coins: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+      },
       usd: {
         type: DataTypes.FLOAT,
         allowNull: false,

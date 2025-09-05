@@ -6,6 +6,7 @@ const postDay = async (data) => {
       where: { name: data.name },
       defaults: {
         name: data.name,
+        coins: data.coins,
         usd: data.usd,
         euro: data.euro,
         gbp: data.gbp,
@@ -16,10 +17,10 @@ const postDay = async (data) => {
       },
     });
     if (!created) return { error: "No fue posible crear el registro" };
-        // 🔹 Enviar evento a React para actualizar la lista
-        BrowserWindow.getAllWindows().forEach((win) => {
-          win.webContents.send("dayActualizado", day);
-        });
+    // 🔹 Enviar evento a React para actualizar la lista
+    BrowserWindow.getAllWindows().forEach((win) => {
+      win.webContents.send("dayActualizado", day);
+    });
     return day;
   } catch (error) {
     return {
@@ -31,16 +32,16 @@ const postDay = async (data) => {
 };
 
 const getDay = async (id) => {
-try {
-const res = await Day.findByPk(id) 
-return res
-} catch (error) {
-return {
+  try {
+    const res = await Day.findByPk(id);
+    return res;
+  } catch (error) {
+    return {
       success: false,
       message: "Error al buscar el dia",
       error: error,
     };
-}
+  }
 };
 
-module.exports = {postDay, getDay}
+module.exports = { postDay, getDay };

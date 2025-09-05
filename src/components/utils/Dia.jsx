@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, number } from "framer-motion";
 import React, { useEffect, useState } from "react";
 import { generarDias, yearsFive } from "../../date";
 
@@ -6,6 +6,7 @@ export const Dia = ({ setError }) => {
   const [dia, setdia] = useState({
     name: "",
     page: "",
+    coins: 0,
     usd: 0,
     euro: 0,
     gbp: 0,
@@ -21,6 +22,8 @@ export const Dia = ({ setError }) => {
     name: "",
     inicio: null,
     fin: null,
+    coins: null,
+    valorCoins: null,
   });
   const [dias, setDias] = useState([]);
   const [page, setPage] = useState([]);
@@ -64,6 +67,27 @@ export const Dia = ({ setError }) => {
     setDias(getDias);
   }, [quincena]);
   // console.log(getQuincenaYear(2025));
+  const handleMostrar = () => {
+        console.log("tope", page.find((pag) => dia.page === pag.name))
+
+    const tope = parseFloat(page?.find((pag) => dia.page === pag.name)?.tope);
+    console.log("tope", tope);
+    const moneda = page?.find((pag) => dia.page === pag.name)?.moneda;
+    console.log("moneda", moneda);
+    const money =
+      moneda === "USD"
+        ? dia?.usd
+        : moneda === "EUR"
+        ? dia?.euro
+        : moneda === "GBP"
+        ? dia?.gbp
+        : null;
+    console.log("money", money);
+    const mostrar = money >= tope ? true : false;
+    console.log("mostrar", mostrar);
+    setdia({ ...dia, mostrar: mostrar });
+  };
+
   const handleName = (e) => {
     setdia({ ...dia, name: e });
   };
@@ -74,23 +98,44 @@ export const Dia = ({ setError }) => {
   const handleUsd = (e) => {
     setdia({ ...dia, usd: parseFloat(e.target.value) });
   };
+  const handleCoins = (e) => {
+    //buscamos el valor de los coins
+    const valorCoins = page.find((pag) => pag.name === dia.page)?.valorCoins;
+    //buscamos la moneda a la cual convertir los coins
+    const moneda = page.find((pag) => pag.name === dia.page)?.moneda;
+    //conversion de coins a moneda
+    const money = parseInt(e.target.value) * valorCoins || 0;
+    //revisamos a que moneda pertenecen el dinero de los coins
+    if (moneda === "USD") {
+      //si es usd
+      setdia({ ...dia, usd: money, coins: parseInt(e.target.value) || 0 });
+    } else if (moneda === "EURO") {
+      //si es euro
+      setdia({ ...dia, euro: money, coins: parseInt(e.target.value) || 0 });
+    } else if (moneda === "GBP") {
+      //si es liras esterlinas
+      setdia({ ...dia, gbp: money, coins: parseInt(e.target.value) || 0 });
+    }
+  };
   const handleEuro = (e) => {
-    setdia({ ...dia, euro: parseFloat(e.target.value) });
+    setdia({ ...dia, euro: parseFloat(e.target.value) || 0 });
   };
   const handleGbp = (e) => {
-    setdia({ ...dia, gbp: parseFloat(e.target.value) });
+    setdia({ ...dia, gbp: parseFloat(e.target.value) || 0 });
   };
   const handleGbpParcial = (e) => {
-    setdia({ ...dia, gbpParcial: parseFloat(e.target.value) });
+    setdia({ ...dia, gbpParcial: parseFloat(e.target.value) || 0 });
   };
   const handleAdelantos = (e) => {
     setdia({ ...dia, adelantos: parseFloat(e.target.value) || 0 });
   };
-  const handleMostrar = (e) => {
-    setdia({ ...dia, mostrar: e.target.checked });
-  };
-  const handleWorked = (e) => {
-    setdia({ ...dia, worked: e.target.checked });
+
+  const handleWorked = () => {
+    if (dia.coins > 0 || dia.euro > 0||dia.usd > 0||dia.gbp > 0||dia.gbpParcial > 0) {
+      setdia({ ...dia, worked: true });
+    }else {
+      setdia({ ...dia, worked: false });
+    }
   };
   const handleQuincena = (e) => {
     setQuincena({
@@ -100,8 +145,12 @@ export const Dia = ({ setError }) => {
       fin: e.fin,
       year: e.year,
     });
+    setdia({...dia, q: e.id})
   };
-
+  useEffect(() => {
+    handleMostrar();
+    handleWorked();
+  }, [dia.usd, dia.euro, dia.coins, dia.gbp, dia.gbpParcial]);
   const crearDia = async (e) => {
     e.preventDefault();
     try {
@@ -126,15 +175,16 @@ export const Dia = ({ setError }) => {
       setError("Error al crear Dia: " + error);
     }
   };
-  console.log("yearS", yearS);
-  console.log("yearFive", yearFives);
-  console.log("q", q);
-  console.log("quincena", quincena);
-  console.log("dias", dias);
+  // console.log("yearS", yearS);
+  // console.log("yearFive", yearFives);
+  // console.log("q", q);
+  // console.log("quincena", quincena);
+  // console.log("dias", dias);
   console.log("dia", dia);
-  console.log("page", page);
+  // console.log("page", page);
+
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="pt-12 flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <motion.div
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
@@ -153,7 +203,7 @@ export const Dia = ({ setError }) => {
             <button
               type="button"
               onClick={handlePrev}
-              className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+              className="px-3 py-1 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition"
             >
               ◀
             </button>
@@ -175,7 +225,7 @@ export const Dia = ({ setError }) => {
             <button
               type="button"
               onClick={handleNext}
-              className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+              className="px-3 py-1 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition"
             >
               ▶
             </button>
@@ -318,6 +368,39 @@ export const Dia = ({ setError }) => {
               }).format(dia.usd) || 0}
             </p>
           </div>
+          {/* coins */}
+          <div
+            className={`${
+              page.find((pag) => pag.name === dia.page)?.coins
+                ? "opacity-100"
+                : "opacity-30"
+            }`}
+          >
+            <label className="block mb-1 text-sm font-medium to-slate-300">
+              Coins
+            </label>
+            <input
+              onWheel={(e) => e.target.blur()}
+              className="no-spin w-full px-4 py-2 bg-slate-900/70 border border-slate-600 rounded-lg shadow-sm focus:ring-emerald-400 focus:outline-none text-white"
+              type="number"
+              value={dia.coins}
+              disabled={
+                page.find((pag) => pag.name === dia.page)?.coins ? false : true
+              }
+              onChange={handleCoins}
+              placeholder=""
+              min={0}
+            />
+            <p className="block mb-1 text-sm font-medium to-slate-300">
+              {Intl.NumberFormat("es-EU", {
+                style: "currency",
+                currency: "EUR",
+                minimumFractionDigits: 1,
+                maximumFractionDigits: 1,
+              }).format(dia.euro) || 0}
+            </p>
+          </div>
+
           {/* euros */}
           <div
             className={`${
@@ -335,7 +418,8 @@ export const Dia = ({ setError }) => {
               type="number"
               value={dia.euro}
               disabled={
-                page.find((pag) => pag.name === dia.page)?.moneda === "EURO"
+                page.find((pag) => pag.name === dia.page)?.moneda === "EURO" &&
+                !page.find((pag) => pag.name === dia.page)?.coins
                   ? false
                   : true
               }

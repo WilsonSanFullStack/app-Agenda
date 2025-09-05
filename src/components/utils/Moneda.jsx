@@ -1,183 +1,272 @@
-// import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { yearsFive } from "../../date";
 
-// const postMoneda = async (data) => {
-//   try {
-//     const moneda = await window.Electron.addMoneda(data);
-//     if (moneda.error) {
-//       console.log(error);
-//     } else {
-//       console.log(moneda);
-//     }
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
-// const getAllQuincena = async () => {
-//   try {
-//     const res = await window.Electron.getQuincena();
-//     return res;
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
+const postMoneda = async (data) => {
+  try {
+    const moneda = await window.Electron.addMoneda(data);
+    if (moneda.error) {
+      setError("Error al registrar las monedas" + error);
+    } else {
+      setError("Moneda registrada correctamente.")
+    }
+  } catch (error) {
+    setError("Error al registrar las monedas" + error);
+  }
+};
 
-// export const Moneda = () => {
-//   const [monedas, setModenas] = useState({
-//     dolar: null,
-//     euro: null,
-//     lb: null,
-//     pago: false,
-//     quincena: null,
-//   });
-//   console.log(monedas);
-//   const [q, setQ] = useState([]);
-//   const [quincena, setQuincena] = useState({});
-//   useEffect(() => {
-//     const quincenas = async () => {
-//       const quincenas = await getAllQuincena();
-//       setQ(quincenas);
-//     };
-//     quincenas();
-//   }, []);
-//   const handleQuincena = (e) => {
-//     const quincena = q.find((x) => x.name === e.target.value);
-//     if (quincena) {
-//       setModenas({ ...monedas, quincena: quincena.id });
-//     }
-//   };
-//   const handleDolar = (e) => {
-//     setModenas({ ...monedas, dolar: e.target.value });
-//   };
-//   const handleEuro = (e) => {
-//     setModenas({ ...monedas, euro: e.target.value });
-//   };
-//   const handleLb = (e) => {
-//     setModenas({ ...monedas, lb: e.target.value });
-//   };
-//   const handleChecked = (e) => {
-//     setModenas({ ...monedas, pago: e.target.checked });
-//   };
-//   const handleMoneda = async () => {
-//     await postMoneda(monedas);
-//     setModenas({
-//       dolar: null,
-//       euro: null,
-//       lb: null,
-//       pago: false,
-//       quincena: null,
-//     });
-//   };
-//   return (
-//     <div className="text-center pt-12" key={"1234"}>
-//       <h1 className="text-4xl uppercase m-2 mb-6">registro de monedas</h1>
-//       <section>
-//         <select
-//           value={quincena.name}
-//           onChange={handleQuincena}
-//           className="bg-slate-950 m-1 rounded-md p-1"
-//         >
-//           <option value="" hidden>
-//             Seleccione una quincena
-//           </option>
-//           {q?.map((q) => {
-//             return (
-//               <option key={q.id} value={q.name}>
-//                 {q.name}
-//               </option>
-//             );
-//           })}
-//         </select>
-//       </section>
-//       <form
-//         onSubmit={handleMoneda}
-//         className="flex-col justify-center items-center"
-//       >
-//         <section className="m-2 p-2 border-4 border-slate-800 rounded-xl w-fit mx-auto">
-//           <div className=" grid grid-cols-2">
-//             <label className="m-2 text-2xl" htmlFor="dolar">
-//               Dolar
-//             </label>
-//             <input
-//               id="dolar"
-//               onWheel={(e) => e.target.blur()}
-//               value={monedas.dolar ?? ""}
-//               onChange={handleDolar}
-//               type="number"
-//               className="bg-slate-950 no-spin h-8 text-2xl w-32 text-center"
-//               onKeyDown={(e) => {
-//                 if (e.key === "ArrowUp" || e.key === "ArrowDown") {
-//                   e.preventDefault(); // Bloquea flechas del teclado
-//                 }
-//               }}
-//             />
-//           </div>
-//           <div className="m-1 p-1 grid grid-cols-2">
-//             <label className="m-2 text-2xl" htmlFor="euro">
-//               Euro
-//             </label>
-//             <input
-//               id="euro"
-//               onWheel={(e) => e.target.blur()}
-//               value={monedas.euro ?? ""}
-//               onChange={handleEuro}
-//               type="number"
-//               className="bg-slate-950 no-spin h-8 text-2xl w-32 text-center"
-//               onKeyDown={(e) => {
-//                 if (e.key === "ArrowUp" || e.key === "ArrowDown") {
-//                   e.preventDefault(); // Bloquea flechas del teclado
-//                 }
-//               }}
-//             />
-//           </div>
-//           <div className="m-1 p-1 grid grid-cols-2">
-//             <label className="m-2 text-2xl" htmlFor="lb">
-//               Libra Esterlina
-//             </label>
-//             <input
-//               id="lb"
-//               onWheel={(e) => e.target.blur()}
-//               value={monedas.lb ?? ""}
-//               onChange={handleLb}
-//               type="number"
-//               className="bg-slate-950 no-spin h-8 text-2xl w-32 text-center"
-//               onKeyDown={(e) => {
-//                 if (e.key === "ArrowUp" || e.key === "ArrowDown") {
-//                   e.preventDefault(); // Bloquea flechas del teclado
-//                 }
-//               }}
-//             />
-//           </div>
-//           <div className="m-1 p-1 grid grid-cols-2">
-//             <label className="m-2 text-2xl" htmlFor="pago">
-//               Marque si es para pago
-//             </label>
-//             <input
-//               id="pago"
-//               checked={monedas.pago}
-//               onChange={handleChecked}
-//               type="checkbox"
-//               className="h-8 w-32"
-//             />
-//           </div>
-//         </section>
-//         <section>
-//           {monedas.dolar !== "" &&
-//           monedas.dolar !== null &&
-//           monedas.euro !== "" &&
-//           monedas.euro !== null &&
-//           monedas.lb !== "" &&
-//           monedas.lb !== null &&
-//           monedas.quincena !== "" &&
-//           monedas.quincena !== null ? (
-//             <button
-//               type="submit"
-//               className=" text-2xl  border-2 border-slate-700 m-2 p-2 rounded-lg bg-slate-950 hover:bg-emerald-500 active:bg-sky-500 "
-//             >
-//               Cargar
-//             </button>
-//           ) : null}
-//         </section>
-//       </form>
-//     </div>
-//   );
-// };
+export const Moneda = ({ setError }) => {
+  const [monedas, setModenas] = useState({
+    dolar: null,
+    euro: null,
+    lb: null,
+    pago: false,
+    quincena: null,
+  });
+
+  const currentYear = new Date().getFullYear();
+  const [yearS, setYearS] = useState(currentYear);
+  const [yearFives, setYearFives] = useState([]);
+  const [q, setQ] = useState([]);
+  const [quincena, setQuincena] = useState({});
+
+  const handlePrev = () => setYearS(yearS - 1);
+  
+  const handleNext = () => setYearS(yearS + 1);
+
+  const getQuincenaYear = async (year) => {
+    try {
+      const quincenas = await window.Electron.getQuincenaYear(year);
+      return quincenas;
+    } catch (error) {
+      setError("Error al buscar las quincenas: " + error);
+    }
+  };
+
+  const handleGetQ = async () => {
+    const quincenas = await getQuincenaYear(yearS);
+    setQ(quincenas);
+  };
+
+  useEffect(() => {
+    const years = yearsFive(yearS);
+    setYearFives(years);
+    handleGetQ(yearS);
+  }, [yearS, currentYear]);
+
+  const handleQuincena = (e) => {
+    setModenas({ ...monedas, quincena: e.id });
+  };
+  const handleDolar = (e) => setModenas({ ...monedas, dolar: e.target.value });
+  const handleEuro = (e) => setModenas({ ...monedas, euro: e.target.value });
+  const handleLb = (e) => setModenas({ ...monedas, lb: e.target.value });
+  const handleChecked = (e) =>
+    setModenas({ ...monedas, pago: e.target.checked });
+
+  const handleMoneda = async () => {
+    await postMoneda(monedas);
+    setModenas({
+      dolar: null,
+      euro: null,
+      lb: null,
+      pago: false,
+      quincena: null,
+    });
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center py-12">
+      <motion.form
+        onSubmit={handleMoneda}
+        className="w-full max-w-2xl bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-700 p-8"
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+      >
+        <motion.h1
+          className="text-3xl font-bold text-center text-emerald-400 mb-8 tracking-wide uppercase"
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.3, duration: 0.5 }}
+        >
+          Registro de Monedas
+        </motion.h1>
+
+        {/* Año y quincena */}
+        <motion.section
+          className="space-y-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+        >
+          {/* Año */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            <label className="text-slate-300 font-medium">
+              Seleccione el Año
+            </label>
+            <div className="flex items-center gap-2">
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                type="button"
+                onClick={handlePrev}
+                className="px-3 py-1 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition"
+              >
+                ◀
+              </motion.button>
+              <select
+                value={yearS}
+                className="px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-600 focus:ring-emerald-400 focus:outline-none"
+                onChange={(e) => setYearS(Number(e.target.value))}
+              >
+                {yearFives.map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </select>
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                type="button"
+                onClick={handleNext}
+                className="px-3 py-1 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition"
+              >
+                ▶
+              </motion.button>
+            </div>
+          </div>
+
+          {/* Quincena */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            <label className="text-slate-300 font-medium">
+              Seleccione la Quincena
+            </label>
+            <select
+              className="px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-600 focus:ring-emerald-400 focus:outline-none"
+              value={quincena.name}
+              onChange={(e) => {
+                const qSelected = q.find(
+                  (item) => item.name === e.target.value
+                );
+                if (qSelected) handleQuincena(qSelected);
+              }}
+            >
+              <option value="" hidden>
+                Seleccione
+              </option>
+              {q.map((quincena) => (
+                <option key={quincena.id} value={quincena.name}>
+                  {quincena.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </motion.section>
+
+        {/* Inputs */}
+        <motion.section
+          className="mt-8 grid gap-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+        >
+          {[
+            {
+              id: "dolar",
+              label: "Dólar",
+              value: monedas.dolar,
+              onChange: handleDolar,
+            },
+            {
+              id: "euro",
+              label: "Euro",
+              value: monedas.euro,
+              onChange: handleEuro,
+            },
+            {
+              id: "lb",
+              label: "Libra Esterlina",
+              value: monedas.lb,
+              onChange: handleLb,
+            },
+          ].map((field, i) => (
+            <motion.div
+              key={field.id}
+              className="flex items-center justify-between gap-4 border-b border-slate-700 pb-2"
+              initial={{ x: -30, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.7 + i * 0.2 }}
+            >
+              <label
+                htmlFor={field.id}
+                className="text-xl text-slate-200 font-semibold"
+              >
+                {field.label}
+              </label>
+              <input
+                id={field.id}
+                type="number"
+                value={field.value ?? ""}
+                onChange={field.onChange}
+                onWheel={(e) => e.currentTarget.blur()}
+                onKeyDown={(e) => {
+                  if (e.key === "ArrowUp" || e.key === "ArrowDown")
+                    e.preventDefault();
+                }}
+                className="w-32 text-center text-xl bg-slate-900 text-white border border-slate-600 rounded-lg px-3 py-1 focus:ring-emerald-400 focus:outline-none"
+              />
+            </motion.div>
+          ))}
+
+          {/* Checkbox */}
+          <motion.div
+            className="flex items-center justify-between gap-4"
+            initial={{ x: -30, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 1.2 }}
+          >
+            <label
+              htmlFor="pago"
+              className="text-xl text-slate-200 font-semibold"
+            >
+              Marque si es para pago
+            </label>
+            <input
+              id="pago"
+              type="checkbox"
+              checked={monedas.pago}
+              onChange={handleChecked}
+              className="h-6 w-6 accent-emerald-500 cursor-pointer"
+            />
+          </motion.div>
+        </motion.section>
+
+        {/* Botón */}
+        <motion.div
+          className="mt-10 text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.4 }}
+        >
+          {monedas.dolar && monedas.euro && monedas.lb && monedas.quincena ? (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              type="submit"
+              className="px-8 py-3 rounded-xl text-lg font-bold text-white 
+                     bg-gradient-to-r from-emerald-500 to-sky-500 
+                     hover:from-emerald-400 hover:to-sky-400 
+                     active:scale-95 shadow-lg shadow-emerald-500/30 
+                     transition-all duration-200"
+            >
+              Cargar
+            </motion.button>
+          ) : (
+            <p className="text-slate-500 text-sm mt-2">
+              Complete todos los campos para habilitar el botón
+            </p>
+          )}
+        </motion.div>
+      </motion.form>
+    </div>
+  );
+};
