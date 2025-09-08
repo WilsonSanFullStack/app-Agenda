@@ -2,24 +2,11 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { yearsFive } from "../../date";
 
-const postMoneda = async (data) => {
-  try {
-    const moneda = await window.Electron.addMoneda(data);
-    if (moneda.error) {
-      setError("Error al registrar las monedas" + error);
-    } else {
-      setError("Moneda registrada correctamente.")
-    }
-  } catch (error) {
-    setError("Error al registrar las monedas" + error);
-  }
-};
-
 export const Moneda = ({ setError }) => {
   const [monedas, setModenas] = useState({
     dolar: null,
     euro: null,
-    lb: null,
+    gbp: null,
     pago: false,
     quincena: null,
   });
@@ -31,7 +18,7 @@ export const Moneda = ({ setError }) => {
   const [quincena, setQuincena] = useState({});
 
   const handlePrev = () => setYearS(yearS - 1);
-  
+
   const handleNext = () => setYearS(yearS + 1);
 
   const getQuincenaYear = async (year) => {
@@ -59,19 +46,28 @@ export const Moneda = ({ setError }) => {
   };
   const handleDolar = (e) => setModenas({ ...monedas, dolar: e.target.value });
   const handleEuro = (e) => setModenas({ ...monedas, euro: e.target.value });
-  const handleLb = (e) => setModenas({ ...monedas, lb: e.target.value });
+  const handleGbp = (e) => setModenas({ ...monedas, gbp: e.target.value });
   const handleChecked = (e) =>
     setModenas({ ...monedas, pago: e.target.checked });
 
   const handleMoneda = async () => {
-    await postMoneda(monedas);
-    setModenas({
-      dolar: null,
-      euro: null,
-      lb: null,
-      pago: false,
-      quincena: null,
-    });
+    try {
+      const moneda = await window.Electron.addMoneda(monedas);
+      if (moneda.error) {
+        setError("Error al registrar las monedas" + moneda.error);
+        setModenas({
+          dolar: null,
+          euro: null,
+          gbp: null,
+          pago: false,
+          quincena: null,
+        });
+      } else {
+        setError("Moneda registrada correctamente.");
+      }
+    } catch (error) {
+      setError("Error al registrar las monedas" + error);
+    }
   };
 
   return (
@@ -183,10 +179,10 @@ export const Moneda = ({ setError }) => {
               onChange: handleEuro,
             },
             {
-              id: "lb",
+              id: "gbp",
               label: "Libra Esterlina",
-              value: monedas.lb,
-              onChange: handleLb,
+              value: monedas.gbp,
+              onChange: handleGbp,
             },
           ].map((field, i) => (
             <motion.div
@@ -247,7 +243,7 @@ export const Moneda = ({ setError }) => {
           animate={{ opacity: 1 }}
           transition={{ delay: 1.4 }}
         >
-          {monedas.dolar && monedas.euro && monedas.lb && monedas.quincena ? (
+          {monedas.dolar && monedas.euro && monedas.gbp && monedas.quincena ? (
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}

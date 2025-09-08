@@ -31,15 +31,15 @@ let capsEntries = entries.map((entry) => [
 ]);
 sequelize.models = Object.fromEntries(capsEntries);
 
-const { Quincena, Day, Page, Sender, Dirty, Vx, Adult, Live7, Moneda } =
+const { Quincena, Day, Page, Moneda } =
   sequelize.models;
 
 // //! relaciones entre modelos
-// Quincena.hasMany(Day, { as: "dias", foreignKey: "quincena" });
-// Day.belongsTo(Quincena, { foreignKey: "quincena" });
+Quincena.hasMany(Day, { as: "dias", foreignKey: "quincena" });
+Day.belongsTo(Quincena, { foreignKey: "quincena" });
 
-// Quincena.hasMany(Moneda, { as: "Monedas", foreignKey: "quincenaId" });
-// Moneda.belongsTo(Quincena, { foreignKey: "quincenaId" });
+Quincena.hasMany(Moneda, { as: "Monedas", foreignKey: "quincenaId" });
+Moneda.belongsTo(Quincena, { foreignKey: "quincenaId" });
 // //relacion sender
 // Day.hasMany(Sender, { as: "Senders", foreignKey: "dayId" });
 // Sender.belongsTo(Day, { foreignKey: "dayId" });
@@ -78,10 +78,5 @@ module.exports = {
   Quincena,
   Day,
   Page,
-  Sender,
-  Vx,
-  Dirty,
-  Adult,
-  Live7,
   Moneda
 };

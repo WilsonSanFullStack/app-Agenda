@@ -1,10 +1,10 @@
-import { Day } from "../db.cjs";
+const { Day, Quincena } = require("../db.cjs")
+const { BrowserWindow } = require("electron");
 
 const postDay = async (data) => {
   try {
-    const [day, created] = await Day.findOrCreate({
-      where: { name: data.name },
-      defaults: {
+    const q = await Quincena.findByPk(data.q);
+    const day = await Day.create({
         name: data.name,
         coins: data.coins,
         usd: data.usd,
@@ -14,9 +14,12 @@ const postDay = async (data) => {
         mostrar: data.mostrar,
         adelantos: data.adelantos,
         worked: data.worked,
-      },
+        page: data.page
     });
-    if (!created) return { error: "No fue posible crear el registro" };
+    if (day) {
+      await day.setQuincena(q);
+
+    }
     // 🔹 Enviar evento a React para actualizar la lista
     BrowserWindow.getAllWindows().forEach((win) => {
       win.webContents.send("dayActualizado", day);

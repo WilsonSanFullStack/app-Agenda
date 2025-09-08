@@ -6,7 +6,7 @@ const {
   getQuincenaById,
   deleteQuincena,
 } = require("../controller/quincena.cjs");
-// const { postDay, getAllDay } = require("../controller/day.cjs");
+const { postDay } = require("../controller/day.cjs");
 const {
   postPage,
   getAllPage,

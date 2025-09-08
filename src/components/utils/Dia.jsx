@@ -66,14 +66,10 @@ export const Dia = ({ setError }) => {
     const getDias = generarDias(quincena);
     setDias(getDias);
   }, [quincena]);
-  // console.log(getQuincenaYear(2025));
-  const handleMostrar = () => {
-        console.log("tope", page.find((pag) => dia.page === pag.name))
 
+  const handleMostrar = () => {
     const tope = parseFloat(page?.find((pag) => dia.page === pag.name)?.tope);
-    console.log("tope", tope);
     const moneda = page?.find((pag) => dia.page === pag.name)?.moneda;
-    console.log("moneda", moneda);
     const money =
       moneda === "USD"
         ? dia?.usd
@@ -82,9 +78,7 @@ export const Dia = ({ setError }) => {
         : moneda === "GBP"
         ? dia?.gbp
         : null;
-    console.log("money", money);
     const mostrar = money >= tope ? true : false;
-    console.log("mostrar", mostrar);
     setdia({ ...dia, mostrar: mostrar });
   };
 
@@ -92,11 +86,21 @@ export const Dia = ({ setError }) => {
     setdia({ ...dia, name: e });
   };
   const handlePage = (e) => {
-    setdia({ ...dia, page: e.name });
+    setdia({
+      ...dia,
+      page: e.name,
+      coins: 0,
+      usd: 0,
+      euro: 0,
+      gbp: 0,
+      gbpParcial: 0,
+      mostrar: 0,
+      adelantos: 0,
+      worked: 0,
+    });
   };
-  // handleDisable()
   const handleUsd = (e) => {
-    setdia({ ...dia, usd: parseFloat(e.target.value) });
+    setdia({ ...dia, usd: parseFloat(e.target.value || 0) });
   };
   const handleCoins = (e) => {
     //buscamos el valor de los coins
@@ -131,9 +135,15 @@ export const Dia = ({ setError }) => {
   };
 
   const handleWorked = () => {
-    if (dia.coins > 0 || dia.euro > 0||dia.usd > 0||dia.gbp > 0||dia.gbpParcial > 0) {
+    if (
+      dia.coins > 0 ||
+      dia.euro > 0 ||
+      dia.usd > 0 ||
+      dia.gbp > 0 ||
+      dia.gbpParcial > 0
+    ) {
       setdia({ ...dia, worked: true });
-    }else {
+    } else {
       setdia({ ...dia, worked: false });
     }
   };
@@ -145,7 +155,7 @@ export const Dia = ({ setError }) => {
       fin: e.fin,
       year: e.year,
     });
-    setdia({...dia, q: e.id})
+    setdia({ ...dia, q: e.id });
   };
   useEffect(() => {
     handleMostrar();
@@ -156,11 +166,13 @@ export const Dia = ({ setError }) => {
     try {
       const res = await window.Electron.addDay(dia);
       if (res.error) {
+        console.log(res.error)
         setError(res.error);
       } else {
         setError("Dia creado correctamente ✅");
         setdia({
-          name: "",
+          page: "",
+          coins: 0,
           usd: 0,
           euro: 0,
           gbp: 0,
@@ -168,20 +180,15 @@ export const Dia = ({ setError }) => {
           mostrar: 0,
           adelantos: 0,
           worked: 0,
-          q: "",
         });
+        setPage([])
+        getPagesName()
       }
     } catch (error) {
+      console.log(error)
       setError("Error al crear Dia: " + error);
     }
   };
-  // console.log("yearS", yearS);
-  // console.log("yearFive", yearFives);
-  // console.log("q", q);
-  // console.log("quincena", quincena);
-  // console.log("dias", dias);
-  console.log("dia", dia);
-  // console.log("page", page);
 
   return (
     <div className="pt-12 flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
@@ -356,8 +363,8 @@ export const Dia = ({ setError }) => {
                   : true
               }
               onChange={handleUsd}
-              placeholder=""
-              min={0}
+              placeholder="0"
+              // min={0}
             />
             <p className="block mb-1 text-sm font-medium to-slate-300">
               {Intl.NumberFormat("en-US", {
@@ -365,7 +372,9 @@ export const Dia = ({ setError }) => {
                 currency: "USD",
                 minimumFractionDigits: 1,
                 maximumFractionDigits: 1,
-              }).format(dia.usd) || 0}
+              }).format(typeof dia.usd !== "number")
+                ? 0
+                : dia.usd}
             </p>
           </div>
           {/* coins */}
@@ -504,6 +513,42 @@ export const Dia = ({ setError }) => {
               }).format(dia.gbpParcial) || 0}
             </p>
           </div>
+          {/* Botón */}
+          <motion.div
+            className="mt-10 text-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.4 }}
+          >
+            {dia.name &&
+            dia.page &&
+            dia.q &&
+            (dia.worked ||
+              dia.usd > 0 ||
+              dia.euro > 0 ||
+              dia.coins > 0 ||
+              dia.adelantos > 0 ||
+              dia.gbp > 0 ||
+              dia.gbpParcial > 0 ||
+              dia.mostrar === true) ? (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                type="submit"
+                className="px-8 py-3 rounded-xl text-lg font-bold text-white 
+                               bg-gradient-to-r from-emerald-500 to-sky-500 
+                               hover:from-emerald-400 hover:to-sky-400 
+                               active:scale-95 shadow-lg shadow-emerald-500/30 
+                               transition-all duration-200"
+              >
+                Cargar
+              </motion.button>
+            ) : (
+              <p className="text-slate-500 text-sm mt-2">
+                Complete todos los campos para habilitar el botón
+              </p>
+            )}
+          </motion.div>
         </form>
       </motion.div>
     </div>

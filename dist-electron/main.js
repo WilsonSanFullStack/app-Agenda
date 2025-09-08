@@ -11795,11 +11795,11 @@ function requireIsDate() {
         if (dateObj.m.length === 1) {
           month = "0".concat(dateObj.m);
         }
-        var day = dateObj.d;
+        var day2 = dateObj.d;
         if (dateObj.d.length === 1) {
-          day = "0".concat(dateObj.d);
+          day2 = "0".concat(dateObj.d);
         }
-        return new Date("".concat(fullYear, "-").concat(month, "-").concat(day, "T00:00:00.000Z")).getUTCDate() === +dateObj.d;
+        return new Date("".concat(fullYear, "-").concat(month, "-").concat(day2, "T00:00:00.000Z")).getUTCDate() === +dateObj.d;
       }
       if (!options.strictMode) {
         return Object.prototype.toString.call(input) === "[object Date]" && isFinite(input);
@@ -14683,14 +14683,14 @@ function requireIsTaxID() {
         T: "12"
       };
       var month = month_replace[chars[8]];
-      var day = parseInt(chars[9] + chars[10], 10);
-      if (day > 40) {
-        day -= 40;
+      var day2 = parseInt(chars[9] + chars[10], 10);
+      if (day2 > 40) {
+        day2 -= 40;
       }
-      if (day < 10) {
-        day = "0".concat(day);
+      if (day2 < 10) {
+        day2 = "0".concat(day2);
       }
-      var date = "".concat(chars[6]).concat(chars[7], "/").concat(month, "/").concat(day);
+      var date = "".concat(chars[6]).concat(chars[7], "/").concat(month, "/").concat(day2);
       if (!(0, _isDate.default)(date, "YY/MM/DD")) {
         return false;
       }
@@ -14753,8 +14753,8 @@ function requireIsTaxID() {
     }
     function lvLvCheck(tin) {
       tin = tin.replace(/\W/, "");
-      var day = tin.slice(0, 2);
-      if (day !== "32") {
+      var day2 = tin.slice(0, 2);
+      if (day2 !== "32") {
         var month = tin.slice(2, 4);
         if (month !== "00") {
           var full_year = tin.slice(4, 6);
@@ -14769,7 +14769,7 @@ function requireIsTaxID() {
               full_year = "20".concat(full_year);
               break;
           }
-          var date = "".concat(full_year, "/").concat(tin.slice(2, 4), "/").concat(day);
+          var date = "".concat(full_year, "/").concat(tin.slice(2, 4), "/").concat(day2);
           if (!(0, _isDate.default)(date, "YYYY/MM/DD")) {
             return false;
           }
@@ -15019,12 +15019,12 @@ function requireIsTaxID() {
       }
       var full_year = "";
       var month = tin_copy.slice(2, 4);
-      var day = parseInt(tin_copy.slice(4, 6), 10);
+      var day2 = parseInt(tin_copy.slice(4, 6), 10);
       if (tin.length > 11) {
         full_year = tin.slice(0, 4);
       } else {
         full_year = tin.slice(0, 2);
-        if (tin.length === 11 && day < 60) {
+        if (tin.length === 11 && day2 < 60) {
           var current_year = (/* @__PURE__ */ new Date()).getFullYear().toString();
           var current_century = parseInt(current_year.slice(0, 2), 10);
           current_year = parseInt(current_year, 10);
@@ -15042,13 +15042,13 @@ function requireIsTaxID() {
           }
         }
       }
-      if (day > 60) {
-        day -= 60;
+      if (day2 > 60) {
+        day2 -= 60;
       }
-      if (day < 10) {
-        day = "0".concat(day);
+      if (day2 < 10) {
+        day2 = "0".concat(day2);
       }
-      var date = "".concat(full_year, "/").concat(month, "/").concat(day);
+      var date = "".concat(full_year, "/").concat(month, "/").concat(day2);
       if (date.length === 8) {
         if (!(0, _isDate.default)(date, "YY/MM/DD")) {
           return false;
@@ -15610,12 +15610,12 @@ function requireIsISO8601() {
       var match = str.match(/(\d{4})-?(\d{0,2})-?(\d*)/).map(Number);
       var year = match[1];
       var month = match[2];
-      var day = match[3];
+      var day2 = match[3];
       var monthString = month ? "0".concat(month).slice(-2) : month;
-      var dayString = day ? "0".concat(day).slice(-2) : day;
+      var dayString = day2 ? "0".concat(day2).slice(-2) : day2;
       var d = new Date("".concat(year, "-").concat(monthString || "01", "-").concat(dayString || "01"));
-      if (month && day) {
-        return d.getUTCFullYear() === year && d.getUTCMonth() + 1 === month && d.getUTCDate() === day;
+      if (month && day2) {
+        return d.getUTCFullYear() === year && d.getUTCMonth() + 1 === month && d.getUTCDate() === day2;
       }
       return true;
     };
@@ -18537,12 +18537,12 @@ function getSetDayOfWeek(input) {
   if (!this.isValid()) {
     return input != null ? this : NaN;
   }
-  var day = get(this, "Day");
+  var day2 = get(this, "Day");
   if (input != null) {
     input = parseWeekday(input, this.localeData());
-    return this.add(input - day, "d");
+    return this.add(input - day2, "d");
   } else {
-    return day;
+    return day2;
   }
 }
 function getSetLocaleDayOfWeek(input) {
@@ -49976,17 +49976,16 @@ function requireDb() {
     entry[1]
   ]);
   sequelize2.models = Object.fromEntries(capsEntries);
-  const { Quincena, Day, Page, Sender, Dirty, Vx, Adult, Live7, Moneda } = sequelize2.models;
+  const { Quincena, Day, Page, Moneda } = sequelize2.models;
+  Quincena.hasMany(Day, { as: "dias", foreignKey: "quincena" });
+  Day.belongsTo(Quincena, { foreignKey: "quincena" });
+  Quincena.hasMany(Moneda, { as: "Monedas", foreignKey: "quincenaId" });
+  Moneda.belongsTo(Quincena, { foreignKey: "quincenaId" });
   db = {
     sequelize: sequelize2,
     Quincena,
     Day,
     Page,
-    Sender,
-    Vx,
-    Dirty,
-    Adult,
-    Live7,
     Moneda
   };
   return db;
@@ -50060,10 +50059,10 @@ function requireQuincena() {
         "diciembre"
       ];
       const data = date == null ? void 0 : date.split("-");
-      const day = parseInt(data[1]);
+      const day2 = parseInt(data[1]);
       const monthIndex = months2.indexOf(data[0].toLowerCase()) + 1;
       const year = parseInt(data[2]);
-      console.log("dia", day, "mes", monthIndex, "año", year);
+      console.log("dia", day2, "mes", monthIndex, "año", year);
       const respuesta = await (Quincena == null ? void 0 : Quincena.findAll({
         where: { name: date },
         order: [["inicio", "ASC"]],
@@ -50125,6 +50124,58 @@ function requireQuincena() {
     deleteQuincena
   };
   return quincena;
+}
+var day;
+var hasRequiredDay;
+function requireDay() {
+  if (hasRequiredDay) return day;
+  hasRequiredDay = 1;
+  const { Day, Quincena } = requireDb();
+  const { BrowserWindow } = require$$1$5;
+  const postDay = async (data) => {
+    try {
+      const q = await Quincena.findByPk(data.q);
+      const day2 = await Day.create({
+        name: data.name,
+        coins: data.coins,
+        usd: data.usd,
+        euro: data.euro,
+        gbp: data.gbp,
+        gbpParcial: data.gbpParcial,
+        mostrar: data.mostrar,
+        adelantos: data.adelantos,
+        worked: data.worked,
+        page: data.page
+      });
+      if (day2) {
+        await day2.setQuincena(q);
+      }
+      BrowserWindow.getAllWindows().forEach((win) => {
+        win.webContents.send("dayActualizado", day2);
+      });
+      return day2;
+    } catch (error) {
+      return {
+        success: false,
+        message: "Error al crear el dia",
+        error
+      };
+    }
+  };
+  const getDay2 = async (id) => {
+    try {
+      const res = await Day.findByPk(id);
+      return res;
+    } catch (error) {
+      return {
+        success: false,
+        message: "Error al buscar el dia",
+        error
+      };
+    }
+  };
+  day = { postDay, getDay: getDay2 };
+  return day;
 }
 var page;
 var hasRequiredPage;
@@ -50219,10 +50270,10 @@ function requireMoneda() {
   hasRequiredMoneda = 1;
   const { Quincena, Moneda } = requireDb();
   const { BrowserWindow } = require$$1$5;
-  const postMoneda = async ({ dolar, euro, lb, pago, quincena: quincena2 }) => {
+  const postMoneda = async ({ dolar, euro, gbp, pago, quincena: quincena2 }) => {
     try {
       const quincenaId = await Quincena.findOne({ where: { id: quincena2 } });
-      const newMoneda = await Moneda.create({ dolar, euro, lb, pago });
+      const newMoneda = await Moneda.create({ dolar, euro, gbp, pago });
       if (newMoneda) {
         await newMoneda.setQuincena(quincenaId);
       }
@@ -50764,6 +50815,7 @@ function requireIpcMain() {
     getQuincenaById,
     deleteQuincena
   } = requireQuincena();
+  const { postDay } = requireDay();
   const {
     postPage,
     getAllPage,

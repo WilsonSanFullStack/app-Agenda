@@ -1,10 +1,10 @@
 const { Quincena, Moneda,  } = require("../db.cjs");
 const { BrowserWindow } = require("electron");
 
-const postMoneda = async ({ dolar, euro, lb, pago, quincena }) => {
+const postMoneda = async ({ dolar, euro, gbp, pago, quincena }) => {
   try {
     const quincenaId = await Quincena.findOne({ where: { id: quincena } });
-    const newMoneda = await Moneda.create({ dolar: dolar, euro: euro, lb: lb, pago: pago });
+    const newMoneda = await Moneda.create({ dolar: dolar, euro: euro, gbp: gbp, pago: pago });
     if (newMoneda) {
       await newMoneda.setQuincena(quincenaId);
     }
