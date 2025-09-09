@@ -21,7 +21,7 @@ contextBridge.exposeInMainWorld("Electron", {
   //eventos para monedas
   addMoneda: (data) => ipcRenderer.invoke("add-moneda", data),
   //eventos para buscar todas las quincenas
-  getAllData: (data) => ipcRenderer.invoke("get-all-quincena", data),
+  getDataQ: (data) => ipcRenderer.invoke("get-data-quincena", data),
 
 
   //eventos para actualizar quincenas en react

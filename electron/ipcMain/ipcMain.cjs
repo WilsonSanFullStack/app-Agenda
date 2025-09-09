@@ -13,7 +13,7 @@ const {
   getAllPageName,
 } = require("../controller/page.cjs");
 const { postMoneda } = require("../controller/moneda.cjs");
-const { getAllsQuincenas } = require("../controller/serchAllQuincena.cjs");
+const { getDataQ } = require("../controller/getQData.cjs");
 
 //quincenas
 ipcMain.handle("get-quincena", async (_, date) => {
@@ -58,6 +58,6 @@ ipcMain.handle("add-moneda", async (_, data) => {
   return await postMoneda(data);
 });
 //getAllQuincena
-ipcMain.handle("get-all-quincena", async (_, data) => {
-  return await getAllsQuincenas(data);
+ipcMain.handle("get-data-quincena", async (_, data) => {
+  return await getDataQ(data);
 });

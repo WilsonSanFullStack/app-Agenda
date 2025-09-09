@@ -170,7 +170,7 @@ export const Dia = ({ setError }) => {
         setError(res.error);
       } else {
         setError("Dia creado correctamente ✅");
-        setdia({
+        setdia({...dia,
           page: "",
           coins: 0,
           usd: 0,
@@ -181,15 +181,11 @@ export const Dia = ({ setError }) => {
           adelantos: 0,
           worked: 0,
         });
-        setPage([])
-        getPagesName()
       }
     } catch (error) {
-      console.log(error)
       setError("Error al crear Dia: " + error);
     }
   };
-
   return (
     <div className="pt-12 flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <motion.div

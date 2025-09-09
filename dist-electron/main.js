@@ -50292,192 +50292,36 @@ function requireMoneda() {
   moneda = { postMoneda };
   return moneda;
 }
-var serchAllQuincena;
-var hasRequiredSerchAllQuincena;
-function requireSerchAllQuincena() {
-  if (hasRequiredSerchAllQuincena) return serchAllQuincena;
-  hasRequiredSerchAllQuincena = 1;
-  const {
-    Quincena,
-    Day,
-    Sender,
-    Adult,
-    Dirty,
-    Vx,
-    Moneda,
-    Live7,
-    Page,
-    sequelize: sequelize2
-  } = requireDb();
+var getQData;
+var hasRequiredGetQData;
+function requireGetQData() {
+  if (hasRequiredGetQData) return getQData;
+  hasRequiredGetQData = 1;
+  const { Quincena, Day, Moneda, Page, sequelize: sequelize2 } = requireDb();
   const { Op } = requireLib();
-  function filtrarAdults(dias) {
-    const diasSoloAdult = dias.flatMap(
-      (dia) => dia == null ? void 0 : dia.Adults.map((adult) => ({
-        ...adult,
-        name: dia == null ? void 0 : dia.name
-        // createdAt: new Date(adult.createdAt), // Asegurar que es Date
-      }))
-    );
-    const getDia = (item) => {
-      var _a, _b;
-      return parseInt((_b = (_a = item == null ? void 0 : item.name) == null ? void 0 : _a.split("-")[0]) == null ? void 0 : _b.replace(/\D/g, ""), 10);
-    };
-    const corteTrue = diasSoloAdult == null ? void 0 : diasSoloAdult.filter((a) => (a == null ? void 0 : a.corte) === true);
-    const corteFalse = diasSoloAdult == null ? void 0 : diasSoloAdult.filter((a) => (a == null ? void 0 : a.corte) === false);
-    const maxDiaTrue = Math.max(...corteTrue == null ? void 0 : corteTrue.map(getDia), 0);
-    const maxDiaFalse = Math.max(...corteFalse == null ? void 0 : corteFalse.map(getDia), 0);
-    const mostRecentTrue = corteTrue == null ? void 0 : corteTrue.reduce(
-      (latest, current) => {
-        var _a;
-        return new Date(current == null ? void 0 : current.createdAt) > new Date(latest == null ? void 0 : latest.createdAt) && parseInt((_a = current == null ? void 0 : current.name) == null ? void 0 : _a.split("-")[0]) === maxDiaTrue ? current : latest;
-      },
-      corteTrue[0] ?? null
-    );
-    const mostRecentFalse = corteFalse == null ? void 0 : corteFalse.reduce(
-      (latest, current) => {
-        var _a;
-        return new Date(current == null ? void 0 : current.createdAt) > new Date(latest == null ? void 0 : latest.createdAt) && parseInt((_a = current == null ? void 0 : current.name) == null ? void 0 : _a.split("-")[0]) === maxDiaFalse ? current : latest;
-      },
-      corteFalse[0] ?? null
-    );
-    return diasSoloAdult == null ? void 0 : diasSoloAdult.filter((item) => {
-      if ((item == null ? void 0 : item.corte) === true) return true;
-      const dia = getDia(item);
-      const isMostRecent = (item == null ? void 0 : item.id) === (mostRecentFalse == null ? void 0 : mostRecentFalse.id);
-      const condition1 = isMostRecent && new Date(mostRecentTrue == null ? void 0 : mostRecentTrue.createdAt) < new Date(item == null ? void 0 : item.createdAt);
-      const condition2 = dia >= maxDiaTrue && dia >= maxDiaFalse;
-      const condition3 = dia === maxDiaFalse || new Date(mostRecentTrue) > new Date(item == null ? void 0 : item.createdAt);
-      const removeByOtherFalse = dia < maxDiaFalse && !isMostRecent;
-      const removeByTrue = dia < maxDiaTrue;
-      return condition1 && condition2 && condition3 && !removeByOtherFalse && !removeByTrue;
-    });
-  }
-  const getAllsQuincenas = async (data) => {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x;
+  const getDataQ = async (data) => {
+    console.log("data id quincena", data);
     try {
-      const pages = await Quincena.findAll({
-        where: { id: data.q },
+      const pages = await Quincena.findByPk(data, {
+        // where: { id: data },
         attributes: ["name", "id"],
         include: [
           {
             model: Day,
             as: "dias",
-            include: [
-              {
-                model: Sender,
-                as: "Senders",
-                limit: 1,
-                // Solo trae el último Day
-                order: [["createdAt", "DESC"]],
-                include: [
-                  {
-                    model: Page,
-                    as: "paginaS",
-                    attributes: [
-                      "id",
-                      "name",
-                      "coins",
-                      "moneda",
-                      "mensual",
-                      "valor",
-                      "tope"
-                    ]
-                  }
-                ],
-                attributes: ["id", "coins", "dayId", "pageId"]
-              },
-              {
-                model: Dirty,
-                as: "Dirtys",
-                limit: 1,
-                // Solo trae el último Day
-                order: [["createdAt", "DESC"]],
-                include: [
-                  {
-                    model: Page,
-                    as: "paginaD",
-                    attributes: [
-                      "id",
-                      "name",
-                      "coins",
-                      "moneda",
-                      "mensual",
-                      "valor",
-                      "tope"
-                    ]
-                  }
-                ],
-                attributes: ["id", "dolares", "mostrar", "dayId", "pageId"]
-              },
-              {
-                model: Adult,
-                as: "Adults",
-                order: [["createdAt", "DESC"]],
-                include: [
-                  {
-                    model: Page,
-                    as: "paginaA",
-                    attributes: [
-                      "id",
-                      "name",
-                      "coins",
-                      "moneda",
-                      "mensual",
-                      "valor",
-                      "tope"
-                    ]
-                  }
-                ]
-              },
-              {
-                model: Vx,
-                as: "Vxs",
-                limit: 1,
-                // Solo trae el último Day
-                order: [["createdAt", "DESC"]],
-                include: [
-                  {
-                    model: Page,
-                    as: "paginaV",
-                    order: [["createdAt", "DESC"]],
-                    attributes: [
-                      "id",
-                      "name",
-                      "coins",
-                      "moneda",
-                      "mensual",
-                      "valor",
-                      "tope"
-                    ]
-                  }
-                ],
-                attributes: ["id", "creditos", "dayId", "pageId"]
-              },
-              {
-                model: Live7,
-                as: "Lives",
-                limit: 1,
-                // Solo trae el último Day
-                order: [["createdAt", "DESC"]],
-                include: [
-                  {
-                    model: Page,
-                    as: "paginaL",
-                    attributes: [
-                      "id",
-                      "name",
-                      "coins",
-                      "moneda",
-                      "mensual",
-                      "valor",
-                      "tope"
-                    ]
-                  }
-                ],
-                attributes: ["id", "creditos", "dayId", "pageId"]
-              }
-            ],
-            attributes: ["id", "name"]
+            attributes: [
+              "id",
+              "name",
+              "page",
+              "coins",
+              "usd",
+              "euro",
+              "gbp",
+              "gbpParcial",
+              "mostrar",
+              "adelantos",
+              "worked"
+            ]
           },
           {
             model: Moneda,
@@ -50487,310 +50331,13 @@ function requireSerchAllQuincena() {
             },
             order: [["createdAt", "DESC"]],
             limit: 2,
-            attributes: ["id", "dolar", "euro", "lb", "pago"]
+            attributes: ["id", "dolar", "euro", "gbp", "pago"]
           }
-        ],
-        order: [
-          [
-            sequelize2.literal(
-              `CAST(substr(dias.name, 1, instr(dias.name, '-') - 1) AS INTEGER)`
-            ),
-            "ASC"
-          ]
         ]
       });
-      const quincena2 = pages == null ? void 0 : pages.map((x) => x.get({ plain: true }));
-      const aranceles = { dolar: 130, euro: 220, lb: 250 };
-      const porcentaje = 0.8;
-      const porcentajeAdult = 0.699947813268342;
-      const quincenaOrdenada = {
-        id: "",
-        name: "",
-        dias: [],
-        moneda: {
-          pago: { id: "", dolar: 0, euro: 0, lb: 0 },
-          estadisticas: { id: "", dolar: 0, euro: 0, lb: 0 }
-        },
-        totales: {
-          dias: 0,
-          adult: { libras: 0, pesos: 0 },
-          sender: { coins: 0, euros: 0, pesos: 0 },
-          dirty: { dolares: 0, pesos: 0 },
-          vx: { creditos: 0, pesos: 0 },
-          live7: { creditos: 0, pesos: 0 }
-        },
-        totalCredtos: 0
-      };
-      for (let q of quincena2) {
-        if (!q) continue;
-        const dias = q == null ? void 0 : q.dias;
-        let diasSoloAdult = filtrarAdults(dias);
-        quincenaOrdenada.id = q.id;
-        quincenaOrdenada.name = q.name;
-        for (let moneda2 of q == null ? void 0 : q.Monedas) {
-          if (moneda2.pago) {
-            quincenaOrdenada.moneda.pago.id = moneda2 == null ? void 0 : moneda2.id;
-            quincenaOrdenada.moneda.pago.dolar = moneda2 == null ? void 0 : moneda2.dolar;
-            quincenaOrdenada.moneda.pago.euro = moneda2 == null ? void 0 : moneda2.euro;
-            quincenaOrdenada.moneda.pago.lb = moneda2 == null ? void 0 : moneda2.lb;
-          } else if (moneda2.pago === false) {
-            quincenaOrdenada.moneda.estadisticas.id = moneda2.id;
-            quincenaOrdenada.moneda.estadisticas.dolar = moneda2.dolar;
-            quincenaOrdenada.moneda.estadisticas.euro = moneda2.euro;
-            quincenaOrdenada.moneda.estadisticas.lb = moneda2.lb;
-          }
-        }
-        const precioLb = quincenaOrdenada.moneda.pago.lb !== 0 ? quincenaOrdenada.moneda.pago.lb - aranceles.lb : quincenaOrdenada.moneda.estadisticas.lb;
-        const valorEuro = quincenaOrdenada.moneda.pago.euro !== 0 ? quincenaOrdenada.moneda.pago.euro - aranceles.euro : quincenaOrdenada.moneda.estadisticas.euro;
-        const valorDolar = quincenaOrdenada.moneda.pago.dolar !== 0 ? quincenaOrdenada.moneda.pago.dolar - aranceles.dolar : quincenaOrdenada.moneda.estadisticas.dolar;
-        for (let dias2 of q == null ? void 0 : q.dias) {
-          const dia = {
-            name: dias2.name,
-            adult: [],
-            sender: {
-              id: "",
-              totalCoins: 0,
-              totalEuros: 0,
-              coinsDias: 0,
-              eurosDias: 0,
-              pesosDias: 0,
-              totalPesos: 0,
-              qa: 0
-            },
-            dirty: {
-              id: "",
-              dia: 0,
-              total: 0,
-              mostrar: null,
-              pesosDia: 0,
-              pesos: 0,
-              qa: 0
-            },
-            vx: {
-              id: "",
-              creditosDia: 0,
-              creditos: 0,
-              pesosDia: 0,
-              pesos: 0,
-              qa: 0
-            },
-            live7: {
-              id: "",
-              creditosDia: 0,
-              creditos: 0,
-              pesosDia: 0,
-              pesos: 0,
-              qa: 0
-            }
-          };
-          for (let adult of diasSoloAdult) {
-            if (adult.name === dias2.name) {
-              const corte = adult.lb * porcentajeAdult;
-              const cortePorcentaje = corte * porcentaje;
-              const AdultPesos = cortePorcentaje * precioLb;
-              dia.adult.push({
-                id: adult.id,
-                lb: adult.lb,
-                corte: adult.corte,
-                lbr: corte,
-                pesos: AdultPesos
-              });
-            }
-          }
-          for (let sender of dias2 == null ? void 0 : dias2.Senders) {
-            const diaPrimero = 1;
-            const dia16 = 16;
-            const curren = parseInt((_a = dias2.name) == null ? void 0 : _a.split("-")[0]);
-            if (diaPrimero === curren) {
-              dia.sender.id = sender.id;
-              dia.sender.totalCoins = sender.coins;
-              const euros = sender.coins * sender.paginaS.valor;
-              dia.sender.totalEuros = euros;
-              const eurosPorcentaje = euros * porcentaje;
-              const totalPesos = eurosPorcentaje * valorEuro;
-              dia.sender.totalPesos = totalPesos;
-            } else if (dia16 === curren) {
-              dia.sender.id = sender.id;
-              const coins = dia.qa ? sender.coins - (dia == null ? void 0 : dia.qa) : sender.coins;
-              dia.sender.totalCoins = coins;
-              const euros = coins * sender.paginaS.valor;
-              dia.sender.totalEuros = euros;
-              const eurosPorcentaje = euros * porcentaje;
-              const pesos = eurosPorcentaje * valorEuro;
-              dia.sender.totalPesos = pesos;
-            } else if (curren > diaPrimero && curren < dia16) {
-              const diaAnterior = (_b = q == null ? void 0 : q.dias) == null ? void 0 : _b.filter((x) => {
-                var _a2;
-                return parseInt((_a2 = x.name) == null ? void 0 : _a2.split("-")[0]) < curren;
-              }).sort(
-                (a, b) => {
-                  var _a2, _b2;
-                  return parseInt((_a2 = b.name) == null ? void 0 : _a2.split("-")[0]) - parseInt((_b2 = a.name) == null ? void 0 : _b2.split("-")[0]);
-                }
-              );
-              const coins = ((_d = (_c = diaAnterior[0]) == null ? void 0 : _c.Senders[0]) == null ? void 0 : _d.coins) === sender.coins ? sender.coins : sender.coins - ((_f = (_e = diaAnterior[0]) == null ? void 0 : _e.Senders[0]) == null ? void 0 : _f.coins);
-              dia.sender.totalCoins = sender.coins;
-              dia.sender.coinsDias = coins;
-              const eurosDia = coins * sender.paginaS.valor;
-              const euros = sender.coins * sender.paginaS.valor;
-              dia.sender.totalEuros = euros;
-              dia.sender.eurosDias = eurosDia;
-              const eurosPorcentajeDia = eurosDia * porcentaje;
-              const eurosPorcentaje = euros * porcentaje;
-              const pesosDias = eurosPorcentajeDia * valorEuro;
-              const totalPesos = eurosPorcentaje * valorEuro;
-              dia.sender.totalPesos = totalPesos;
-              dia.sender.pesosDias = pesosDias;
-              dia.sender.id = sender.id;
-            } else if (curren > dia16) {
-              dia.sender.id = sender.id;
-              const diaAnterior = (_g = q == null ? void 0 : q.dias) == null ? void 0 : _g.filter((x) => {
-                var _a2;
-                return parseInt((_a2 = x.name) == null ? void 0 : _a2.split("-")[0]) < curren;
-              }).sort(
-                (a, b) => {
-                  var _a2, _b2;
-                  return parseInt((_a2 = b.name) == null ? void 0 : _a2.split("-")[0]) - parseInt((_b2 = a.name) == null ? void 0 : _b2.split("-")[0]);
-                }
-              );
-              const coins = ((_i = (_h = diaAnterior[0]) == null ? void 0 : _h.Senders[0]) == null ? void 0 : _i.coins) === sender.coins ? sender.coins : sender.coins - ((_k = (_j = diaAnterior[0]) == null ? void 0 : _j.Senders[0]) == null ? void 0 : _k.coins);
-              dia.sender.totalCoins = sender.coins;
-              dia.sender.coinsDias = coins;
-              const eurosDia = coins * sender.paginaS.valor;
-              const euros = sender.coins * sender.paginaS.valor;
-              dia.sender.totalEuros = euros;
-              dia.sender.eurosDias = eurosDia;
-              const eurosPorcentajeDia = eurosDia * porcentaje;
-              const eurosPorcentaje = euros * porcentaje;
-              const pesosDias = eurosPorcentajeDia * valorEuro;
-              const totalPesos = eurosPorcentaje * valorEuro;
-              dia.sender.totalPesos = totalPesos;
-              dia.sender.pesosDias = pesosDias;
-            }
-          }
-          for (let dirty of dias2 == null ? void 0 : dias2.Dirtys) {
-            const current = parseInt((_l = dias2.name) == null ? void 0 : _l.split("-")[0]);
-            dia.dirty.id = dirty.id;
-            const qOrdena = (_m = quincenaOrdenada.dias) == null ? void 0 : _m.filter(
-              (x) => {
-                var _a2;
-                return parseInt((_a2 = x.name) == null ? void 0 : _a2.split("-")[0]) < current ? x : null;
-              }
-            ).sort(
-              (a, b) => {
-                var _a2, _b2;
-                return parseInt((_a2 = b.name) == null ? void 0 : _a2.split("-")[0]) - parseInt((_b2 = a.name) == null ? void 0 : _b2.split("-")[0]);
-              }
-            );
-            const tda = ((_o = (_n = qOrdena[0]) == null ? void 0 : _n.dirty) == null ? void 0 : _o.total) || 0;
-            console.log("tda", tda);
-            dia.dirty.dia = tda <= (dirty == null ? void 0 : dirty.dolares) ? (dirty == null ? void 0 : dirty.dolares) - tda : tda > (dirty == null ? void 0 : dirty.dolares) ? tda : dirty == null ? void 0 : dirty.dolares;
-            dia.dirty.total = (dirty == null ? void 0 : dirty.dolares) > 0 ? (dirty == null ? void 0 : dirty.dolares) > tda ? dirty == null ? void 0 : dirty.dolares : tda : tda;
-            dia.dirty.mostrar = dirty.mostrar;
-            const porcentajeDia = dia.dirty.dia * porcentaje;
-            const porcentajeTotal = dia.dirty.total * porcentaje;
-            const pesosDia = porcentajeDia * valorDolar;
-            const pesosTotal = porcentajeTotal * valorDolar;
-            dia.dirty.pesosDia = pesosDia;
-            dia.dirty.pesos = pesosTotal;
-            dia.dirty.qa = 0;
-          }
-          for (let vx of dias2 == null ? void 0 : dias2.Vxs) {
-            dia.vx.id = vx.id;
-            const current = parseInt((_p = dias2.name) == null ? void 0 : _p.split("-")[0]);
-            dia.vx.id = vx.id;
-            const qOrdena = (_q = quincenaOrdenada.dias) == null ? void 0 : _q.filter(
-              (x) => {
-                var _a2;
-                return parseInt((_a2 = x.name) == null ? void 0 : _a2.split("-")[0]) < current ? x : null;
-              }
-            ).sort(
-              (a, b) => {
-                var _a2, _b2;
-                return parseInt((_a2 = b.name) == null ? void 0 : _a2.split("-")[0]) - parseInt((_b2 = a.name) == null ? void 0 : _b2.split("-")[0]);
-              }
-            );
-            const tda = parseInt((_s = (_r = qOrdena[0]) == null ? void 0 : _r.vx) == null ? void 0 : _s.creditos) || 0;
-            dia.vx.creditosDia = tda <= parseInt(vx == null ? void 0 : vx.creditos) ? parseInt(vx == null ? void 0 : vx.creditos) - tda : tda > parseInt(vx == null ? void 0 : vx.creditos) ? tda : parseInt(vx == null ? void 0 : vx.creditos);
-            dia.vx.creditos = parseInt(vx == null ? void 0 : vx.creditos) > 0 ? parseInt(vx == null ? void 0 : vx.creditos) > tda ? parseInt(vx == null ? void 0 : vx.creditos) : tda : tda;
-            const porcentajeDia = dia.vx.creditosDia * porcentaje;
-            const porcentajeTotal = dia.vx.creditos * porcentaje;
-            const pesosDia = porcentajeDia * valorEuro;
-            const pesosTotal = porcentajeTotal * valorEuro;
-            dia.vx.pesosDia = pesosDia;
-            dia.vx.pesos = pesosTotal;
-          }
-          for (let lives of dias2 == null ? void 0 : dias2.Lives) {
-            dia.live7.id = lives.id;
-            const current = parseInt((_t = dias2.name) == null ? void 0 : _t.split("-")[0]);
-            dia.live7.id = lives.id;
-            const qOrdena = (_u = quincenaOrdenada.dias) == null ? void 0 : _u.filter(
-              (x) => {
-                var _a2;
-                return parseInt((_a2 = x.name) == null ? void 0 : _a2.split("-")[0]) < current ? x : null;
-              }
-            ).sort(
-              (a, b) => {
-                var _a2, _b2;
-                return parseInt((_a2 = b.name) == null ? void 0 : _a2.split("-")[0]) - parseInt((_b2 = a.name) == null ? void 0 : _b2.split("-")[0]);
-              }
-            );
-            const tda = parseInt((_w = (_v = qOrdena[0]) == null ? void 0 : _v.live7) == null ? void 0 : _w.creditos) || 0;
-            dia.live7.creditosDia = tda <= parseInt(lives == null ? void 0 : lives.creditos) ? parseInt(lives == null ? void 0 : lives.creditos) - tda : tda > parseInt(lives == null ? void 0 : lives.creditos) ? tda : parseInt(lives == null ? void 0 : lives.creditos);
-            dia.live7.creditos = parseInt(lives == null ? void 0 : lives.creditos) > 0 ? parseInt(lives == null ? void 0 : lives.creditos) > tda ? parseInt(lives == null ? void 0 : lives.creditos) : tda : tda;
-            const porcentajeDia = dia.live7.creditosDia * porcentaje;
-            const porcentajeTotal = dia.live7.creditos * porcentaje;
-            const pesosDia = porcentajeDia * valorEuro;
-            const pesosTotal = porcentajeTotal * valorEuro;
-            dia.live7.pesosDia = pesosDia;
-            dia.live7.pesos = pesosTotal;
-          }
-          console.log(dia);
-          const res = {
-            name: dia.name,
-            adult: dia.adult,
-            sender: {
-              id: dia.sender.id,
-              coinsDias: dia.sender.coinsDias,
-              eurosDias: dia.sender.eurosDias,
-              pesosDias: dia.sender.pesosDias,
-              qa: 0
-            },
-            dirty: {
-              id: dia.dirty.id,
-              dia: dia.dirty.dia,
-              mostrar: dia.dirty.mostrar,
-              pesosDia: dia.dirty.pesosDia,
-              qa: 0
-            },
-            vx: {
-              id: dia.vx.id,
-              creditosDia: dia.vx.creditosDia,
-              pesosDia: dia.vx.pesosDia,
-              qa: 0
-            },
-            live7: {
-              id: dia.live7.id,
-              creditosDia: dia.live7.creditosDia,
-              pesosDia: dia.live7.pesosDia,
-              qa: 0
-            },
-            total: {
-              libras: 0,
-              euros: 0,
-              dolares: 0,
-              pesos: 0
-            }
-          };
-          res.total.libras = dia.adult.reduce((acc, curr) => acc + curr.lbr, 0);
-          res.total.euros = dia.sender.eurosDias + dia.vx.creditosDia + dia.live7.creditosDia;
-          res.total.dolares = dia.dirty.dia;
-          res.total.pesos = dia.sender.pesosDias + dia.dirty.pesosDia + dia.vx.pesosDia + dia.live7.pesosDia + ((_x = dia == null ? void 0 : dia.adult) == null ? void 0 : _x.reduce((x, y) => x + y.pesos, 0));
-          console.log("res", res);
-          quincenaOrdenada.dias.push(res);
-        }
-      }
-      return quincenaOrdenada;
+      const quincena2 = pages.get({ plain: true });
+      console.log(quincena2);
+      return quincena2;
     } catch (error) {
       console.log(error);
       return {
@@ -50800,8 +50347,8 @@ function requireSerchAllQuincena() {
       };
     }
   };
-  serchAllQuincena = { getAllsQuincenas };
-  return serchAllQuincena;
+  getQData = { getDataQ };
+  return getQData;
 }
 var hasRequiredIpcMain;
 function requireIpcMain() {
@@ -50822,7 +50369,7 @@ function requireIpcMain() {
     getAllPageName
   } = requirePage();
   const { postMoneda } = requireMoneda();
-  const { getAllsQuincenas } = requireSerchAllQuincena();
+  const { getDataQ } = requireGetQData();
   ipcMain$1.handle("get-quincena", async (_, date) => {
     return await getAllQuincenas(date);
   });
@@ -50856,8 +50403,8 @@ function requireIpcMain() {
   ipcMain$1.handle("add-moneda", async (_, data) => {
     return await postMoneda(data);
   });
-  ipcMain$1.handle("get-all-quincena", async (_, data) => {
-    return await getAllsQuincenas(data);
+  ipcMain$1.handle("get-data-quincena", async (_, data) => {
+    return await getDataQ(data);
   });
   return ipcMain;
 }

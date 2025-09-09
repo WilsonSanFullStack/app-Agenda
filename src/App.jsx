@@ -27,7 +27,7 @@ function App() {
       </div>
       <ErrorAlert message={error} onClose={() => setError("")} />
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Home setError={setError}/>} />
         <Route path="/register/quincena" element={<Quincena setError={setError}/>} />
         <Route path="/register/dia" element={<Dia setError={setError}/>} />
         <Route path="/register/pagina" element={<CreatePage setError={setError}/>} />
