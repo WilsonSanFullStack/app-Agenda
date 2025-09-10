@@ -10,7 +10,10 @@ import {ErrorAlert} from "./components/plugin/ErrorAlert.jsx";
 import { CreatePage } from "./components/utils/CreatePage.jsx";
 import { Page } from "./components/view/Page.jsx";
 import { Moneda } from "./components/utils/Moneda.jsx";
+import { Arancel } from "./components/view/Arancel.jsx";
+import { createAranceles } from "./components/utils/createAranceles.jsx";
 
+createAranceles
 function App() {
   const navigate = useNavigate();
  const [error, setError] = useState(""); // estado global de errores
@@ -33,6 +36,8 @@ function App() {
         <Route path="/register/pagina" element={<CreatePage setError={setError}/>} />
         <Route path="/paginas" element={<Page setError={setError}/>} />
         <Route path="/register/moneda" element={<Moneda setError={setError} />} />
+        <Route path="/register/aranceles" element={<createAranceles setError={setError} />} />
+        <Route path="/aranceles" element={<Arancel setError={setError} />} />
       </Routes>
     </div>
   );

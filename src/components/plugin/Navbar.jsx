@@ -20,7 +20,7 @@ export const Navbar = () => {
       { name: "Quincena", path: "/register/quincena" },
       { name: "Día", path: "/register/dia" },
       { name: "Moneda", path: "/register/moneda" },
-      { name: "Créditos", path: "/register/creditos" },
+      { name: "Aranceles", path: "/register/aranceles" },
       { name: "Página", path: "/register/pagina" },
       { name: "Opción 5", path: "/" },
     ],
@@ -59,7 +59,9 @@ export const Navbar = () => {
           onClick={() => navigate("/")}
           width={28}
         />
-        <h1 className="text-white font-bold tracking-wide text-sm">App Agenda</h1>
+        <h1 className="text-white font-bold tracking-wide text-sm">
+          App Agenda
+        </h1>
       </div>
 
       {/* Menú */}
@@ -93,7 +95,9 @@ export const Navbar = () => {
                         className="px-4 py-2 text-sm text-white hover:bg-slate-700 cursor-pointer transition-colors"
                         onClick={() => {
                           setOpenMenu(null);
-                          option.path ? navigate(option.path) : option.action?.();
+                          option.path
+                            ? navigate(option.path)
+                            : option.action?.();
                         }}
                       >
                         {option.name}

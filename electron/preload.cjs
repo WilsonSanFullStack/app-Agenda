@@ -22,7 +22,11 @@ contextBridge.exposeInMainWorld("Electron", {
   addMoneda: (data) => ipcRenderer.invoke("add-moneda", data),
   //eventos para buscar todas las quincenas
   getDataQ: (data) => ipcRenderer.invoke("get-data-quincena", data),
-
+  //eventos para aranceles
+  addAranceles: (data) => ipcRenderer.invoke("post-aranceles", data),
+  getAranceles: () => ipcRenderer.invoke("get-aranceles"),
+  updateAranceles: (data) => ipcRenderer.invoke("update-aranceles", data),
+  deleteAranceles: (data) => ipcRenderer.invoke("delete-aranceles", data),
 
   //eventos para actualizar quincenas en react
   onAbrirRegistroQuincena: (callback) =>
@@ -35,4 +39,6 @@ contextBridge.exposeInMainWorld("Electron", {
   onDayActualizado: (callback) => ipcRenderer.on("dayActualizado", callback),
   //eventos para actualizar pages en react
   onPageActualizado: (callback) => ipcRenderer.on("pageActualizado", callback),
+  //eventos para actualizar los aranceles en react
+  onPostAranceles: (callback) => ipcRenderer.on("ArancelActualizado", callback),
 });

@@ -49976,7 +49976,7 @@ function requireDb() {
     entry[1]
   ]);
   sequelize2.models = Object.fromEntries(capsEntries);
-  const { Quincena, Day, Page, Moneda } = sequelize2.models;
+  const { Quincena, Day, Page, Moneda, Aranceles } = sequelize2.models;
   Quincena.hasMany(Day, { as: "dias", foreignKey: "quincena" });
   Day.belongsTo(Quincena, { foreignKey: "quincena" });
   Quincena.hasMany(Moneda, { as: "Monedas", foreignKey: "quincenaId" });
@@ -49986,7 +49986,8 @@ function requireDb() {
     Quincena,
     Day,
     Page,
-    Moneda
+    Moneda,
+    Aranceles
   };
   return db;
 }

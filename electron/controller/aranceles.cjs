@@ -8,6 +8,10 @@ const postAranceles = async ({ dolar, euro, gbp, parcial }) => {
       gbp,
       parcial,
     });
+    // 🔹 Enviar evento a React para actualizar la lista
+    BrowserWindow.getAllWindows().forEach((win) => {
+      win.webContents.send("ArancelActualizado", arancel);
+    });
     return arancel;
   } catch (error) {
     return {
@@ -46,6 +50,10 @@ const updateAranceles = async ({ id, arancel }) => {
     }
     await update.update(arancel);
     const updateAracencel = await Aranceles.findByPk(id);
+    // 🔹 Enviar evento a React para actualizar la lista
+    BrowserWindow.getAllWindows().forEach((win) => {
+      win.webContents.send("ArancelActualizado", updateAracencel);
+    });
     return updateAracencel;
   } catch (error) {
     return {
@@ -67,6 +75,12 @@ const deleteArancel = async (id) => {
       };
     }
     await deleteArancel.destroy();
+    // 🔹 Enviar evento a React para actualizar la lista
+    BrowserWindow.getAllWindows().forEach((win) => {
+      win.webContents.send("ArancelActualizado", {
+        message: "Fue eliminar el arancel",
+      });
+    });
     return { message: "Fue eliminar el arancel" };
   } catch (error) {
     return {

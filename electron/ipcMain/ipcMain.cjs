@@ -14,6 +14,12 @@ const {
 } = require("../controller/page.cjs");
 const { postMoneda } = require("../controller/moneda.cjs");
 const { getDataQ } = require("../controller/getQData.cjs");
+const {
+  postAranceles,
+  getAranceles,
+  updateAranceles,
+  deleteArancel,
+} = require("../controller/aranceles.cjs");
 
 //quincenas
 ipcMain.handle("get-quincena", async (_, date) => {
@@ -60,4 +66,20 @@ ipcMain.handle("add-moneda", async (_, data) => {
 //getAllQuincena
 ipcMain.handle("get-data-quincena", async (_, data) => {
   return await getDataQ(data);
+});
+//postAranceles
+ipcMain.handle("post-aranceles", async (_, data) => {
+  return await postAranceles(data);
+});
+// getAranceles
+ipcMain.handle("get-aranceles", async () => {
+  return await getAranceles();
+});
+// updateAranceles
+ipcMain.handle("update-aranceles", async (_, data) => {
+  return await updateAranceles(data);
+});
+//deleteAranceles
+ipcMain.handle("delete-aranceles", async (_, id) => {
+  return await deleteArancel(id);
 });
