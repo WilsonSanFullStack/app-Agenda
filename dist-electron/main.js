@@ -91,7 +91,7 @@ function requireReaddirp() {
       exports.EntryTypes.FILE_DIR_TYPE,
       exports.EntryTypes.FILE_TYPE
     ]);
-    const isNormalFlowError = (error) => NORMAL_FLOW_ERRORS.has(error.code);
+    const isNormalFlowError = (error2) => NORMAL_FLOW_ERRORS.has(error2.code);
     const wantBigintFsStats = process.platform === "win32";
     const emptyFn = (_entryInfo) => true;
     const normalizeFilter = (filter) => {
@@ -182,8 +182,8 @@ function requireReaddirp() {
                 return;
             }
           }
-        } catch (error) {
-          this.destroy(error);
+        } catch (error2) {
+          this.destroy(error2);
         } finally {
           this.reading = false;
         }
@@ -192,8 +192,8 @@ function requireReaddirp() {
         let files;
         try {
           files = await (0, promises_1.readdir)(path, this._rdOptions);
-        } catch (error) {
-          this._onError(error);
+        } catch (error2) {
+          this._onError(error2);
         }
         return { files, depth, path };
       }
@@ -243,8 +243,8 @@ function requireReaddirp() {
               }
               return "directory";
             }
-          } catch (error) {
-            this._onError(error);
+          } catch (error2) {
+            this._onError(error2);
             return "";
           }
         }
@@ -274,7 +274,7 @@ function requireReaddirp() {
     function readdirpPromise(root, options = {}) {
       return new Promise((resolve, reject) => {
         const files = [];
-        readdirp2(root, options).on("data", (entry) => files.push(entry)).on("end", () => resolve(files)).on("error", (error) => reject(error));
+        readdirp2(root, options).on("data", (entry) => files.push(entry)).on("end", () => resolve(files)).on("error", (error2) => reject(error2));
       });
     }
     exports.default = readdirp2;
@@ -633,8 +633,8 @@ function requireHandler() {
         return (0, fs_1.watch)(path, {
           persistent: options.persistent
         }, handleEvent);
-      } catch (error) {
-        errHandler(error);
+      } catch (error2) {
+        errHandler(error2);
         return void 0;
       }
     }
@@ -671,19 +671,19 @@ function requireHandler() {
         );
         if (!watcher)
           return;
-        watcher.on(EV.ERROR, async (error) => {
+        watcher.on(EV.ERROR, async (error2) => {
           const broadcastErr = fsWatchBroadcast.bind(null, fullPath, KEY_ERR);
           if (cont)
             cont.watcherUnusable = true;
-          if (exports.isWindows && error.code === "EPERM") {
+          if (exports.isWindows && error2.code === "EPERM") {
             try {
               const fd = await (0, promises_1.open)(path, "r");
               await fd.close();
-              broadcastErr(error);
+              broadcastErr(error2);
             } catch (err) {
             }
           } else {
-            broadcastErr(error);
+            broadcastErr(error2);
           }
         });
         cont = {
@@ -750,7 +750,7 @@ function requireHandler() {
     class NodeFsHandler {
       constructor(fsW) {
         this.fsw = fsW;
-        this._boundHandleError = (error) => fsW._handleError(error);
+        this._boundHandleError = (error2) => fsW._handleError(error2);
       }
       /**
        * Watch file for changes with fs_watchFile or fs_watch.
@@ -823,7 +823,7 @@ function requireHandler() {
               } else {
                 prevStats = newStats2;
               }
-            } catch (error) {
+            } catch (error2) {
               this.fsw._remove(dirname, basename);
             }
           } else if (parent.has(basename)) {
@@ -1038,8 +1038,8 @@ function requireHandler() {
           if (closer)
             this.fsw._addPathCloser(path, closer);
           return false;
-        } catch (error) {
-          if (this.fsw._handleError(error)) {
+        } catch (error2) {
+          if (this.fsw._handleError(error2)) {
             ready();
             return path;
           }
@@ -1535,12 +1535,12 @@ function requireChokidar() {
      * Common handler for errors
      * @returns The error if defined, otherwise the value of the FSWatcher instance's `closed` flag
      */
-    _handleError(error) {
-      const code = error && error.code;
-      if (error && code !== "ENOENT" && code !== "ENOTDIR" && (!this.options.ignorePermissionErrors || code !== "EPERM" && code !== "EACCES")) {
-        this.emit(handler_js_1.EVENTS.ERROR, error);
+    _handleError(error2) {
+      const code = error2 && error2.code;
+      if (error2 && code !== "ENOENT" && code !== "ENOTDIR" && (!this.options.ignorePermissionErrors || code !== "EPERM" && code !== "EACCES")) {
+        this.emit(handler_js_1.EVENTS.ERROR, error2);
       }
-      return error || this.closed;
+      return error2 || this.closed;
     }
     /**
      * Helper utility for throttling
@@ -9290,7 +9290,7 @@ function requireAggregateError$1() {
       }
       toString() {
         const message = `AggregateError of:
-${this.errors.map((error) => error === this ? "[Circular AggregateError]" : error instanceof AggregateError2 ? String(error).replace(/\n$/, "").replace(/^/gm, "  ") : String(error).replace(/^/gm, "    ").substring(2)).join("\n")}
+${this.errors.map((error2) => error2 === this ? "[Circular AggregateError]" : error2 instanceof AggregateError2 ? String(error2).replace(/\n$/, "").replace(/^/gm, "  ") : String(error2).replace(/^/gm, "    ").substring(2)).join("\n")}
 `;
         return message;
       }
@@ -9381,12 +9381,12 @@ function requireBulkRecordError() {
     });
     var import_base_error = __toModule(requireBaseError());
     class BulkRecordError extends import_base_error.default {
-      constructor(error, record) {
-        super(error.message);
+      constructor(error2, record) {
+        super(error2.message);
         __publicField(this, "errors");
         __publicField(this, "record");
         this.name = "SequelizeBulkRecordError";
-        this.errors = error;
+        this.errors = error2;
         this.record = record;
       }
     }
@@ -9844,9 +9844,9 @@ function requireValidationError() {
         }
       }
       get(path) {
-        return this.errors.reduce((reduced, error) => {
-          if (error.path === path) {
-            reduced.push(error);
+        return this.errors.reduce((reduced, error2) => {
+          if (error2.path === path) {
+            reduced.push(error2);
           }
           return reduced;
         }, []);
@@ -22350,14 +22350,14 @@ function requireBrowser() {
         } else {
           exports.storage.removeItem("debug");
         }
-      } catch (error) {
+      } catch (error2) {
       }
     }
     function load() {
       let r;
       try {
         r = exports.storage.getItem("debug");
-      } catch (error) {
+      } catch (error2) {
       }
       if (!r && typeof process !== "undefined" && "env" in process) {
         r = process.env.DEBUG;
@@ -22367,7 +22367,7 @@ function requireBrowser() {
     function localstorage() {
       try {
         return localStorage;
-      } catch (error) {
+      } catch (error2) {
       }
     }
     module2.exports = requireCommon()(exports);
@@ -22375,8 +22375,8 @@ function requireBrowser() {
     formatters.j = function(v) {
       try {
         return JSON.stringify(v);
-      } catch (error) {
-        return "[UnexpectedJSONParseError]: " + error.message;
+      } catch (error2) {
+        return "[UnexpectedJSONParseError]: " + error2.message;
       }
     };
   })(browser, browser.exports);
@@ -22599,7 +22599,7 @@ function requireNode() {
           221
         ];
       }
-    } catch (error) {
+    } catch (error2) {
     }
     exports.inspectOpts = Object.keys(process.env).filter((key) => {
       return /^debug_/i.test(key);
@@ -29196,10 +29196,10 @@ function requireBelongsToMany() {
       try {
         const currentRows = await this.through.model.findAll(__spreadProps(__spreadValues({}, options), { where, raw: true }));
         return await updateAssociations(currentRows);
-      } catch (error) {
-        if (error instanceof EmptyResultError)
+      } catch (error2) {
+        if (error2 instanceof EmptyResultError)
           return updateAssociations([]);
-        throw error;
+        throw error2;
       }
     }
     async add(sourceInstance, newInstances, options) {
@@ -29261,10 +29261,10 @@ function requireBelongsToMany() {
         const currentRows = await association.through.model.findAll(__spreadProps(__spreadValues({}, options), { where, raw: true }));
         const [associations2] = await updateAssociations(currentRows);
         return associations2;
-      } catch (error) {
-        if (error instanceof EmptyResultError)
+      } catch (error2) {
+        if (error2 instanceof EmptyResultError)
           return updateAssociations();
-        throw error;
+        throw error2;
       }
     }
     remove(sourceInstance, oldAssociatedObjects, options) {
@@ -29375,9 +29375,9 @@ function requireInstanceValidator() {
       await runHooks("beforeValidate", this.modelInstance, this.options);
       try {
         await this._validate();
-      } catch (error) {
-        const newError = await runHooks("validationFailed", this.modelInstance, this.options, error);
-        throw newError || error;
+      } catch (error2) {
+        const newError = await runHooks("validationFailed", this.modelInstance, this.options, error2);
+        throw newError || error2;
       }
       await runHooks("afterValidate", this.modelInstance, this.options);
       return this.modelInstance;
@@ -29518,9 +29518,9 @@ function requireInstanceValidator() {
     }
     _pushError(isBuiltin, errorKey, rawError, value, fnName, fnArgs) {
       const message = rawError.message || rawError || "Validation error";
-      const error = new sequelizeError.ValidationErrorItem(message, "Validation error", errorKey, value, this.modelInstance, fnName, isBuiltin ? fnName : void 0, isBuiltin ? fnArgs : void 0);
-      error[InstanceValidator.RAW_KEY_NAME] = rawError;
-      this.errors.push(error);
+      const error2 = new sequelizeError.ValidationErrorItem(message, "Validation error", errorKey, value, this.modelInstance, fnName, isBuiltin ? fnName : void 0, isBuiltin ? fnArgs : void 0);
+      error2[InstanceValidator.RAW_KEY_NAME] = rawError;
+      this.errors.push(error2);
     }
   }
   InstanceValidator.RAW_KEY_NAME = "original";
@@ -36013,7 +36013,7 @@ function requireAggregateError() {
     }
     toString() {
       const message = `AggregateError of:
-${this.errors.map((error) => error === this ? "[Circular AggregateError]" : error instanceof AggregateError2 ? String(error).replace(/\n$/, "").replace(/^/gm, "  ") : String(error).replace(/^/gm, "    ").substring(2)).join("\n")}
+${this.errors.map((error2) => error2 === this ? "[Circular AggregateError]" : error2 instanceof AggregateError2 ? String(error2).replace(/\n$/, "").replace(/^/gm, "  ") : String(error2).replace(/^/gm, "    ").substring(2)).join("\n")}
 `;
       return message;
     }
@@ -36054,9 +36054,9 @@ function requireDeferred() {
       this._clearTimeout();
       this._resolve(value);
     }
-    reject(error) {
+    reject(error2) {
       this._clearTimeout();
-      this._reject(error);
+      this._reject(error2);
     }
     promise() {
       return this._promise;
@@ -36204,13 +36204,13 @@ function requirePool() {
         } else {
           this._addResourceToAvailableObjects(resource, 0);
         }
-      }).catch((error) => {
+      }).catch((error2) => {
         const deferred = this._pendingAcquires.shift();
         this._count -= 1;
         if (this._count < 0)
           this._count = 0;
         if (deferred) {
-          deferred.reject(error);
+          deferred.reject(error2);
         }
         process.nextTick(() => {
           this._dispense();
@@ -36570,10 +36570,10 @@ function requireConnectionManager$8() {
         await this.sequelize.runHooks("beforePoolAcquire", options);
         result = await this.pool.acquire(options.type, options.useMaster);
         await this.sequelize.runHooks("afterPoolAcquire", result, options);
-      } catch (error) {
-        if (error instanceof TimeoutError2)
-          throw new errors2.ConnectionAcquireTimeoutError(error);
-        throw error;
+      } catch (error2) {
+        if (error2 instanceof TimeoutError2)
+          throw new errors2.ConnectionAcquireTimeoutError(error2);
+        throw error2;
       }
       debug("connection acquired");
       return result;
@@ -36711,8 +36711,8 @@ function requireConnectionManager$7() {
         const connection = await this.lib.createConnection(connectionConfig);
         this.sequelize.options.databaseVersion = semver2.coerce(connection.serverVersion()).version;
         debug("connection acquired");
-        connection.on("error", (error) => {
-          switch (error.code) {
+        connection.on("error", (error2) => {
+          switch (error2.code) {
             case "ESOCKET":
             case "ECONNRESET":
             case "EPIPE":
@@ -36858,9 +36858,9 @@ function requireQuery$8() {
       });
       return [sql2, []];
     }
-    formatError(error, errStack) {
-      error.stack = errStack;
-      return error;
+    formatError(error2, errStack) {
+      error2.stack = errStack;
+      return error2;
     }
     run() {
       throw new Error("The run method wasn't overwritten!");
@@ -37364,17 +37364,17 @@ function requireQuery$7() {
       const errForStack = new Error();
       try {
         results = await connection.query(this.sql, parameters);
-      } catch (error) {
-        if (options.transaction && error.errno === ER_DEADLOCK) {
+      } catch (error2) {
+        if (options.transaction && error2.errno === ER_DEADLOCK) {
           try {
             await options.transaction.rollback();
           } catch (error_) {
           }
           options.transaction.finished = "rollback";
         }
-        error.sql = sql2;
-        error.parameters = parameters;
-        throw this.formatError(error, errForStack.stack);
+        error2.sql = sql2;
+        error2.parameters = parameters;
+        throw this.formatError(error2, errForStack.stack);
       } finally {
         complete();
       }
@@ -38510,11 +38510,11 @@ function requireQueryGenerator$8() {
           } else {
             field.type.validate(value, options);
           }
-        } catch (error) {
-          if (error instanceof sequelizeError.ValidationError) {
-            error.errors.push(new sequelizeError.ValidationErrorItem(error.message, "Validation error", field.fieldName, value, null, `${field.type.key} validator`));
+        } catch (error2) {
+          if (error2 instanceof sequelizeError.ValidationError) {
+            error2.errors.push(new sequelizeError.ValidationErrorItem(error2.message, "Validation error", field.fieldName, value, null, `${field.type.key} validator`));
           }
-          throw error;
+          throw error2;
         }
       }
     }
@@ -40607,11 +40607,11 @@ function requireConnectionManager$6() {
           }
           connection.queue = new AsyncQueue();
           connection.lib = this.lib;
-          const connectHandler = (error) => {
+          const connectHandler = (error2) => {
             connection.removeListener("end", endHandler);
             connection.removeListener("error", errorHandler);
-            if (error)
-              return reject(error);
+            if (error2)
+              return reject(error2);
             debug("connection acquired");
             resolve(connection);
           };
@@ -40620,16 +40620,16 @@ function requireConnectionManager$6() {
             connection.removeListener("error", errorHandler);
             reject(new Error("Connection was closed by remote server"));
           };
-          const errorHandler = (error) => {
+          const errorHandler = (error2) => {
             connection.removeListener("connect", connectHandler);
             connection.removeListener("end", endHandler);
-            reject(error);
+            reject(error2);
           };
           connection.once("error", errorHandler);
           connection.once("end", endHandler);
           connection.once("connect", connectHandler);
-          connection.on("error", (error) => {
-            switch (error.code) {
+          connection.on("error", (error2) => {
+            switch (error2.code) {
               case "ESOCKET":
               case "ECONNRESET":
                 this.pool.destroy(connection);
@@ -40639,38 +40639,38 @@ function requireConnectionManager$6() {
             connection.on("debug", debugTedious.log.bind(debugTedious));
           }
         });
-      } catch (error) {
-        if (!error.code) {
-          throw new sequelizeErrors.ConnectionError(error);
+      } catch (error2) {
+        if (!error2.code) {
+          throw new sequelizeErrors.ConnectionError(error2);
         }
-        switch (error.code) {
+        switch (error2.code) {
           case "ESOCKET":
-            if (error.message.includes("connect EHOSTUNREACH")) {
-              throw new sequelizeErrors.HostNotReachableError(error);
+            if (error2.message.includes("connect EHOSTUNREACH")) {
+              throw new sequelizeErrors.HostNotReachableError(error2);
             }
-            if (error.message.includes("connect ENETUNREACH")) {
-              throw new sequelizeErrors.HostNotReachableError(error);
+            if (error2.message.includes("connect ENETUNREACH")) {
+              throw new sequelizeErrors.HostNotReachableError(error2);
             }
-            if (error.message.includes("connect EADDRNOTAVAIL")) {
-              throw new sequelizeErrors.HostNotReachableError(error);
+            if (error2.message.includes("connect EADDRNOTAVAIL")) {
+              throw new sequelizeErrors.HostNotReachableError(error2);
             }
-            if (error.message.includes("connect EAFNOSUPPORT")) {
-              throw new sequelizeErrors.HostNotReachableError(error);
+            if (error2.message.includes("connect EAFNOSUPPORT")) {
+              throw new sequelizeErrors.HostNotReachableError(error2);
             }
-            if (error.message.includes("getaddrinfo ENOTFOUND")) {
-              throw new sequelizeErrors.HostNotFoundError(error);
+            if (error2.message.includes("getaddrinfo ENOTFOUND")) {
+              throw new sequelizeErrors.HostNotFoundError(error2);
             }
-            if (error.message.includes("connect ECONNREFUSED")) {
-              throw new sequelizeErrors.ConnectionRefusedError(error);
+            if (error2.message.includes("connect ECONNREFUSED")) {
+              throw new sequelizeErrors.ConnectionRefusedError(error2);
             }
-            throw new sequelizeErrors.ConnectionError(error);
+            throw new sequelizeErrors.ConnectionError(error2);
           case "ER_ACCESS_DENIED_ERROR":
           case "ELOGIN":
-            throw new sequelizeErrors.AccessDeniedError(error);
+            throw new sequelizeErrors.AccessDeniedError(error2);
           case "EINVAL":
-            throw new sequelizeErrors.InvalidConnectionError(error);
+            throw new sequelizeErrors.InvalidConnectionError(error2);
           default:
-            throw new sequelizeErrors.ConnectionError(error);
+            throw new sequelizeErrors.ConnectionError(error2);
         }
       }
     }
@@ -40753,16 +40753,16 @@ function requireQuery$6() {
       const complete = this._logQuery(sql2, debug, parameters);
       const query2 = new Promise((resolve, reject) => {
         if (sql2.startsWith("BEGIN TRANSACTION")) {
-          return connection.beginTransaction((error) => error ? reject(error) : resolve([]), options.transaction.name, connection.lib.ISOLATION_LEVEL[options.isolationLevel]);
+          return connection.beginTransaction((error2) => error2 ? reject(error2) : resolve([]), options.transaction.name, connection.lib.ISOLATION_LEVEL[options.isolationLevel]);
         }
         if (sql2.startsWith("COMMIT TRANSACTION")) {
-          return connection.commitTransaction((error) => error ? reject(error) : resolve([]));
+          return connection.commitTransaction((error2) => error2 ? reject(error2) : resolve([]));
         }
         if (sql2.startsWith("ROLLBACK TRANSACTION")) {
-          return connection.rollbackTransaction((error) => error ? reject(error) : resolve([]), options.transaction.name);
+          return connection.rollbackTransaction((error2) => error2 ? reject(error2) : resolve([]), options.transaction.name);
         }
         if (sql2.startsWith("SAVE TRANSACTION")) {
-          return connection.saveTransaction((error) => error ? reject(error) : resolve([]), options.transaction.name);
+          return connection.saveTransaction((error2) => error2 ? reject(error2) : resolve([]), options.transaction.name);
         }
         const rows2 = [];
         const request = new connection.lib.Request(sql2, (err, rowCount2) => err ? reject(err) : resolve([rows2, rowCount2]));
@@ -42082,8 +42082,8 @@ function requireConnectionManager$5() {
           connection2.once("connect", connectHandler);
         });
         debug("connection acquired");
-        connection.on("error", (error) => {
-          switch (error.code) {
+        connection.on("error", (error2) => {
+          switch (error2.code) {
             case "ESOCKET":
             case "ECONNRESET":
             case "EPIPE":
@@ -42189,24 +42189,24 @@ function requireQuery$5() {
       try {
         if (parameters && parameters.length) {
           results = await new Promise((resolve, reject) => {
-            connection.execute(sql2, parameters, (error, result) => error ? reject(error) : resolve(result)).setMaxListeners(100);
+            connection.execute(sql2, parameters, (error2, result) => error2 ? reject(error2) : resolve(result)).setMaxListeners(100);
           });
         } else {
           results = await new Promise((resolve, reject) => {
-            connection.query({ sql: sql2 }, (error, result) => error ? reject(error) : resolve(result)).setMaxListeners(100);
+            connection.query({ sql: sql2 }, (error2, result) => error2 ? reject(error2) : resolve(result)).setMaxListeners(100);
           });
         }
-      } catch (error) {
-        if (options.transaction && error.errno === ER_DEADLOCK) {
+      } catch (error2) {
+        if (options.transaction && error2.errno === ER_DEADLOCK) {
           try {
             await options.transaction.rollback();
           } catch (error_) {
           }
           options.transaction.finished = "rollback";
         }
-        error.sql = sql2;
-        error.parameters = parameters;
-        throw this.formatError(error, errForStack.stack);
+        error2.sql = sql2;
+        error2.parameters = parameters;
+        throw this.formatError(error2, errForStack.stack);
       } finally {
         complete();
       }
@@ -42534,8 +42534,8 @@ function requireConnectionManager$4() {
           const connection = await this.lib.getConnection(connectionConfig);
           this.sequelize.options.databaseVersion = semver2.coerce(connection.oracleServerVersionString).version;
           debug("connection acquired");
-          connection.on("error", (error) => {
-            switch (error.code) {
+          connection.on("error", (error2) => {
+            switch (error2.code) {
               case "ESOCKET":
               case "ECONNRESET":
               case "EPIPE":
@@ -42745,8 +42745,8 @@ function requireQuery$4() {
           try {
             await this.connection.execute(this.sql, this.bindParameters, { autoCommit: this.autoCommit });
             return /* @__PURE__ */ Object.create(null);
-          } catch (error) {
-            throw this.formatError(error);
+          } catch (error2) {
+            throw this.formatError(error2);
           } finally {
             complete();
           }
@@ -42768,8 +42768,8 @@ function requireQuery$4() {
               return [result.outBinds];
             }
             return result.outBinds;
-          } catch (error) {
-            throw this.formatError(error);
+          } catch (error2) {
+            throw this.formatError(error2);
           } finally {
             complete();
           }
@@ -42778,8 +42778,8 @@ function requireQuery$4() {
           try {
             await this.connection.commit();
             return /* @__PURE__ */ Object.create(null);
-          } catch (error) {
-            throw this.formatError(error);
+          } catch (error2) {
+            throw this.formatError(error2);
           } finally {
             complete();
           }
@@ -42788,8 +42788,8 @@ function requireQuery$4() {
           try {
             await this.connection.rollback();
             return /* @__PURE__ */ Object.create(null);
-          } catch (error) {
-            throw this.formatError(error);
+          } catch (error2) {
+            throw this.formatError(error2);
           } finally {
             complete();
           }
@@ -42798,8 +42798,8 @@ function requireQuery$4() {
           try {
             await this.connection.execute(this.sql, [], { autoCommit: false });
             return /* @__PURE__ */ Object.create(null);
-          } catch (error) {
-            throw this.formatError(error);
+          } catch (error2) {
+            throw this.formatError(error2);
           } finally {
             complete();
           }
@@ -42822,8 +42822,8 @@ function requireQuery$4() {
         try {
           const result = await executePromise;
           return this.formatResults(result);
-        } catch (error) {
-          throw this.formatError(error);
+        } catch (error2) {
+          throw this.formatError(error2);
         } finally {
           complete();
         }
@@ -44375,9 +44375,9 @@ function requireConnectionManager$3() {
           }
         });
       });
-      connection.on("error", (error) => {
+      connection.on("error", (error2) => {
         connection._invalid = true;
-        debug(`connection error ${error.code || error.message}`);
+        debug(`connection error ${error2.code || error2.message}`);
         this.pool.destroy(connection);
       });
       let query2 = "";
@@ -44513,19 +44513,19 @@ function requireQuery$3() {
         });
       }
       this.sql = sql2;
-      const query2 = parameters && parameters.length ? new Promise((resolve, reject) => connection.query(sql2, parameters, (error, result) => error ? reject(error) : resolve(result))) : new Promise((resolve, reject) => connection.query(sql2, (error, result) => error ? reject(error) : resolve(result)));
+      const query2 = parameters && parameters.length ? new Promise((resolve, reject) => connection.query(sql2, parameters, (error2, result) => error2 ? reject(error2) : resolve(result))) : new Promise((resolve, reject) => connection.query(sql2, (error2, result) => error2 ? reject(error2) : resolve(result)));
       const complete = this._logQuery(sql2, debug, parameters);
       let queryResult;
       const errForStack = new Error();
       try {
         queryResult = await query2;
-      } catch (error) {
-        if (error.code === "ECONNRESET" || /Unable to set non-blocking to true/i.test(error) || /SSL SYSCALL error: EOF detected/i.test(error) || /Local: Authentication failure/i.test(error) || error.message === "Query read timeout") {
+      } catch (error2) {
+        if (error2.code === "ECONNRESET" || /Unable to set non-blocking to true/i.test(error2) || /SSL SYSCALL error: EOF detected/i.test(error2) || /Local: Authentication failure/i.test(error2) || error2.message === "Query read timeout") {
           connection._invalid = true;
         }
-        error.sql = sql2;
-        error.parameters = parameters;
-        throw this.formatError(error, errForStack.stack);
+        error2.sql = sql2;
+        error2.parameters = parameters;
+        throw this.formatError(error2, errForStack.stack);
       }
       complete();
       let rows = Array.isArray(queryResult) ? queryResult.reduce((allRows, r) => allRows.concat(r.rows || []), []) : queryResult.rows;
@@ -46007,8 +46007,8 @@ function requireQuery$2() {
               complete();
               resolve(query2._handleQueryResponse(this, columnTypes, executionError, results, errForStack.stack));
               return;
-            } catch (error) {
-              reject(error);
+            } catch (error2) {
+              reject(error2);
             }
           }
           if (!parameters)
@@ -46838,12 +46838,12 @@ function requireConnectionManager$1() {
         const connection = await new Promise((resolve, reject) => {
           const connection2 = new this.lib.Database();
           connection2.lib = this.lib;
-          connection2.open(connectionConfig, (error) => {
-            if (error) {
-              if (error.message && error.message.includes("SQL30081N")) {
-                return reject(new sequelizeErrors.ConnectionRefusedError(error));
+          connection2.open(connectionConfig, (error2) => {
+            if (error2) {
+              if (error2.message && error2.message.includes("SQL30081N")) {
+                return reject(new sequelizeErrors.ConnectionRefusedError(error2));
               }
-              return reject(new sequelizeErrors.ConnectionError(error));
+              return reject(new sequelizeErrors.ConnectionError(error2));
             }
             return resolve(connection2);
           });
@@ -46855,9 +46855,9 @@ function requireConnectionManager$1() {
     }
     disconnect(connection) {
       if (connection.connected) {
-        connection.close((error) => {
-          if (error) {
-            debug(error);
+        connection.close((error2) => {
+          if (error2) {
+            debug(error2);
           } else {
             debug("connection closed");
           }
@@ -48410,17 +48410,17 @@ function requireQuery() {
             }
           });
         });
-      } catch (error) {
-        if (options.transaction && error.errno === ER_DEADLOCK) {
+      } catch (error2) {
+        if (options.transaction && error2.errno === ER_DEADLOCK) {
           try {
             await options.transaction.rollback();
           } catch (error_) {
           }
           options.transaction.finished = "rollback";
         }
-        error.sql = sql2;
-        error.parameters = parameters;
-        throw this.formatError(error);
+        error2.sql = sql2;
+        error2.parameters = parameters;
+        throw this.formatError(error2);
       } finally {
         complete();
       }
@@ -49586,9 +49586,9 @@ function requireSequelize() {
       }
       const checkTransaction = () => {
         if (options.transaction && options.transaction.finished && !options.completesTransaction) {
-          const error = new Error(`${options.transaction.finished} has been called on this transaction(${options.transaction.id}), you can no longer use it. (The rejected query is attached as the 'sql' property of this error)`);
-          error.sql = sql2;
-          throw error;
+          const error2 = new Error(`${options.transaction.finished} has been called on this transaction(${options.transaction.id}), you can no longer use it. (The rejected query is attached as the 'sql' property of this error)`);
+          error2.sql = sql2;
+          throw error2;
         }
       };
       const retryOptions = __spreadValues(__spreadValues({}, this.options.retry), options.retry);
@@ -49931,8 +49931,8 @@ function requireSequelize() {
   Hooks.applyTo(Sequelize);
   Hooks.applyTo(Sequelize.prototype);
   Sequelize.Error = sequelizeErrors.BaseError;
-  for (const error of Object.keys(sequelizeErrors)) {
-    Sequelize[error] = sequelizeErrors[error];
+  for (const error2 of Object.keys(sequelizeErrors)) {
+    Sequelize[error2] = sequelizeErrors[error2];
   }
   sequelize.exports = Sequelize;
   sequelize.exports.Sequelize = Sequelize;
@@ -50017,11 +50017,11 @@ function requireQuincena() {
         win.webContents.send("quincenaActualizada", quincena2);
       });
       return quincena2;
-    } catch (error) {
+    } catch (error2) {
       return {
         success: false,
         message: "Error al crear la Quincenas",
-        error
+        error: error2
       };
     }
   };
@@ -50034,11 +50034,11 @@ function requireQuincena() {
       });
       const quincena2 = res == null ? void 0 : res.map((x) => x.get({ plain: true }));
       return quincena2;
-    } catch (error) {
+    } catch (error2) {
       return {
         success: false,
         message: "Error al obtener Quincenas",
-        error
+        error: error2
       };
     }
   };
@@ -50071,11 +50071,11 @@ function requireQuincena() {
         limit: 5
       }));
       return respuesta;
-    } catch (error) {
+    } catch (error2) {
       return {
         success: false,
         message: "Error al obtener Quincenas",
-        error
+        error: error2
       };
     }
   };
@@ -50098,22 +50098,22 @@ function requireQuincena() {
           name: dia.name
         }))
       };
-    } catch (error) {
+    } catch (error2) {
       return {
         success: false,
         message: "Error al obtener Quincena",
-        error
+        error: error2
       };
     }
   };
   const deleteQuincena = async (quincenaId) => {
     try {
       return await Quincena.destroy({ where: { id: quincenaId } });
-    } catch (error) {
+    } catch (error2) {
       return {
         success: false,
         message: "Error al eliminar Quincena",
-        error
+        error: error2
       };
     }
   };
@@ -50155,11 +50155,11 @@ function requireDay() {
         win.webContents.send("dayActualizado", day2);
       });
       return day2;
-    } catch (error) {
+    } catch (error2) {
       return {
         success: false,
         message: "Error al crear el dia",
-        error
+        error: error2
       };
     }
   };
@@ -50167,11 +50167,11 @@ function requireDay() {
     try {
       const res = await Day.findByPk(id);
       return res;
-    } catch (error) {
+    } catch (error2) {
       return {
         success: false,
         message: "Error al buscar el dia",
-        error
+        error: error2
       };
     }
   };
@@ -50214,11 +50214,11 @@ function requirePage() {
         win.webContents.send("pageActualizado", nuevaPage);
       });
       return nuevaPage;
-    } catch (error) {
+    } catch (error2) {
       return {
         success: false,
         message: "Error al crear la Pagina",
-        error
+        error: error2
       };
     }
   };
@@ -50238,11 +50238,11 @@ function requirePage() {
       });
       const res = pages.map((x) => x.dataValues);
       return res;
-    } catch (error) {
+    } catch (error2) {
       return {
         success: false,
         message: "Error al obtener las Paginas",
-        error
+        error: error2
       };
     }
   };
@@ -50253,11 +50253,11 @@ function requirePage() {
       });
       const res = pages.map((x) => x.dataValues);
       return res;
-    } catch (error) {
+    } catch (error2) {
       return {
         success: false,
         message: "Error al obtener las Paginas",
-        error
+        error: error2
       };
     }
   };
@@ -50282,11 +50282,11 @@ function requireMoneda() {
         win.webContents.send("monedasaActualizado", newMoneda);
       });
       return newMoneda;
-    } catch (error) {
+    } catch (error2) {
       return {
         success: false,
         message: "Error al subir las monedas",
-        error
+        error: error2
       };
     }
   };
@@ -50339,17 +50339,114 @@ function requireGetQData() {
       const quincena2 = pages.get({ plain: true });
       console.log(quincena2);
       return quincena2;
-    } catch (error) {
-      console.log(error);
+    } catch (error2) {
+      console.log(error2);
       return {
         success: false,
         message: "Error al obtener las quincena",
-        error: error.message
+        error: error2.message
       };
     }
   };
   getQData = { getDataQ };
   return getQData;
+}
+var aranceles;
+var hasRequiredAranceles;
+function requireAranceles() {
+  if (hasRequiredAranceles) return aranceles;
+  hasRequiredAranceles = 1;
+  const { Aranceles } = requireDb();
+  const { BrowserWindow } = require$$1$5;
+  const postAranceles = async ({ dolar, euro, gbp, parcial }) => {
+    try {
+      const arancel = await Aranceles.create({
+        dolar,
+        euro,
+        gbp
+      });
+      BrowserWindow.getAllWindows().forEach((win) => {
+        win.webContents.send("ArancelActualizado", arancel);
+      });
+      return arancel;
+    } catch (error2) {
+      return {
+        sucess: false,
+        message: "Error al registrar los aranceles",
+        error: error2
+      };
+    }
+  };
+  const getAranceles = async () => {
+    try {
+      const res = await Aranceles.findAll();
+      const rest = res.map((x) => x.get({ plain: true }));
+      return rest;
+    } catch (error2) {
+      return {
+        sucess: false,
+        message: "Error al buscasr los aranceles",
+        error: error2
+      };
+    }
+  };
+  const updateAranceles = async ({ id, arancel }) => {
+    try {
+      const update = await Aranceles.findByPk(id);
+      if (!update) {
+        return {
+          sucess: false,
+          message: "Error al editar los aranceles",
+          error
+        };
+      }
+      await update.update(arancel);
+      const updateAracencel = await Aranceles.findByPk(id);
+      const rest = updateAracencel.get({ plain: true });
+      BrowserWindow.getAllWindows().forEach((win) => {
+        win.webContents.send("ArancelActualizado", rest);
+      });
+      return rest;
+    } catch (error2) {
+      return {
+        sucess: false,
+        message: "Error al editar los aranceles",
+        error: error2
+      };
+    }
+  };
+  const deleteArancel = async (id) => {
+    try {
+      const deleteArancel2 = await Aranceles.findByPk(id);
+      if (!deleteArancel2) {
+        return {
+          sucess: false,
+          message: "Error al eliminar el arancel",
+          error
+        };
+      }
+      await deleteArancel2.destroy();
+      BrowserWindow.getAllWindows().forEach((win) => {
+        win.webContents.send("ArancelActualizado", {
+          message: "Fue eliminar el arancel"
+        });
+      });
+      return { message: "Fue eliminar el arancel" };
+    } catch (error2) {
+      return {
+        sucess: false,
+        message: "Error al eliminar el arancel",
+        error: error2
+      };
+    }
+  };
+  aranceles = {
+    postAranceles,
+    getAranceles,
+    updateAranceles,
+    deleteArancel
+  };
+  return aranceles;
 }
 var hasRequiredIpcMain;
 function requireIpcMain() {
@@ -50371,6 +50468,12 @@ function requireIpcMain() {
   } = requirePage();
   const { postMoneda } = requireMoneda();
   const { getDataQ } = requireGetQData();
+  const {
+    postAranceles,
+    getAranceles,
+    updateAranceles,
+    deleteArancel
+  } = requireAranceles();
   ipcMain$1.handle("get-quincena", async (_, date) => {
     return await getAllQuincenas(date);
   });
@@ -50406,6 +50509,18 @@ function requireIpcMain() {
   });
   ipcMain$1.handle("get-data-quincena", async (_, data) => {
     return await getDataQ(data);
+  });
+  ipcMain$1.handle("post-aranceles", async (_, data) => {
+    return await postAranceles(data);
+  });
+  ipcMain$1.handle("get-aranceles", async () => {
+    return await getAranceles();
+  });
+  ipcMain$1.handle("update-aranceles", async (_, data) => {
+    return await updateAranceles(data);
+  });
+  ipcMain$1.handle("delete-aranceles", async (_, id) => {
+    return await deleteArancel(id);
   });
   return ipcMain;
 }

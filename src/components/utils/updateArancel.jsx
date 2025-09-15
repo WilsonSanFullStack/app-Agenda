@@ -16,9 +16,7 @@ export const createAranceles = ({ setError }) => {
   const handleGbp = (e) => {
     setAranceles({ ...aranceles, gbp: e.target.value });
   };
-  const handleParcial = (e) => {
-    setAranceles({ ...aranceles, parcial: e.target.value });
-  };
+
   //! const postAranceles = async () => {
   //!   try {
   //!     const res = await window.Electron.addAranceles(aranceles);
@@ -34,7 +32,6 @@ export const createAranceles = ({ setError }) => {
       dolar: 0,
       euro: 0,
       gbp: 0,
-      parcial: 0,
     });
   };
   console.log(aranceles);
@@ -140,32 +137,7 @@ export const createAranceles = ({ setError }) => {
               className="w-32 text-center text-xl bg-slate-900 text-white border border-slate-600 rounded-lg px-3 py-1 focus:ring-emerald-400 focus:outline-none no-spin"
             />
           </motion.div>
-          {/* parcial */}
-          <motion.div
-            className="flex items-center justify-between gap-4 border-b border-slate-700 pb-2"
-            initial={{ x: -30, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.7 + 1 * 0.2 }}
-          >
-            <label
-              htmlFor="parcial"
-              className="text-xl text-slate-200 font-semibold"
-            >
-              Descuentos de Adult para parcial
-            </label>
-            <input
-              id="parcial"
-              type="number"
-              value={aranceles.parcial}
-              onChange={handleParcial}
-              onWheel={(e) => e.currentTarget.blur()}
-              onKeyDown={(e) => {
-                if (e.key === "ArrowUp" || e.key === "ArrowDown")
-                  e.preventDefault();
-              }}
-              className="w-32 text-center text-xl bg-slate-900 text-white border border-slate-600 rounded-lg px-3 py-1 focus:ring-emerald-400 focus:outline-none no-spin"
-            />
-          </motion.div>
+          
           {/* Botón */}
           <motion.div
             className="mt-10 text-center"
@@ -175,8 +147,7 @@ export const createAranceles = ({ setError }) => {
           >
             {aranceles.dolar &&
             aranceles.euro &&
-            aranceles.gbp &&
-            aranceles.parcial ? (
+            aranceles.gbp ? (
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}

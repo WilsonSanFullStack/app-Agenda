@@ -12,7 +12,7 @@ export const Navbar = () => {
   const optionMenu = {
     Archivo: [
       { name: "Paginas", path: "/paginas" },
-      { name: "Opción 2", path: "/" },
+      { name: "Aranceles", path: "/aranceles" },
       { name: "Opción 3", path: "/" },
     ],
     Editar: [{ name: "Opción 4", path: "/" }],

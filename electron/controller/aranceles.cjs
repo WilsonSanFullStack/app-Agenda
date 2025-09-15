@@ -1,4 +1,6 @@
 const { Aranceles } = require("../db.cjs");
+const { BrowserWindow } = require("electron");
+
 
 const postAranceles = async ({ dolar, euro, gbp, parcial }) => {
   try {
@@ -6,7 +8,6 @@ const postAranceles = async ({ dolar, euro, gbp, parcial }) => {
       dolar,
       euro,
       gbp,
-      parcial,
     });
     // 🔹 Enviar evento a React para actualizar la lista
     BrowserWindow.getAllWindows().forEach((win) => {
@@ -24,11 +25,9 @@ const postAranceles = async ({ dolar, euro, gbp, parcial }) => {
 
 const getAranceles = async () => {
   try {
-    const res = await Aranceles.findAll({
-      order: [["createdAR", "DESC"]],
-      limit: 1,
-    });
-    return res;
+    const res = await Aranceles.findAll();
+    const rest =  res.map(x => x.get({plain: true}));
+    return rest;
   } catch (error) {
     return {
       sucess: false,
@@ -50,11 +49,12 @@ const updateAranceles = async ({ id, arancel }) => {
     }
     await update.update(arancel);
     const updateAracencel = await Aranceles.findByPk(id);
+    const rest =  updateAracencel.get({plain: true});
     // 🔹 Enviar evento a React para actualizar la lista
     BrowserWindow.getAllWindows().forEach((win) => {
-      win.webContents.send("ArancelActualizado", updateAracencel);
+      win.webContents.send("ArancelActualizado", rest);
     });
-    return updateAracencel;
+    return rest;
   } catch (error) {
     return {
       sucess: false,
