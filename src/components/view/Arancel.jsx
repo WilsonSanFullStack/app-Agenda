@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { label } from "framer-motion/client";
 import React, { useEffect, useState } from "react";
 import { GrDocumentUpdate } from "react-icons/gr";
 import { RiDeleteBinFill } from "react-icons/ri";
@@ -9,6 +10,7 @@ export const Arancel = ({ setError }) => {
     dolar: 0,
     euro: 0,
     gbp: 0,
+    porcentaje: 0,
     create: "",
     update: "",
   });
@@ -37,6 +39,7 @@ export const Arancel = ({ setError }) => {
         dolar: arancel[i].dolar,
         euro: arancel[i].euro,
         gbp: arancel[i].gbp,
+        porcentaje: arancel[i].porcentaje,
         create: `Hora: ${hourC} Fecha: ${dayC}-${monthC}-${yearC}`,
         update: `Hora: ${hourU} Fecha: ${dayU}-${monthU}-${yearU}`,
       });
@@ -49,7 +52,15 @@ export const Arancel = ({ setError }) => {
     try {
       const res = await window.Electron.deleteAranceles(id);
       if (res.message === "Fue eliminar el arancel") {
-        setAranceles({ id: "", dolar: 0, euro: 0, gbp: 0 });
+        setAranceles({
+          id: "",
+          dolar: 0,
+          euro: 0,
+          gbp: 0,
+          porcentaje: 0,
+          create: "",
+          update: "",
+        });
       }
     } catch (error) {
       setError("Error al eliminar el arancel: " + error);
@@ -61,6 +72,7 @@ export const Arancel = ({ setError }) => {
     dolar: 0,
     euro: 0,
     gbp: 0,
+    porcentaje: 0,
   });
 
   // activar edición
@@ -69,6 +81,7 @@ export const Arancel = ({ setError }) => {
       dolar: aranceles.dolar,
       euro: aranceles.euro,
       gbp: aranceles.gbp,
+      porcentaje: aranceles.porcentaje,
     });
     setIsEditing(true);
   };
@@ -98,7 +111,7 @@ export const Arancel = ({ setError }) => {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center py-12 px-4">
       {isEditing ? (
         <div className="space-y-3">
-          {["dolar", "euro", "gbp"].map((field) => (
+          {["dolar", "euro", "gbp", "porcentaje"].map((field) => (
             <div key={field} className="flex flex-col gap-1">
               <label className="text-slate-300 capitalize">{field}</label>
               <input
@@ -168,9 +181,37 @@ export const Arancel = ({ setError }) => {
           >
             {/* moneda card helper */}
             {[
-              { label: "Dólar", value: aranceles.dolar },
-              { label: "Euro", value: aranceles.euro },
-              { label: "Libra Esterlina (GBP)", value: aranceles.gbp },
+              {
+                label: "Dólar",
+                value: Intl.NumberFormat("es-CO", {
+                  style: "currency",
+                  currency: "COP",
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                }).format(aranceles.dolar),
+              },
+              {
+                label: "Euro",
+                value: Intl.NumberFormat("es-CO", {
+                  style: "currency",
+                  currency: "COP",
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                }).format(aranceles.euro),
+              },
+              {
+                label: "Libra Esterlina (GBP)",
+                value: Intl.NumberFormat("es-CO", {
+                  style: "currency",
+                  currency: "COP",
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                }).format(aranceles.gbp),
+              },
+              {
+                label: "Porcentaje (%)",
+                value: aranceles.porcentaje * 100 + " %",
+              },
             ].map((m) => (
               <motion.section
                 key={m.label}

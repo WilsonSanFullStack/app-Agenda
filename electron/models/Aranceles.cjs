@@ -21,6 +21,10 @@ module.exports = (sequelize) => {
       type: DataTypes.FLOAT,
       allowNull: false,
       },
+      porcentaje: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
+      },
     },
     {
       paranoid: true,

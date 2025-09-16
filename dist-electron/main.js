@@ -50298,13 +50298,37 @@ var hasRequiredGetQData;
 function requireGetQData() {
   if (hasRequiredGetQData) return getQData;
   hasRequiredGetQData = 1;
-  const { Quincena, Day, Moneda, Page, sequelize: sequelize2 } = requireDb();
+  const {
+    Quincena,
+    Day,
+    Moneda,
+    Page,
+    sequelize: sequelize2,
+    Aranceles
+  } = requireDb();
   const { Op } = requireLib();
   const getDataQ = async (data) => {
+    var _a, _b;
     console.log("data id quincena", data);
     try {
-      const pages = await Quincena.findByPk(data, {
-        // where: { id: data },
+      const pagina = await Page.findAll({
+        attributes: [
+          "id",
+          "name",
+          "coins",
+          "valorCoins",
+          "moneda",
+          "mensual",
+          "tope",
+          "descuento"
+        ]
+      });
+      const arancele = await Aranceles.findAll({
+        attributes: ["id", "dolar", "euro", "gbp", "porcentaje"]
+      });
+      const aranceles2 = arancele.map((x) => x.get({ plain: true }));
+      const paginas = pagina.map((x) => x.get({ plain: true }));
+      const qData = await Quincena.findByPk(data.id, {
         attributes: ["name", "id"],
         include: [
           {
@@ -50336,9 +50360,33 @@ function requireGetQData() {
           }
         ]
       });
-      const quincena2 = pages.get({ plain: true });
+      const quincena2 = qData.get({ plain: true });
       console.log(quincena2);
-      return quincena2;
+      const isPago = data.pago;
+      const estadisticas = ((_a = quincena2 == null ? void 0 : quincena2.Monedas) == null ? void 0 : _a.find((m) => (m == null ? void 0 : m.pago) === false)) || {};
+      const pago = ((_b = quincena2 == null ? void 0 : quincena2.Monedas) == null ? void 0 : _b.find((m) => (m == null ? void 0 : m.pago) === true)) || {};
+      let usd = 0;
+      let euro = 0;
+      let gbp = 0;
+      const porcentaje = aranceles2.porcentaje;
+      if (isPago) {
+        usd = (pago == null ? void 0 : pago.dolar) - aranceles2.dolar || 0;
+        euro = (pago == null ? void 0 : pago.euro) - aranceles2.euro || 0;
+        gbp = (pago == null ? void 0 : pago.gbp) - aranceles2.gbp || 0;
+      } else {
+        usd = (estadisticas == null ? void 0 : estadisticas.dolar) || 0;
+        euro = (estadisticas == null ? void 0 : estadisticas.euro) || 0;
+        gbp = (estadisticas == null ? void 0 : estadisticas.gbp) || 0;
+      }
+      const qFormatted = {
+        id: quincena2.id,
+        name: quincena2.name,
+        moneda: (quincena2 == null ? void 0 : quincena2.Monedas) || [],
+        isPago,
+        dias: []
+      };
+      const dias = {};
+      return qFormatted;
     } catch (error2) {
       console.log(error2);
       return {
@@ -50358,12 +50406,13 @@ function requireAranceles() {
   hasRequiredAranceles = 1;
   const { Aranceles } = requireDb();
   const { BrowserWindow } = require$$1$5;
-  const postAranceles = async ({ dolar, euro, gbp, parcial }) => {
+  const postAranceles = async ({ dolar, euro, gbp, porcentaje }) => {
     try {
       const arancel = await Aranceles.create({
         dolar,
         euro,
-        gbp
+        gbp,
+        porcentaje
       });
       BrowserWindow.getAllWindows().forEach((win) => {
         win.webContents.send("ArancelActualizado", arancel);

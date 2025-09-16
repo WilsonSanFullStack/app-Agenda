@@ -61,10 +61,11 @@ export const CreatePage = ({ setError }) => {
         <form onSubmit={createPage} className="space-y-4">
           {/* Nombre */}
           <div>
-            <label className="block mb-1 text-sm font-medium text-slate-300">
+            <label htmlFor="name" className="block mb-1 text-sm font-medium text-slate-300">
               Nombre
             </label>
             <input
+            id="name"
               className="w-full px-4 py-2 bg-slate-900/70 border border-slate-600 rounded-lg shadow-sm focus:ring-2 focus:ring-emerald-400 focus:outline-none text-white"
               type="text"
               value={page.name}
@@ -76,20 +77,22 @@ export const CreatePage = ({ setError }) => {
           {/* Coins */}
           <div className="flex items-center space-x-2">
             <input
+            id="coins"
               className="w-5 h-5 text-emerald-500 border-gray-300 rounded focus:ring-emerald-400"
               type="checkbox"
               checked={page.coins}
               onChange={handleCoins}
             />
-            <label className="text-sm text-slate-300">¿Usa Coins?</label>
+            <label htmlFor="coins" className="text-sm text-slate-300">¿Usa Coins?</label>
           </div>
 
           {/* Moneda */}
           <div>
-            <label className="block mb-1 text-sm font-medium text-slate-300">
+            <label htmlFor="moneda" className="block mb-1 text-sm font-medium text-slate-300">
               Moneda
             </label>
             <select
+            id="moneda"
               value={page.moneda}
               onChange={handleMoneda}
               className="w-full bg-slate-900/70 text-white px-3 py-2 rounded-lg border border-slate-600 focus:ring-2 focus:ring-emerald-400"
@@ -107,20 +110,22 @@ export const CreatePage = ({ setError }) => {
           {/* Mensual */}
           <div className="flex items-center space-x-2">
             <input
+            id="mensual"
               className="w-5 h-5 text-emerald-500 border-gray-300 rounded focus:ring-emerald-400"
               type="checkbox"
               checked={page.mensual}
               onChange={handleMensual}
             />
-            <label className="text-sm text-slate-300">¿Es mensual?</label>
+            <label htmlFor="mensual" className="text-sm text-slate-300">¿Es mensual?</label>
           </div>
 
           {/* Valor Coin */}
           <div>
-            <label className="block mb-1 text-sm font-medium text-slate-300">
+            <label htmlFor="valor" className="block mb-1 text-sm font-medium text-slate-300">
               Valor del Coin
             </label>
             <input
+            id="valor"
               onWheel={(e) => e.target.blur()}
               className="no-spin w-full px-3 py-2 bg-slate-900/70 text-center text-white border border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-400"
               type="number"
@@ -134,10 +139,11 @@ export const CreatePage = ({ setError }) => {
 
           {/* Tope */}
           <div>
-            <label className="block mb-1 text-sm font-medium text-slate-300">
+            <label htmlFor="tope" className="block mb-1 text-sm font-medium text-slate-300">
               Tope
             </label>
             <input
+            id="tope"
               onWheel={(e) => e.target.blur()}
               className="w-full no-spin px-3 py-2 bg-slate-900/70 text-center text-white border border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-400"
               type="number"
@@ -149,10 +155,11 @@ export const CreatePage = ({ setError }) => {
 
           {/* Descuentos */}
           <div>
-            <label className="block mb-1 text-sm font-medium text-slate-300">
+            <label htmlFor="descuentos" className="block mb-1 text-sm font-medium text-slate-300">
               Descuentos Página
             </label>
             <input
+            id="descuentos"
               onWheel={(e) => e.target.blur()}
               className="w-full no-spin px-3 py-2 bg-slate-900/70 text-center text-white border border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-400"
               type="number"

@@ -326,7 +326,7 @@ export const Dia = ({ setError }) => {
               }
               onChange={handleAdelantos}
               placeholder=""
-              min={0}
+              // min={0}
             />
             <p className="block mb-1 text-sm font-medium to-slate-300">
               {Intl.NumberFormat("es-CO", {
@@ -394,7 +394,7 @@ export const Dia = ({ setError }) => {
               }
               onChange={handleCoins}
               placeholder=""
-              min={0}
+              // min={0}
             />
             <p className="block mb-1 text-sm font-medium to-slate-300">
               {Intl.NumberFormat("es-EU", {
@@ -430,7 +430,7 @@ export const Dia = ({ setError }) => {
               }
               onChange={handleEuro}
               placeholder=""
-              min={0}
+              // min={0}
             />
             <p className="block mb-1 text-sm font-medium to-slate-300">
               {Intl.NumberFormat("es-EU", {
@@ -464,7 +464,7 @@ export const Dia = ({ setError }) => {
               }
               onChange={handleGbp}
               placeholder=""
-              min={0}
+              // min={0}
             />
             <p className="block mb-1 text-sm font-medium to-slate-300">
               {Intl.NumberFormat("en-GB", {
@@ -498,7 +498,7 @@ export const Dia = ({ setError }) => {
               }
               onChange={handleGbpParcial}
               placeholder=""
-              min={0}
+              // min={0}
             />
             <p className="block mb-1 text-sm font-medium to-slate-300">
               {Intl.NumberFormat("en-GB", {

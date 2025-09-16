@@ -2,12 +2,13 @@ const { Aranceles } = require("../db.cjs");
 const { BrowserWindow } = require("electron");
 
 
-const postAranceles = async ({ dolar, euro, gbp, parcial }) => {
+const postAranceles = async ({ dolar, euro, gbp, porcentaje }) => {
   try {
     const arancel = await Aranceles.create({
       dolar,
       euro,
       gbp,
+      porcentaje
     });
     // 🔹 Enviar evento a React para actualizar la lista
     BrowserWindow.getAllWindows().forEach((win) => {

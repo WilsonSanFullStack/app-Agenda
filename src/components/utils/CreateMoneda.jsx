@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { yearsFive } from "../../date";
 
-export const Moneda = ({ setError }) => {
+export const CreateMoneda = ({ setError }) => {
   const [monedas, setModenas] = useState({
     dolar: null,
     euro: null,
@@ -208,7 +208,7 @@ export const Moneda = ({ setError }) => {
                   if (e.key === "ArrowUp" || e.key === "ArrowDown")
                     e.preventDefault();
                 }}
-                className="w-32 text-center text-xl bg-slate-900 text-white border border-slate-600 rounded-lg px-3 py-1 focus:ring-emerald-400 focus:outline-none"
+                className="no-spin w-32 text-center text-xl bg-slate-900 text-white border border-slate-600 rounded-lg px-3 py-1 focus:ring-emerald-400 focus:outline-none"
               />
             </motion.div>
           ))}

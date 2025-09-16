@@ -5,6 +5,7 @@ export const CreateAranceles = ({ setError }) => {
     dolar: 0,
     euro: 0,
     gbp: 0,
+    porcentaje: 0,
   });
   const handleDolar = (e) => {
     setAranceles({ ...aranceles, dolar: e.target.value });
@@ -14,6 +15,9 @@ export const CreateAranceles = ({ setError }) => {
   };
   const handleGbp = (e) => {
     setAranceles({ ...aranceles, gbp: e.target.value });
+  };
+  const handlePorcentaje = (e) => {
+    setAranceles({ ...aranceles, porcentaje: e.target.value });
   };
   const postAranceles = async () => {
     try {
@@ -30,6 +34,7 @@ export const CreateAranceles = ({ setError }) => {
       dolar: 0,
       euro: 0,
       gbp: 0,
+      porcentaje: 0,
     });
   };
   console.log(aranceles);
@@ -135,7 +140,34 @@ export const CreateAranceles = ({ setError }) => {
               className="w-32 text-center text-xl bg-slate-900 text-white border border-slate-600 rounded-lg px-3 py-1 focus:ring-emerald-400 focus:outline-none no-spin"
             />
           </motion.div>
-          
+
+          {/* porcentaje de pago */}
+          <motion.div
+            className="flex items-center justify-between gap-4 border-b border-slate-700 pb-2"
+            initial={{ x: -30, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.7 + 3 * 0.2 }}
+          >
+            <label
+              htmlFor="porcentaje"
+              className="text-xl text-slate-200 font-semibold"
+            >
+              Porcentaje del estudio
+            </label>
+            <input
+              id="porcentaje"
+              type="number"
+              value={aranceles.porcentaje}
+              onChange={handlePorcentaje}
+              onWheel={(e) => e.currentTarget.blur()}
+              onKeyDown={(e) => {
+                if (e.key === "ArrowUp" || e.key === "ArrowDown")
+                  e.preventDefault();
+              }}
+              className="w-32 text-center text-xl bg-slate-900 text-white border border-slate-600 rounded-lg px-3 py-1 focus:ring-emerald-400 focus:outline-none no-spin"
+            />
+          </motion.div>
+
           {/* Botón */}
           <motion.div
             className="mt-10 text-center"
@@ -145,7 +177,8 @@ export const CreateAranceles = ({ setError }) => {
           >
             {aranceles.dolar &&
             aranceles.euro &&
-            aranceles.gbp ? (
+            aranceles.gbp &&
+            aranceles.porcentaje ? (
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}

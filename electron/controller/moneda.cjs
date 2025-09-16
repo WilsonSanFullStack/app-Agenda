@@ -22,6 +22,17 @@ const postMoneda = async ({ dolar, euro, gbp, pago, quincena }) => {
   }
 };
 
-
+// const getMoney = async () => {
+// try {
+// const x = await 
+// return x
+// } catch (error) {
+// return {
+// sucess: false,
+// message: "Error al registrar ###",
+// error: error,
+// };
+// }
+// };
 
 module.exports = { postMoneda };
