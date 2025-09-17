@@ -50311,6 +50311,29 @@ function requireGetQData() {
     var _a, _b;
     console.log("data id quincena", data);
     try {
+      let limpiarAdultwork = function(data2) {
+        let hayGbp = false;
+        let hayGbpParcial = false;
+        for (let i = data2.length - 1; i >= 0; i--) {
+          const day2 = data2[i];
+          if (!day2.adultwork) continue;
+          const { gbp: gbp2, gbpParcial } = day2.adultwork;
+          if (gbp2 !== void 0 && gbp2 !== 0) {
+            if (i !== data2.length - 1 && gbpParcial !== void 0 && gbpParcial !== 0) {
+              delete day2.adultwork.gbpParcial;
+            }
+            hayGbp = true;
+            hayGbpParcial = false;
+          } else if (gbpParcial !== void 0 && gbpParcial !== 0) {
+            if (hayGbp || hayGbpParcial) {
+              delete day2.adultwork.gbpParcial;
+            } else {
+              hayGbpParcial = true;
+            }
+          }
+        }
+        return data2;
+      };
       const pagina = await Page.findAll({
         attributes: [
           "id",
@@ -50361,7 +50384,6 @@ function requireGetQData() {
         ]
       });
       const quincena2 = qData.get({ plain: true });
-      console.log(quincena2);
       const isPago = data.pago;
       const estadisticas = ((_a = quincena2 == null ? void 0 : quincena2.Monedas) == null ? void 0 : _a.find((m) => (m == null ? void 0 : m.pago) === false)) || {};
       const pago = ((_b = quincena2 == null ? void 0 : quincena2.Monedas) == null ? void 0 : _b.find((m) => (m == null ? void 0 : m.pago) === true)) || {};
@@ -50382,10 +50404,89 @@ function requireGetQData() {
         id: quincena2.id,
         name: quincena2.name,
         moneda: (quincena2 == null ? void 0 : quincena2.Monedas) || [],
-        isPago,
-        dias: []
+        isPago
       };
-      const dias = {};
+      const dias = quincena2.dias;
+      const parseFecha = (str) => {
+        const [dia, mesStr, anioStr] = str.split("-");
+        const meses = {
+          enero: 0,
+          febrero: 1,
+          marzo: 2,
+          abril: 3,
+          mayo: 4,
+          junio: 5,
+          julio: 6,
+          agosto: 7,
+          septiembre: 8,
+          octubre: 9,
+          noviembre: 10,
+          diciembre: 11
+        };
+        return new Date(2e3 + parseInt(anioStr), meses[mesStr], parseInt(dia));
+      };
+      const getDiaAnterior = (qf2, fechaActual) => {
+        const fecha = parseFecha(fechaActual);
+        for (let i = qf2.length - 1; i >= 0; i--) {
+          const fechaQf = parseFecha(qf2[i].name);
+          if (fechaQf < fecha) {
+            return qf2[i];
+          }
+        }
+        return null;
+      };
+      dias.sort((a, b) => parseFecha(a.name) - parseFecha(b.name));
+      const qf = [];
+      for (const dia of dias) {
+        const anterior = getDiaAnterior(qf, dia.name);
+        let df = qf.find((d) => d.name === dia.name);
+        if (!df) {
+          df = { name: dia.name, worked: false };
+          qf.push(df);
+        }
+        if (dia.worked) {
+          df.worked = true;
+        }
+        const pag = paginas.find((p) => p.name === dia.page);
+        if (!pag) continue;
+        if (!df[dia.page]) {
+          df[dia.page] = {};
+        }
+        if (pag.coins) {
+          df[dia.page].coinsTotal = dia.coins;
+          if (anterior && anterior[dia.page] && anterior[dia.page].coinsTotal !== void 0) {
+            df[dia.page].coinsDia = dia.coins - anterior[dia.page].coinsTotal;
+          }
+        }
+        if (pag.moneda === "USD") {
+          df[dia.page].usdTotal = dia.usd;
+          if (anterior && anterior[dia.page] && anterior[dia.page].usdTotal !== void 0) {
+            df[dia.page].usdDia = dia.usd - anterior[dia.page].usdTotal;
+          }
+        } else if (pag.moneda === "EURO") {
+          df[dia.page].euroTotal = dia.euro;
+          if (anterior && anterior[dia.page] && anterior[dia.page].euroTotal !== void 0) {
+            df[dia.page].euroDia = dia.euro - anterior[dia.page].euroTotal;
+          }
+        } else if (pag.moneda === "GBP") {
+          if (dia.gbpParcial > 0) {
+            df[dia.page].gbpParcial = dia.gbpParcial;
+          }
+          df[dia.page].gbp = dia.gbp;
+        } else if (pag.moneda === "COP") {
+          df[dia.page].adelantosDia = dia.adelantos;
+          if (anterior && anterior[dia.page] && anterior[dia.page].adelantosTotal !== void 0) {
+            df[dia.page].adelantosTotal = dia.adelantos + anterior[dia.page].adelantosTotal;
+          } else {
+            df[dia.page].adelantosTotal = dia.adelantos;
+          }
+        }
+        if (pag.tope > 0) {
+          df[dia.page].mostrar = dia.mostrar;
+        }
+      }
+      const qfLimpio = limpiarAdultwork(qf);
+      qFormatted["dias"] = qfLimpio;
       return qFormatted;
     } catch (error2) {
       console.log(error2);

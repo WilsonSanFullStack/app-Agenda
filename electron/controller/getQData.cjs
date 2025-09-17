@@ -64,7 +64,7 @@ const getDataQ = async (data) => {
     });
     // console.log("pages", pages.get({ plain: true }))
     const quincena = qData.get({ plain: true });
-    console.log(quincena);
+    // console.log(quincena);
     // verificamos si se quiere ver la quincena con valores de pago o estadisticas
     const isPago = data.pago;
     // tomamos la moneda para estadisticas
@@ -93,12 +93,163 @@ const getDataQ = async (data) => {
       name: quincena.name,
       moneda: quincena?.Monedas || [],
       isPago: isPago,
-      dias: [],
     };
-    const dias = {
-      name: "",
-      
+    
+    const dias = quincena.dias
+    // convertir string a fecha
+const parseFecha = (str) => {
+  const [dia, mesStr, anioStr] = str.split("-");
+  const meses = {
+    enero: 0,
+    febrero: 1,
+    marzo: 2,
+    abril: 3,
+    mayo: 4,
+    junio: 5,
+    julio: 6,
+    agosto: 7,
+    septiembre: 8,
+    octubre: 9,
+    noviembre: 10,
+    diciembre: 11,
+  };
+  return new Date(2000 + parseInt(anioStr), meses[mesStr], parseInt(dia));
+};
+
+// buscar el día anterior más cercano en qFormatted.dias
+const getDiaAnterior = (qf, fechaActual) => {
+  const fecha = parseFecha(fechaActual);
+  for (let i = qf.length - 1; i >= 0; i--) {
+    const fechaQf = parseFecha(qf[i].name);
+    if (fechaQf < fecha) {
+      return qf[i]; // devolvemos el primero anterior encontrado
     }
+  }
+  return null;
+};
+
+// ordenar
+dias.sort((a, b) => parseFecha(a.name) - parseFecha(b.name));
+
+const qf = [];
+
+for (const dia of dias) {
+  const anterior = getDiaAnterior(qf, dia.name);
+  // buscamos si ya existe un objeto para ese día
+  let df = qf.find((d) => d.name === dia.name);
+
+  // si no existe, lo creamos
+  if (!df) {
+    df = { name: dia.name, worked: false };
+    qf.push(df);
+  }
+
+  if (dia.worked) {
+    df.worked = true;
+  }
+
+  // buscamos el nombre de la página
+  const pag = paginas.find((p) => p.name === dia.page);
+  if (!pag) continue;
+
+  // inicializamos la página en df si no existe
+  if (!df[dia.page]) {
+    df[dia.page] = {};
+  }
+
+  //revisamos si tiene coins
+  if (pag.coins) {
+    df[dia.page].coinsTotal = dia.coins;
+    if (
+      anterior &&
+      anterior[dia.page] &&
+      anterior[dia.page].coinsTotal !== undefined
+    ) {
+      df[dia.page].coinsDia = dia.coins - anterior[dia.page].coinsTotal;
+    }
+  }
+
+  // validamos las monedas
+  if (pag.moneda === "USD") {
+    df[dia.page].usdTotal = dia.usd;
+    if (
+      anterior &&
+      anterior[dia.page] &&
+      anterior[dia.page].usdTotal !== undefined
+    ) {
+      df[dia.page].usdDia = dia.usd - anterior[dia.page].usdTotal;
+    }
+  } else if (pag.moneda === "EURO") {
+    df[dia.page].euroTotal = dia.euro;
+    if (
+      anterior &&
+      anterior[dia.page] &&
+      anterior[dia.page].euroTotal !== undefined
+    ) {
+      df[dia.page].euroDia = dia.euro - anterior[dia.page].euroTotal;
+    }
+  } else if (pag.moneda === "GBP") {
+    if (dia.gbpParcial > 0) {
+      df[dia.page].gbpParcial = dia.gbpParcial;
+    }
+    df[dia.page].gbp = dia.gbp;
+  } else if (pag.moneda === "COP") {
+    df[dia.page].adelantosDia = dia.adelantos;
+    if (
+      anterior &&
+      anterior[dia.page] &&
+      anterior[dia.page].adelantosTotal !== undefined
+    ) {
+      df[dia.page].adelantosTotal = dia.adelantos + anterior[dia.page].adelantosTotal;
+    }else {
+      df[dia.page].adelantosTotal = dia.adelantos;
+    }
+  }
+
+  // revisamos si tiene topes
+  if (pag.tope > 0) {
+    df[dia.page].mostrar = dia.mostrar;
+  }
+}
+// limpiar gbpParcial en adultwork
+function limpiarAdultwork(data) {
+  let hayGbp = false;
+  let hayGbpParcial = false;
+
+  for (let i = data.length - 1; i >= 0; i--) {
+    const day = data[i];
+    if (!day.adultwork) continue;
+
+    const { gbp, gbpParcial } = day.adultwork;
+
+    // Caso 1: hay gbp
+    if (gbp !== undefined && gbp !== 0) {
+      // Si no es el último día y tiene gbpParcial, se elimina
+      if (i !== data.length - 1 && gbpParcial !== undefined && gbpParcial !== 0) {
+        delete day.adultwork.gbpParcial;
+      }
+      hayGbp = true;
+      hayGbpParcial = false;
+    }
+
+    // Caso 2: hay gbpParcial
+    else if (gbpParcial !== undefined && gbpParcial !== 0) {
+      if (hayGbp || hayGbpParcial) {
+        // Si hay algo más nuevo adelante, se elimina
+        delete day.adultwork.gbpParcial;
+      } else {
+        // Conservamos el último gbpParcial
+        hayGbpParcial = true;
+      }
+    }
+  }
+
+  return data;
+}
+const qfLimpio = limpiarAdultwork(qf);
+//agregamos los dias a la quincena formateada
+    qFormatted["dias"] = qfLimpio;
+    //retornamos la quincena formateada
     return qFormatted;
   } catch (error) {
     console.log(error);
