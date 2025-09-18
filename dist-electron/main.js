@@ -50321,12 +50321,14 @@ function requireGetQData() {
           if (gbp2 !== void 0 && gbp2 !== 0) {
             if (i !== data2.length - 1 && gbpParcial !== void 0 && gbpParcial !== 0) {
               delete day2.adultwork.gbpParcial;
+              delete day2.adultwork.pesosParcial;
             }
             hayGbp = true;
             hayGbpParcial = false;
           } else if (gbpParcial !== void 0 && gbpParcial !== 0) {
             if (hayGbp || hayGbpParcial) {
               delete day2.adultwork.gbpParcial;
+              delete day2.adultwork.pesosParcial;
             } else {
               hayGbpParcial = true;
             }
@@ -50347,9 +50349,11 @@ function requireGetQData() {
         ]
       });
       const arancele = await Aranceles.findAll({
-        attributes: ["id", "dolar", "euro", "gbp", "porcentaje"]
+        attributes: ["id", "dolar", "euro", "gbp", "porcentaje"],
+        order: [["createdAt", "DESC"]],
+        limit: 1
       });
-      const aranceles2 = arancele.map((x) => x.get({ plain: true }));
+      const aranceles2 = arancele[0].get({ plain: true });
       const paginas = pagina.map((x) => x.get({ plain: true }));
       const qData = await Quincena.findByPk(data.id, {
         attributes: ["name", "id"],
@@ -50390,21 +50394,60 @@ function requireGetQData() {
       let usd = 0;
       let euro = 0;
       let gbp = 0;
-      const porcentaje = aranceles2.porcentaje;
+      const porcentaje = parseFloat(aranceles2.porcentaje);
       if (isPago) {
-        usd = (pago == null ? void 0 : pago.dolar) - aranceles2.dolar || 0;
-        euro = (pago == null ? void 0 : pago.euro) - aranceles2.euro || 0;
-        gbp = (pago == null ? void 0 : pago.gbp) - aranceles2.gbp || 0;
+        usd = parseFloat((pago == null ? void 0 : pago.dolar) - aranceles2.dolar) || 0;
+        euro = parseFloat((pago == null ? void 0 : pago.euro) - aranceles2.euro) || 0;
+        gbp = parseFloat((pago == null ? void 0 : pago.gbp) - aranceles2.gbp) || 0;
       } else {
-        usd = (estadisticas == null ? void 0 : estadisticas.dolar) || 0;
-        euro = (estadisticas == null ? void 0 : estadisticas.euro) || 0;
-        gbp = (estadisticas == null ? void 0 : estadisticas.gbp) || 0;
+        usd = parseFloat(estadisticas == null ? void 0 : estadisticas.dolar) || 0;
+        euro = parseFloat(estadisticas == null ? void 0 : estadisticas.euro) || 0;
+        gbp = parseFloat(estadisticas == null ? void 0 : estadisticas.gbp) || 0;
       }
       const qFormatted = {
         id: quincena2.id,
         name: quincena2.name,
         moneda: (quincena2 == null ? void 0 : quincena2.Monedas) || [],
-        isPago
+        isPago,
+        totales: {
+          coins: 0,
+          usd: 0,
+          euro: 0,
+          gbp: 0,
+          cop: 0,
+          adelantos: 0,
+          worked: 0,
+          rojo: 0
+        },
+        promedios: {
+          //mejor pagina en creditos
+          mejorPageCreditos: {
+            name: "",
+            coins: 0,
+            creditos: 0
+          },
+          mejorPagePesos: {
+            name: "",
+            pesos: 0
+          },
+          mejorDia: {
+            name: "",
+            creditos: {
+              coins: 0,
+              usd: 0,
+              euro: 0,
+              gbp: 0,
+              pesos: 0
+            }
+          },
+          promedio: {
+            coins: 0,
+            usd: 0,
+            euro: 0,
+            gbp: 0,
+            pesos: 0
+          }
+        }
       };
       const dias = quincena2.dias;
       const parseFecha = (str) => {
@@ -50452,6 +50495,10 @@ function requireGetQData() {
         if (!df[dia.page]) {
           df[dia.page] = {};
         }
+        if (pag.descuento) {
+          const d = parseFloat(pag.descuento);
+          pag.moneda === "USD" ? dia.usd = dia.usd * d : pag.moneda === "EURO" ? dia.euro = dia.euro * d : pag.moneda === "GBP" ? (dia.gbp = dia.gbp * d) & (dia.gbpParcial = dia.gbpParcial * d) : null;
+        }
         if (pag.coins) {
           df[dia.page].coinsTotal = dia.coins;
           if (anterior && anterior[dia.page] && anterior[dia.page].coinsTotal !== void 0) {
@@ -50460,19 +50507,25 @@ function requireGetQData() {
         }
         if (pag.moneda === "USD") {
           df[dia.page].usdTotal = dia.usd;
+          df[dia.page].pesosTotal = dia.usd * porcentaje * usd;
           if (anterior && anterior[dia.page] && anterior[dia.page].usdTotal !== void 0) {
             df[dia.page].usdDia = dia.usd - anterior[dia.page].usdTotal;
+            df[dia.page].pesosDia = (dia.usd - anterior[dia.page].usdTotal) * porcentaje * usd;
           }
         } else if (pag.moneda === "EURO") {
           df[dia.page].euroTotal = dia.euro;
+          df[dia.page].pesosTotal = dia.euro * porcentaje * euro;
           if (anterior && anterior[dia.page] && anterior[dia.page].euroTotal !== void 0) {
             df[dia.page].euroDia = dia.euro - anterior[dia.page].euroTotal;
+            df[dia.page].pesosDia = (dia.euro - anterior[dia.page].euroTotal) * porcentaje * euro;
           }
         } else if (pag.moneda === "GBP") {
           if (dia.gbpParcial > 0) {
             df[dia.page].gbpParcial = dia.gbpParcial;
+            df[dia.page].pesosParcial = dia.gbpParcial * porcentaje * gbp;
           }
           df[dia.page].gbp = dia.gbp;
+          df[dia.page].pesos = dia.gbp * porcentaje * gbp;
         } else if (pag.moneda === "COP") {
           df[dia.page].adelantosDia = dia.adelantos;
           if (anterior && anterior[dia.page] && anterior[dia.page].adelantosTotal !== void 0) {
@@ -50486,7 +50539,83 @@ function requireGetQData() {
         }
       }
       const qfLimpio = limpiarAdultwork(qf);
+      const ultimoDia = qfLimpio[qfLimpio.length - 1];
+      let mejorCreditos = { name: "", creditos: 0 };
+      let mejorPesos = { name: "", pesos: 0 };
+      for (const [pagina2, valores] of Object.entries(ultimoDia)) {
+        if (pagina2 === "name" || pagina2 === "worked") continue;
+        if (valores.coinsTotal) qFormatted.totales.coins += valores.coinsTotal;
+        if (valores.usdTotal) qFormatted.totales.usd += valores.usdTotal;
+        if (valores.euroTotal) qFormatted.totales.euro += valores.euroTotal;
+        if (valores.gbp) qFormatted.totales.gbp += valores.gbp;
+        if (valores.gbpParcial) qFormatted.totales.gbp += valores.gbpParcial;
+        if (valores.pesosTotal)
+          qFormatted.totales.cop += valores.pesosTotal || valores.pesos;
+        if (valores.pesos) qFormatted.totales.cop += valores.pesos;
+        if (valores.pesosParcial) qFormatted.totales.cop += valores.pesosParcial;
+        if (valores.adelantosTotal)
+          qFormatted.totales.adelantos += valores.adelantosTotal;
+        const creditos = valores.usdTotal || valores.euroTotal || valores.gbp || valores.gbpParcial || valores.coinsTotal || 0;
+        if (creditos > mejorCreditos.creditos) {
+          mejorCreditos = { name: pagina2, creditos };
+        }
+        const pesos = valores.pesosTotal || valores.pesos || valores.pesosParcial || 0;
+        if (pesos > mejorPesos.pesos) {
+          mejorPesos = { name: pagina2, pesos };
+        }
+      }
+      qFormatted.promedios.mejorPageCreditos = mejorCreditos;
+      qFormatted.promedios.mejorPagePesos = mejorPesos;
+      qFormatted.totales.worked = qfLimpio.filter((d) => d.worked).length;
       qFormatted["dias"] = qfLimpio;
+      qFormatted.totales.rojo = qFormatted.totales.cop - qFormatted.totales.adelantos;
+      qFormatted.promedios.promedio.coins = qFormatted.totales.coins / qFormatted.totales.worked;
+      qFormatted.promedios.promedio.euro = qFormatted.totales.euro / qFormatted.totales.worked;
+      qFormatted.promedios.promedio.gbp = qFormatted.totales.gbp / qFormatted.totales.worked;
+      qFormatted.promedios.promedio.pesos = qFormatted.totales.cop / qFormatted.totales.worked;
+      qFormatted.promedios.promedio.usd = qFormatted.totales.usd / qFormatted.totales.worked;
+      let mejorDia = {
+        name: "",
+        creditos: {
+          coins: 0,
+          usd: 0,
+          euro: 0,
+          gbp: 0,
+          pesos: 0
+        }
+      };
+      for (const dia of qfLimpio) {
+        let totalUsd = 0;
+        let totalEuro = 0;
+        let totalGbp = 0;
+        let totalGbpParcial = 0;
+        let totalCoins = 0;
+        let totalPesos = 0;
+        for (const [pagina2, valores] of Object.entries(dia)) {
+          if (pagina2 === "name" || pagina2 === "worked") continue;
+          totalUsd += valores.usdDia || 0;
+          totalEuro += valores.euroDia || 0;
+          totalGbp += valores.gbp || 0;
+          totalGbpParcial += valores.gbpParcial || 0;
+          totalCoins += valores.coinsDia || 0;
+          totalPesos += (valores.pesosDia || 0) + (valores.pesos || 0) + (valores.pesosParcial || 0);
+        }
+        const sumaCreditos = totalUsd + totalEuro + totalGbp + totalGbpParcial;
+        if (sumaCreditos > mejorDia.creditos.usd + mejorDia.creditos.euro + mejorDia.creditos.gbp) {
+          mejorDia = {
+            name: dia.name,
+            creditos: {
+              coins: totalCoins,
+              usd: totalUsd,
+              euro: totalEuro,
+              gbp: totalGbp + totalGbpParcial,
+              // 🔹 sumamos ambos
+              pesos: totalPesos
+            }
+          };
+        }
+      }
+      qFormatted.promedios.mejorDia = mejorDia;
       return qFormatted;
     } catch (error2) {
       console.log(error2);

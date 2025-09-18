@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { generarDias, yearsFive } from "../../date";
 
 export const Dia = ({ setError }) => {
-  const [dia, setdia] = useState({
+  const [dia, setDia] = useState({
     name: "",
     page: "",
     coins: 0,
@@ -11,9 +11,9 @@ export const Dia = ({ setError }) => {
     euro: 0,
     gbp: 0,
     gbpParcial: 0,
-    mostrar: 0,
+    mostrar: true,
     adelantos: 0,
-    worked: 0,
+    worked: false,
     q: "",
   });
   const [q, setQ] = useState([]);
@@ -72,21 +72,20 @@ export const Dia = ({ setError }) => {
     const moneda = page?.find((pag) => dia.page === pag.name)?.moneda;
     const money =
       moneda === "USD"
-        ? dia?.usd
-        : moneda === "EUR"
-        ? dia?.euro
+        ? dia.usd
+        : moneda === "EURO"
+        ? dia.euro
         : moneda === "GBP"
-        ? dia?.gbp
-        : null;
-    const mostrar = money >= tope ? true : false;
-    setdia({ ...dia, mostrar: mostrar });
+        ? dia.gbp
+        : 0;
+    const mostra = tope <= money;
+    setDia((prev) => ({ ...prev, mostrar: mostra }));
   };
-
   const handleName = (e) => {
-    setdia({ ...dia, name: e });
+    setDia({ ...dia, name: e });
   };
   const handlePage = (e) => {
-    setdia({
+    setDia({
       ...dia,
       page: e.name,
       coins: 0,
@@ -94,13 +93,13 @@ export const Dia = ({ setError }) => {
       euro: 0,
       gbp: 0,
       gbpParcial: 0,
-      mostrar: 0,
+      mostrar: true,
       adelantos: 0,
-      worked: 0,
+      worked: false,
     });
   };
   const handleUsd = (e) => {
-    setdia({ ...dia, usd: parseFloat(e.target.value || 0) });
+    setDia({ ...dia, usd: parseFloat(e.target.value || 0) });
   };
   const handleCoins = (e) => {
     //buscamos el valor de los coins
@@ -112,28 +111,27 @@ export const Dia = ({ setError }) => {
     //revisamos a que moneda pertenecen el dinero de los coins
     if (moneda === "USD") {
       //si es usd
-      setdia({ ...dia, usd: money, coins: parseInt(e.target.value) || 0 });
+      setDia({ ...dia, usd: money, coins: parseInt(e.target.value) || 0 });
     } else if (moneda === "EURO") {
       //si es euro
-      setdia({ ...dia, euro: money, coins: parseInt(e.target.value) || 0 });
+      setDia({ ...dia, euro: money, coins: parseInt(e.target.value) || 0 });
     } else if (moneda === "GBP") {
       //si es liras esterlinas
-      setdia({ ...dia, gbp: money, coins: parseInt(e.target.value) || 0 });
+      setDia({ ...dia, gbp: money, coins: parseInt(e.target.value) || 0 });
     }
   };
   const handleEuro = (e) => {
-    setdia({ ...dia, euro: parseFloat(e.target.value) || 0 });
+    setDia({ ...dia, euro: parseFloat(e.target.value) || 0 });
   };
   const handleGbp = (e) => {
-    setdia({ ...dia, gbp: parseFloat(e.target.value) || 0 });
+    setDia({ ...dia, gbp: parseFloat(e.target.value) || 0 });
   };
   const handleGbpParcial = (e) => {
-    setdia({ ...dia, gbpParcial: parseFloat(e.target.value) || 0 });
+    setDia({ ...dia, gbpParcial: parseFloat(e.target.value) || 0 });
   };
   const handleAdelantos = (e) => {
-    setdia({ ...dia, adelantos: parseFloat(e.target.value) || 0 });
+    setDia({ ...dia, adelantos: parseFloat(e.target.value) || 0 });
   };
-
   const handleWorked = () => {
     if (
       dia.coins > 0 ||
@@ -142,9 +140,9 @@ export const Dia = ({ setError }) => {
       dia.gbp > 0 ||
       dia.gbpParcial > 0
     ) {
-      setdia({ ...dia, worked: true });
+      setDia({ ...dia, worked: true });
     } else {
-      setdia({ ...dia, worked: false });
+      setDia({ ...dia, worked: false });
     }
   };
   const handleQuincena = (e) => {
@@ -155,37 +153,39 @@ export const Dia = ({ setError }) => {
       fin: e.fin,
       year: e.year,
     });
-    setdia({ ...dia, q: e.id });
+    setDia({ ...dia, q: e.id });
   };
   useEffect(() => {
-    handleMostrar();
     handleWorked();
-  }, [dia.usd, dia.euro, dia.coins, dia.gbp, dia.gbpParcial]);
+    handleMostrar();
+  }, [dia.usd, dia.euro, dia.coins, dia.gbp, dia.gbpParcial, dia.mostrar]);
   const crearDia = async (e) => {
     e.preventDefault();
     try {
       const res = await window.Electron.addDay(dia);
       if (res.error) {
-        console.log(res.error)
+        console.log(res.error);
         setError(res.error);
       } else {
         setError("Dia creado correctamente ✅");
-        setdia({...dia,
+        setDia({
+          ...dia,
           page: "",
           coins: 0,
           usd: 0,
           euro: 0,
           gbp: 0,
           gbpParcial: 0,
-          mostrar: 0,
+          mostrar: true,
           adelantos: 0,
-          worked: 0,
+          worked: false,
         });
       }
     } catch (error) {
       setError("Error al crear Dia: " + error);
     }
   };
+  console.log(dia);
   return (
     <div className="pt-12 flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <motion.div
