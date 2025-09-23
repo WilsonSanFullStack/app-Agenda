@@ -50445,7 +50445,8 @@ function requireGetQData() {
             usd: 0,
             euro: 0,
             gbp: 0,
-            pesos: 0
+            pesos: 0,
+            creditos: 0
           }
         }
       };
@@ -50574,6 +50575,7 @@ function requireGetQData() {
       qFormatted.promedios.promedio.gbp = qFormatted.totales.gbp / qFormatted.totales.worked;
       qFormatted.promedios.promedio.pesos = qFormatted.totales.cop / qFormatted.totales.worked;
       qFormatted.promedios.promedio.usd = qFormatted.totales.usd / qFormatted.totales.worked;
+      qFormatted.promedios.promedio.creditos = (qFormatted.totales.usd + qFormatted.totales.euro + qFormatted.totales.gbp) / qFormatted.totales.worked;
       let mejorDia = {
         name: "",
         creditos: {
@@ -50610,12 +50612,14 @@ function requireGetQData() {
               euro: totalEuro,
               gbp: totalGbp + totalGbpParcial,
               // 🔹 sumamos ambos
-              pesos: totalPesos
+              pesos: totalPesos,
+              creditosTotal: totalUsd + totalEuro + totalGbp + totalGbpParcial
             }
           };
         }
       }
       qFormatted.promedios.mejorDia = mejorDia;
+      console.log(qFormatted);
       return qFormatted;
     } catch (error2) {
       console.log(error2);

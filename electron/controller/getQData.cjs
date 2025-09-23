@@ -126,13 +126,14 @@ const getDataQ = async (data) => {
             pesos: 0,
           },
         },
-          promedio: {
-            coins: 0,
-            usd: 0,
-            euro: 0,
-            gbp: 0,
-            pesos: 0,
-          },
+        promedio: {
+          coins: 0,
+          usd: 0,
+          euro: 0,
+          gbp: 0,
+          pesos: 0,
+          creditos: 0,
+        },
       },
     };
 
@@ -367,77 +368,92 @@ const getDataQ = async (data) => {
     //calculamos el rojo
     qFormatted.totales.rojo =
       qFormatted.totales.cop - qFormatted.totales.adelantos;
-      //promedios.promedio.coins 
-      qFormatted.promedios.promedio.coins = qFormatted.totales.coins / qFormatted.totales.worked
-      //promedios.promedio.euro 
-      qFormatted.promedios.promedio.euro = qFormatted.totales.euro / qFormatted.totales.worked
-      //promedios.promedio.gbp 
-      qFormatted.promedios.promedio.gbp = qFormatted.totales.gbp / qFormatted.totales.worked
-      //promedios.promedio.pesos 
-      qFormatted.promedios.promedio.pesos = qFormatted.totales.cop / qFormatted.totales.worked
-      //promedios.promedio.usd 
-      qFormatted.promedios.promedio.usd = qFormatted.totales.usd / qFormatted.totales.worked
+    //promedios.promedio.coins
+    qFormatted.promedios.promedio.coins =
+      qFormatted.totales.coins / qFormatted.totales.worked;
+    //promedios.promedio.euro
+    qFormatted.promedios.promedio.euro =
+      qFormatted.totales.euro / qFormatted.totales.worked;
+    //promedios.promedio.gbp
+    qFormatted.promedios.promedio.gbp =
+      qFormatted.totales.gbp / qFormatted.totales.worked;
+    //promedios.promedio.pesos
+    qFormatted.promedios.promedio.pesos =
+      qFormatted.totales.cop / qFormatted.totales.worked;
+    //promedios.promedio.usd
+    qFormatted.promedios.promedio.usd =
+      qFormatted.totales.usd / qFormatted.totales.worked;
+    //promedios.promedio.credtios
+    qFormatted.promedios.promedio.creditos =
+      (qFormatted.totales.usd +
+        qFormatted.totales.euro +
+        qFormatted.totales.gbp) /
+      qFormatted.totales.worked;
 
-      // inicializamos el mejor día
-let mejorDia = {
-  name: "",
-  creditos: {
-    coins: 0,
-    usd: 0,
-    euro: 0,
-    gbp: 0,
-    pesos: 0,
-  },
-};
-
-// recorrer todos los días
-for (const dia of qfLimpio) {
-  let totalUsd = 0;
-  let totalEuro = 0;
-  let totalGbp = 0;
-  let totalGbpParcial = 0;
-  let totalCoins = 0;
-  let totalPesos = 0;
-
-  for (const [pagina, valores] of Object.entries(dia)) {
-    if (pagina === "name" || pagina === "worked") continue;
-
-    totalUsd += valores.usdDia || 0;
-    totalEuro += valores.euroDia || 0;
-    totalGbp += valores.gbp || 0;
-    totalGbpParcial += valores.gbpParcial || 0;
-    totalCoins += valores.coinsDia || 0;
-
-    // en pesos puede venir en varias formas
-    totalPesos +=
-      (valores.pesosDia || 0) +
-      (valores.pesos || 0) +
-      (valores.pesosParcial || 0);
-  }
-
-  // sumatoria de créditos de este día
-  const sumaCreditos = totalUsd + totalEuro + totalGbp + totalGbpParcial;
-
-  // si es mejor que el guardado, lo reemplazamos
-  if (sumaCreditos > 
-      (mejorDia.creditos.usd + mejorDia.creditos.euro + mejorDia.creditos.gbp)) {
-    mejorDia = {
-      name: dia.name,
+    // inicializamos el mejor día
+    let mejorDia = {
+      name: "",
       creditos: {
-        coins: totalCoins,
-        usd: totalUsd,
-        euro: totalEuro,
-        gbp: totalGbp + totalGbpParcial, // 🔹 sumamos ambos
-        pesos: totalPesos,
+        coins: 0,
+        usd: 0,
+        euro: 0,
+        gbp: 0,
+        pesos: 0,
       },
     };
-  }
-}
 
-// guardar en promedios
-qFormatted.promedios.mejorDia = mejorDia;
-      
+    // recorrer todos los días
+    for (const dia of qfLimpio) {
+      let totalUsd = 0;
+      let totalEuro = 0;
+      let totalGbp = 0;
+      let totalGbpParcial = 0;
+      let totalCoins = 0;
+      let totalPesos = 0;
+
+      for (const [pagina, valores] of Object.entries(dia)) {
+        if (pagina === "name" || pagina === "worked") continue;
+
+        totalUsd += valores.usdDia || 0;
+        totalEuro += valores.euroDia || 0;
+        totalGbp += valores.gbp || 0;
+        totalGbpParcial += valores.gbpParcial || 0;
+        totalCoins += valores.coinsDia || 0;
+
+        // en pesos puede venir en varias formas
+        totalPesos +=
+          (valores.pesosDia || 0) +
+          (valores.pesos || 0) +
+          (valores.pesosParcial || 0);
+      }
+
+      // sumatoria de créditos de este día
+      const sumaCreditos = totalUsd + totalEuro + totalGbp + totalGbpParcial;
+
+      // si es mejor que el guardado, lo reemplazamos
+      if (
+        sumaCreditos >
+        mejorDia.creditos.usd + mejorDia.creditos.euro + mejorDia.creditos.gbp
+      ) {
+        mejorDia = {
+          name: dia.name,
+          creditos: {
+            coins: totalCoins,
+            usd: totalUsd,
+            euro: totalEuro,
+            gbp: totalGbp + totalGbpParcial, // 🔹 sumamos ambos
+            pesos: totalPesos,
+            creditosTotal: totalUsd + totalEuro + totalGbp + totalGbpParcial,
+          },
+        };
+      }
+    }
+
+    // guardar en promedios
+    qFormatted.promedios.mejorDia = mejorDia;
+
     //retornamos la quincena formateada
+    console.log(qFormatted);
     return qFormatted;
   } catch (error) {
     console.log(error);
