@@ -154,622 +154,516 @@ export const Home = ({ setError }) => {
       >
         <Moneda moneda={moneda} isPago={isPago} />
       </motion.div>
-      <motion.div className="bg-slate-800 rounded-2xl my-4 p-1 w-fit">
-        <h1 className="text-2xl mb-2">{qData?.name}</h1>
-        {qData?.promedios?.mejorDia && (
-          <section className="text-sm border-2 border-slate-900 rounded-2xl py-1">
-            <h2>promedios</h2>
-            {/* promedios de la quincena */}
-            <section className="flex flex-wrap mx-2 justify-center gap-2">
-              {/* mejor pagina en creditos */}
-              <div className="flex flex-col justify-center items-center gap-1  border border-slate-600 rounded-2xl px-2">
-                <h2>mejor pagina creditos</h2>
-                <section className="flex flex-wrap justify-center gap-4 text-sm">
-                  {/* nombre */}
-                  <div>
-                    <p>nombre:</p>
-                    <p>{qData.promedios.mejorPageCreditos.name}</p>
-                  </div>
-                  {/* creditos */}
-                  <div>
-                    <p>Creditos:</p>
-                    <p>{qData.promedios.mejorPageCreditos.creditos}</p>
-                  </div>
-                </section>
-              </div>
-              {/* mejor dia */}
-              <div className="flex flex-wrap justify-center gap-8 border border-slate-600 rounded-2xl px-2">
-                <section>
-                  {/* nombre */}
-                  <div className="flex flex-col-1 justify-center items-center gap-4">
-                    <p>mejor dia:</p>
-                    <p>{qData?.promedios?.mejorDia?.name}</p>
-                  </div>
-                  {/* creditos */}
-                  <div className="flex flex-wrap justify-center gap-4">
-                    {/* coins */}
-                    <section>
-                      <p>COINS:</p>
-                      <p>
-                        {Intl.NumberFormat("es-IN", {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        }).format(qData?.promedios?.mejorDia?.creditos.coins)}
-                      </p>
-                    </section>
-                    {/* usd */}
-                    <section>
-                      <p>USD:</p>
-                      <p>
-                        {Intl.NumberFormat("en-US", {
-                          style: "currency",
-                          currency: "USD",
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        }).format(qData?.promedios?.mejorDia?.creditos?.usd)}
-                      </p>
-                    </section>
-                    {/* euro */}
-                    <section>
-                      <p>EURO:</p>
-                      <p>
-                        {Intl.NumberFormat("es-EU", {
-                          style: "currency",
-                          currency: "EUR",
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        }).format(qData?.promedios?.mejorDia?.creditos?.euro)}
-                      </p>
-                    </section>
-                    {/* gbp */}
-                    <section>
-                      <p>GBP:</p>
-                      <p>
-                        {Intl.NumberFormat("en-GB", {
-                          style: "currency",
-                          currency: "GBP",
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        }).format(
-                          parseFloat(qData?.promedios?.mejorDia?.creditos?.gbp)
-                        )}
-                      </p>
-                    </section>
-                    {/* pesos */}
-                    <section>
-                      <p>PESOS:</p>
-                      <p>
-                        {Intl.NumberFormat("es-CO", {
-                          style: "currency",
-                          currency: "COP",
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        }).format(qData?.promedios?.mejorDia?.creditos?.pesos)}
-                      </p>
-                    </section>
-                    {/* creditos */}
-                    <section>
-                      <p>CREDITOS:</p>
-                      <p>
-                        {Intl.NumberFormat("es-IN", {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        }).format(
-                          qData?.promedios?.mejorDia?.creditos?.creditosTotal
-                        )}
-                      </p>
-                    </section>
-                  </div>
-                </section>
-              </div>
 
-              {/* mejro pagina en pesos */}
-              <div className="flex flex-col justify-center items-center gap-1  border border-slate-600 rounded-2xl px-2">
-                <h2>mejor pagina en pesos</h2>
-                <section className="flex flex-wrap justify-center gap-4">
-                  {/* nombre */}
-                  <div>
-                    <p>nombre:</p>
-                    <p>{qData.promedios.mejorPagePesos.name}</p>
-                  </div>
-                  {/* creditos */}
-                  <div>
-                    <p>Creditos:</p>
-                    <p>{qData.promedios.mejorPagePesos.pesos}</p>
-                  </div>
-                </section>
+      {/* promedios compactos */}
+      <motion.div className="bg-slate-900 rounded-xl my-2 px-3 py-2 w-full max-w-6xl mx-auto shadow">
+        <h1 className="text-xl font-bold text-center text-slate-100 mb-2">
+          {qData?.name}
+        </h1>
+
+        {qData?.promedios && (
+          <motion.section
+            className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2 text-xs text-slate-200"
+            initial={{ opacity: 0, y: -5 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            {/* Mejor página en créditos */}
+            <div className="bg-slate-800 p-2 rounded-lg border border-slate-700 text-center">
+              <p className="text-slate-400">Mejor pág. créditos</p>
+              <p className="font-semibold">
+                {qData.promedios.mejorPageCreditos.name}
+              </p>
+              <p className="text-indigo-300">
+                {page.find(
+                  (pag) => pag.name === qData?.promedios?.mejorPageCreditos?.name
+                )?.moneda === "USD"
+                  ? Intl.NumberFormat("en-US", {
+                      style: "currency",
+                      currency: "USD",
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }).format(qData.promedios.mejorPageCreditos.creditos)
+                  : page.find(
+                      (pag) =>
+                        pag.name === qData?.promedios?.mejorPageCreditos?.name
+                    )?.moneda === "EURO"
+                  ? Intl.NumberFormat("es-EU", {
+                      style: "currency",
+                      currency: "EUR",
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }).format(qData?.promedios?.mejorPageCreditos?.creditos)
+                  : page.find(
+                      (pag) =>
+                        pag.name === qData?.promedios?.mejorPageCreditos?.name
+                    )?.moneda === "GBP"
+                  ? Intl.NumberFormat("en-GB", {
+                      style: "currency",
+                      currency: "GBP",
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }).format(qData?.promedios?.mejorPageCreditos?.creditos)
+                  : null}
+              </p>
+            </div>
+
+            {/* Mejor día */}
+            <div className="bg-slate-800 p-1 rounded-lg border border-slate-700">
+              <p className="text-slate-400 text-center">Mejor día</p>
+              <p className="font-semibold text-center">
+                {qData.promedios.mejorDia.name}
+              </p>
+              <div className="grid grid-cols-3 gap-1 mt-1">
+                <p>
+                  Coins:{" "}
+                  <span className="font-medium">
+                    {Intl.NumberFormat("es-IN").format(
+                      qData.promedios.mejorDia.creditos.coins
+                    )}
+                  </span>
+                </p>
+                <p>
+                  USD:{" "}
+                  <span className="font-medium">
+                    {Intl.NumberFormat("en-US", {
+                      style: "currency",
+                      currency: "USD",
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }).format(qData.promedios.mejorDia.creditos.usd)}
+                  </span>
+                </p>
+                <p>
+                  EUR:{" "}
+                  <span className="font-medium">
+                    {Intl.NumberFormat("es-EU", {
+                      style: "currency",
+                      currency: "EUR",
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }).format(qData.promedios.mejorDia.creditos.euro)}
+                  </span>
+                </p>
+                <p>
+                  GBP:{" "}
+                  <span className="font-medium">
+                    {Intl.NumberFormat("en-GB", {
+                      style: "currency",
+                      currency: "GBP",
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }).format(qData.promedios.mejorDia.creditos.gbp)}
+                  </span>
+                </p>
+                <p>
+                  PESOS:{" "}
+                  <span className="font-medium">
+                    {Intl.NumberFormat("es-CO", {
+                      style: "currency",
+                      currency: "COP",
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }).format(qData.promedios.mejorDia.creditos.pesos)}
+                  </span>
+                </p>
+                <p>
+                  TOTAL:{" "}
+                  <span className="font-medium">
+                    {Intl.NumberFormat("es-IN", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }).format(qData.promedios.mejorDia.creditos.creditosTotal)}
+                  </span>
+                </p>
               </div>
-              {/* promedios de la quincena */}
-              <div className="flex flex-col justify-center items-center gap-1  border border-slate-600 rounded-2xl px-2">
-                <h2>promedio quincenal</h2>
-                <section>
-                  {/* creditos */}
-                  <div className="flex flex-wrap justify-center gap-4">
-                    {/* coins */}
-                    <section>
-                      <p>COINS:</p>
-                      <p>
-                        {Intl.NumberFormat("es-IN", {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        }).format(qData?.promedios?.promedio?.coins)}
-                      </p>
-                    </section>
-                    {/* usd */}
-                    <section>
-                      <p>USD:</p>
-                      <p>
-                        {Intl.NumberFormat("en-US", {
-                          style: "currency",
-                          currency: "USD",
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        }).format(qData?.promedios?.promedio?.usd)}
-                      </p>
-                    </section>
-                    {/* euro */}
-                    <section>
-                      <p>EURO:</p>
-                      <p>
-                        {Intl.NumberFormat("es-EU", {
-                          style: "currency",
-                          currency: "EUR",
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        }).format(qData?.promedios?.promedio?.euro)}
-                      </p>
-                    </section>
-                    {/* gbp */}
-                    <section>
-                      <p>GBP:</p>
-                      <p>
-                        {Intl.NumberFormat("en-GB", {
-                          style: "currency",
-                          currency: "GBP",
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        }).format(parseFloat(qData?.promedios?.promedio?.gbp))}
-                      </p>
-                    </section>
-                    {/* pesos */}
-                    <section>
-                      <p>PESOS:</p>
-                      <p>
-                        {Intl.NumberFormat("es-CO", {
-                          style: "currency",
-                          currency: "COP",
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        }).format(qData?.promedios?.promedio?.pesos)}
-                      </p>
-                    </section>
-                    {/* creditos */}
-                    <section>
-                      <p>CREDITOS:</p>
-                      <p>
-                        {Intl.NumberFormat("es-IN", {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        }).format(qData?.promedios?.promedio?.creditos)}
-                      </p>
-                    </section>
-                  </div>
-                </section>
+            </div>
+
+            {/* Mejor página en pesos */}
+            <div className="bg-slate-800 p-2 rounded-lg border border-slate-700 text-center">
+              <p className="text-slate-400">Mejor pág. pesos</p>
+              <p className="font-semibold">
+                {qData.promedios.mejorPagePesos.name}
+              </p>
+              <p className="text-yellow-300">
+                {Intl.NumberFormat("es-CO", {
+                  style: "currency",
+                  currency: "COP",
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                }).format(qData.promedios.mejorPagePesos.pesos)}
+              </p>
+            </div>
+
+            {/* Promedio quincenal */}
+            <div className="bg-slate-800 p-2 rounded-lg border border-slate-700">
+              <p className="text-slate-400 text-center">Promedio quincenal</p>
+              <div className="grid grid-cols-3 gap-1 mt-1">
+                <p>
+                  Coins:{" "}
+                  <span className="font-medium">
+                    {Intl.NumberFormat("es-IN", {
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0,
+                    }).format(qData.promedios.promedio.coins)}
+                  </span>
+                </p>
+                <p>
+                  USD:{" "}
+                  <span className="font-medium">
+                    {Intl.NumberFormat("en-US", {
+                      style: "currency",
+                      currency: "USD",
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }).format(qData.promedios.promedio.usd)}
+                  </span>
+                </p>
+                <p>
+                  EUR:{" "}
+                  <span className="font-medium">
+                    {Intl.NumberFormat("es-EU", {
+                      style: "currency",
+                      currency: "EUR",
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }).format(qData.promedios.promedio.euro)}
+                  </span>
+                </p>
+                <p>
+                  GBP:{" "}
+                  <span className="font-medium">
+                    {Intl.NumberFormat("en-GB", {
+                      style: "currency",
+                      currency: "GBP",
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }).format(qData.promedios.promedio.gbp)}
+                  </span>
+                </p>
+                <p>
+                  PESOS:{" "}
+                  <span className="font-medium">
+                    {Intl.NumberFormat("es-CO", {
+                      style: "currency",
+                      currency: "COP",
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }).format(qData.promedios.promedio.pesos)}
+                  </span>
+                </p>
+                <p>
+                  TOTAL:{" "}
+                  <span className="font-medium">
+                    {Intl.NumberFormat("es-IN", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }).format(qData.promedios.promedio.creditos)}
+                  </span>
+                </p>
               </div>
-            </section>
-          </section>
+            </div>
+          </motion.section>
         )}
       </motion.div>
 
-      {/* dias */}
-      {qData?.dias && (
-        <div className="flex flex-wrap justify-center  gap-2 pb-4">
-          {qData?.dias?.map((dia) => {
+      {/* Dias como cards compactas */}
+{qData?.dias && (
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 pb-2">
+    {qData.dias.map((dia) => (
+      <motion.div
+        key={dia.name}
+        className="bg-slate-800 rounded-xl p-1 shadow-md border border-slate-700"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        {/* Encabezado del día */}
+        <h2 className="text-sm font-bold text-center text-amber-300 mb-2">
+          {dia.name}
+        </h2>
+
+        {/* Recorremos las páginas */}
+        <div className="space-y-2">
+          {page.map((pag) => {
+            const pagina = dia[pag.name];
+            if (!pagina) return null;
+
             return (
               <div
-                key={dia.name}
-                className="bg-amber-600 justify-center flex flex-col items-center gap-2 border border-slate-400 rounded-2xl"
+                key={pag.id}
+                className="bg-slate-700 rounded-lg p-2"
               >
-                {/* nombre */}
-                <h1>{dia.name}</h1>
+                {/* Nombre de la página */}
+                <p className="text-xs font-semibold text-slate-200 mb-1">
+                  {pag.name}
+                </p>
 
-                {/* rescorremos las paginas */}
-                {page.map((pag) => {
-                  const pagina = dia[pag.name];
-                  if (!pagina) return null;
-                  return (
-                    <div
-                      key={pag.id}
-                      className="flex flex-wrap gap-4 w-fit bg-amber-200"
-                    >
-                      <section className="bg-slate-400">
-                        <h2>{pag.name}</h2>
-                        {/* coins */}
-                        {pag.coins && (
-                          <section className="flex flex-wrap justify-center items-center gap-4">
-                            {/* total */}
-                            {dia[pag.name].coinsTotal > 0 ? (
-                              <div>
-                                <h2>Total</h2>
-                                <section className="flex flex-wrap gap-2 justify-center items-center">
-                                  <h4>Coins:</h4>
-                                  <p>
-                                    {Intl.NumberFormat("es-IN", {
-                                      minimumFractionDigits: 0,
-                                      maximumFractionDigits: 0,
-                                    }).format(dia[pag.name].coinsTotal)}
-                                  </p>
-                                </section>
-                              </div>
-                            ) : null}
-                            {/* Dia */}
-                            {dia[pag.name].coinsDia > 0 ? (
-                              <div>
-                                <h1>Dia</h1>
-                                <section className="flex flex-wrap gap-2 justify-center items-center">
-                                  <h4>Coins:</h4>
-                                  <p>
-                                    {Intl.NumberFormat("es-IN", {
-                                      minimumFractionDigits: 0,
-                                      maximumFractionDigits: 0,
-                                    }).format(dia[pag.name]?.coinsDia)}
-                                  </p>
-                                </section>
-                              </div>
-                            ) : null}
-                          </section>
-                        )}
-                        {/* usd */}
-                        {pag.moneda === "USD" ? (
-                          <div className="flex flex-wrap justify-center items-center gap-4">
-                            {/* usd total */}
-                            {dia[pag.name].usdTotal && (
-                              <div>
-                                <section className="flex flex-wrap gap-2 justify-center items-center">
-                                  <h4>USD:</h4>
-                                  <p>
-                                    {Intl.NumberFormat("en-US", {
-                                      style: "currency",
-                                      currency: "USD",
-                                      minimumFractionDigits: 2,
-                                      maximumFractionDigits: 2,
-                                    }).format(dia[pag.name].usdTotal)}
-                                  </p>
-                                </section>
-                                {/* total pesos */}
-                                <section className="flex flex-wrap gap-2 justify-center items-center">
-                                  <h4>pesos:</h4>
-                                  <p>
-                                    {Intl.NumberFormat("es-CO", {
-                                      style: "currency",
-                                      currency: "COP",
-                                      minimumFractionDigits: 2,
-                                      maximumFractionDigits: 2,
-                                    }).format(dia[pag.name].pesosTotal)}
-                                  </p>
-                                </section>
-                              </div>
-                            )}
-                            {/* usd dia */}
-                            {dia[pag.name].usdDia && (
-                              <div>
-                                <section className="flex flex-wrap gap-2 justify-center items-center">
-                                  <h4>USD:</h4>
-                                  <p>
-                                    {Intl.NumberFormat("en-US", {
-                                      style: "currency",
-                                      currency: "USD",
-                                      minimumFractionDigits: 2,
-                                      maximumFractionDigits: 2,
-                                    }).format(dia[pag.name].usdDia)}
-                                  </p>
-                                </section>
-                                {/* total pesos */}
-                                <section className="flex flex-wrap gap-2 justify-center items-center">
-                                  <h4>pesos:</h4>
-                                  <p>
-                                    {Intl.NumberFormat("es-CO", {
-                                      style: "currency",
-                                      currency: "COP",
-                                      minimumFractionDigits: 2,
-                                      maximumFractionDigits: 2,
-                                    }).format(dia[pag.name].pesosDia)}
-                                  </p>
-                                </section>
-                              </div>
-                            )}
-                          </div>
-                        ) : null}
-                        {/* euros */}
-                        {pag.moneda === "EURO" ? (
-                          <div className="flex flex-wrap justify-center items-center gap-4">
-                            {/* euros total */}
-                            {dia[pag.name].euroTotal && (
-                              <div>
-                                <section className="flex flex-wrap gap-2 justify-center items-center">
-                                  <h4>EURO:</h4>
-                                  <p>
-                                    {Intl.NumberFormat("es-EU", {
-                                      style: "currency",
-                                      currency: "EUR",
-                                      minimumFractionDigits: 2,
-                                      maximumFractionDigits: 2,
-                                    }).format(dia[pag.name].euroTotal)}
-                                  </p>
-                                </section>
-                                {/* total pesos */}
-                                <section className="flex flex-wrap gap-2 justify-center items-center">
-                                  <h4>pesos:</h4>
-                                  <p>
-                                    {Intl.NumberFormat("es-CO", {
-                                      style: "currency",
-                                      currency: "COP",
-                                      minimumFractionDigits: 2,
-                                      maximumFractionDigits: 2,
-                                    }).format(dia[pag.name].pesosTotal)}
-                                  </p>
-                                </section>
-                              </div>
-                            )}
-                            {/* ueros del dia */}
-                            {dia[pag.name].euroDia && (
-                              <div>
-                                <section className="flex flex-wrap gap-2 justify-center items-center">
-                                  <h4>EURO:</h4>
-                                  <p>
-                                    {Intl.NumberFormat("es-EU", {
-                                      style: "currency",
-                                      currency: "EUR",
-                                      minimumFractionDigits: 2,
-                                      maximumFractionDigits: 2,
-                                    }).format(dia[pag.name].euroDia)}
-                                  </p>
-                                </section>
-                                {/* total pesos */}
-                                <section className="flex flex-wrap gap-2 justify-center items-center">
-                                  <h4>pesos:</h4>
-                                  <p>
-                                    {Intl.NumberFormat("es-CO", {
-                                      style: "currency",
-                                      currency: "COP",
-                                      minimumFractionDigits: 2,
-                                      maximumFractionDigits: 2,
-                                    }).format(dia[pag.name].pesosDia)}
-                                  </p>
-                                </section>
-                              </div>
-                            )}
-                          </div>
-                        ) : null}
-                        {/* gbp  */}
-                        {pag.moneda === "GBP" ? (
-                          <div className="flex flex-wrap justify-center items-center gap-4">
-                            {/* gbp */}
-                            {dia[pag.name].gbp && (
-                              <div>
-                                <section className="flex flex-wrap gap-2 justify-center items-center">
-                                  <h4>GBP:</h4>
-                                  <p>
-                                    {Intl.NumberFormat("en-GB", {
-                                      style: "currency",
-                                      currency: "GBP",
-                                      minimumFractionDigits: 2,
-                                      maximumFractionDigits: 2,
-                                    }).format(dia[pag.name].gbp)}
-                                  </p>
-                                </section>
-                                {/* total pesos */}
-                                <section className="flex flex-wrap gap-2 justify-center items-center">
-                                  <h4>pesos:</h4>
-                                  <p>
-                                    {Intl.NumberFormat("es-CO", {
-                                      style: "currency",
-                                      currency: "COP",
-                                      minimumFractionDigits: 2,
-                                      maximumFractionDigits: 2,
-                                    }).format(dia[pag.name].pesos)}
-                                  </p>
-                                </section>
-                              </div>
-                            )}
-                            {/* gbp parcial */}
-                            {dia[pag.name].gbpParcial && (
-                              <div>
-                                <section className="flex flex-wrap gap-2 justify-center items-center">
-                                  <h4>GBP PARCIAL:</h4>
-                                  <p>
-                                    {Intl.NumberFormat("en-GB", {
-                                      style: "currency",
-                                      currency: "GBP",
-                                      minimumFractionDigits: 2,
-                                      maximumFractionDigits: 2,
-                                    }).format(dia[pag.name].gbpParcial)}
-                                  </p>
-                                </section>
-                                {/* pesos parcial*/}
-                                <section className="flex flex-wrap gap-2 justify-center items-center">
-                                  <h4>pesos:</h4>
-                                  <p>
-                                    {Intl.NumberFormat("es-CO", {
-                                      style: "currency",
-                                      currency: "COP",
-                                      minimumFractionDigits: 2,
-                                      maximumFractionDigits: 2,
-                                    }).format(dia[pag.name].pesosParcial)}
-                                  </p>
-                                </section>
-                              </div>
-                            )}
-                          </div>
-                        ) : null}
-                        {/* prestamos/adelantos */}
-                        {pag.moneda === "COP" ? (
-                          <div className="flex flex-col justify-center items-center gap-4">
-                            {/* adelantos total */}
-                            {dia[pag.name].adelantosTotal && (
-                              <section className="flex flex-wrap gap-2 justify-center items-center">
-                                <h4>Prestamos:</h4>
-                                <p>
-                                  {Intl.NumberFormat("es-CO", {
-                                    style: "currency",
-                                    currency: "COP",
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2,
-                                  }).format(dia[pag.name].adelantosTotal)}
-                                </p>
-                              </section>
-                            )}
-                            {/* adelantos dia */}
-                            {dia[pag.name].adelantosDia && (
-                              <section className="flex flex-wrap gap-2 justify-center items-center">
-                                <h4>Prestamos Dia:</h4>
-                                <p>
-                                  {Intl.NumberFormat("es-CO", {
-                                    style: "currency",
-                                    currency: "COP",
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2,
-                                  }).format(dia[pag.name].adelantosDia)}
-                                </p>
-                              </section>
-                            )}
-                          </div>
-                        ) : null}
+                {/* Valores compactos */}
+                <div className="grid grid-cols-2 gap-1 text-[11px] text-slate-300">
+                  {/* Coins */}
+                  {pagina.coinsTotal > 0 && (
+                    <span>Coins: {pagina.coinsTotal}</span>
+                  )}
+                  {pagina.coinsDia > 0 && (
+                    <span>Día Coins: {pagina.coinsDia}</span>
+                  )}
 
-                        {/* {dia[pag.name].adelantosTotal && (
-                          <div>pag.adelantosTotal</div>
-                        )}
-                        {dia[pag.name].adelantosDia && (
-                          <div>pag.adelantosDia</div>
-                        )} */}
-                      </section>
-                      {/* <pre>{JSON.stringify(pagina, null, 2)}</pre> */}
-                    </div>
-                  );
-                })}
+                  {/* USD */}
+                  {pagina.usdTotal > 0 && (
+                    <span>
+                      USD:{" "}
+                      {Intl.NumberFormat("en-US", {
+                        style: "currency",
+                        currency: "USD",
+                        maximumFractionDigits: 0,
+                      }).format(pagina.usdTotal)}
+                    </span>
+                  )}
+                  {pagina.usdDia > 0 && (
+                    <span>
+                      USD día:{" "}
+                      {Intl.NumberFormat("en-US", {
+                        style: "currency",
+                        currency: "USD",
+                        maximumFractionDigits: 0,
+                      }).format(pagina.usdDia)}
+                    </span>
+                  )}
+
+                  {/* Euros */}
+                  {pagina.euroTotal > 0 && (
+                    <span>
+                      EUR:{" "}
+                      {Intl.NumberFormat("es-EU", {
+                        style: "currency",
+                        currency: "EUR",
+                        maximumFractionDigits: 0,
+                      }).format(pagina.euroTotal)}
+                    </span>
+                  )}
+                  {pagina.euroDia > 0 && (
+                    <span>
+                      EUR día:{" "}
+                      {Intl.NumberFormat("es-EU", {
+                        style: "currency",
+                        currency: "EUR",
+                        maximumFractionDigits: 0,
+                      }).format(pagina.euroDia)}
+                    </span>
+                  )}
+
+                  {/* GBP */}
+                  {pagina.gbp > 0 && (
+                    <span>
+                      GBP:{" "}
+                      {Intl.NumberFormat("en-GB", {
+                        style: "currency",
+                        currency: "GBP",
+                        maximumFractionDigits: 0,
+                      }).format(pagina.gbp)}
+                    </span>
+                  )}
+                  {pagina.gbpParcial > 0 && (
+                    <span>
+                      GBP Parcial:{" "}
+                      {Intl.NumberFormat("en-GB", {
+                        style: "currency",
+                        currency: "GBP",
+                        maximumFractionDigits: 0,
+                      }).format(pagina.gbpParcial)}
+                    </span>
+                  )}
+
+                  {/* Pesos */}
+                  {pagina.pesosTotal > 0 && (
+                    <span>
+                      COP:{" "}
+                      {Intl.NumberFormat("es-CO", {
+                        style: "currency",
+                        currency: "COP",
+                        maximumFractionDigits: 0,
+                      }).format(pagina.pesosTotal)}
+                    </span>
+                  )}
+                  {pagina.pesosDia > 0 && (
+                    <span>
+                      COP día:{" "}
+                      {Intl.NumberFormat("es-CO", {
+                        style: "currency",
+                        currency: "COP",
+                        maximumFractionDigits: 0,
+                      }).format(pagina.pesosDia)}
+                    </span>
+                  )}
+                  {pagina.pesosParcial > 0 && (
+                    <span>
+                      COP Parcial:{" "}
+                      {Intl.NumberFormat("es-CO", {
+                        style: "currency",
+                        currency: "COP",
+                        maximumFractionDigits: 0,
+                      }).format(pagina.pesosParcial)}
+                    </span>
+                  )}
+
+                  {/* Prestamos */}
+                  {pagina.adelantosTotal > 0 && (
+                    <span>
+                      Préstamos:{" "}
+                      {Intl.NumberFormat("es-CO", {
+                        style: "currency",
+                        currency: "COP",
+                        maximumFractionDigits: 0,
+                      }).format(pagina.adelantosTotal)}
+                    </span>
+                  )}
+                  {pagina.adelantosDia > 0 && (
+                    <span>
+                      Préstamos día:{" "}
+                      {Intl.NumberFormat("es-CO", {
+                        style: "currency",
+                        currency: "COP",
+                        maximumFractionDigits: 0,
+                      }).format(pagina.adelantosDia)}
+                    </span>
+                  )}
+                </div>
               </div>
             );
           })}
         </div>
-      )}
+      </motion.div>
+    ))}
+  </div>
+)}
+
+
+      {/* Totales compactos */}
       {qData.totales && (
-        <motion.div className="flex flex-wrap justify-center items-center gap-8 bg-slate-800 rounded-2xl w-fit px-4">
-          {/* coins */}
-          {qData.totales.coins > 0 ? (
-            <section>
-              <h2>coins:</h2>
-              <p>
-                {Intl.NumberFormat("es-IN", {
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 0,
-                }).format(qData.totales.coins)}
-              </p>
-            </section>
-          ) : null}
+        <motion.div
+          className="bg-slate-900 rounded-xl px-1 pb-2 w-full max-w-6xl mx-auto shadow"
+          initial={{ opacity: 0, y: -5 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          <h2 className="text-lg font-semibold text-center text-slate-100 mb-2">
+            TOTAL QUINCENA
+          </h2>
 
-          {/* usd */}
-          {qData.totales.usd > 0 ? (
-            <section>
-              <h2>usd:</h2>
-              <p>
-                {Intl.NumberFormat("en-US", {
-                  style: "currency",
-                  currency: "USD",
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 0,
-                }).format(qData.totales.usd)}
-              </p>
-            </section>
-          ) : null}
+          <section className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 text-xs text-slate-200">
+            {/* coins */}
+            {qData.totales.coins > 0 && (
+              <div className="bg-slate-800 p-2 rounded-lg border border-slate-700 text-center">
+                <p className="text-slate-400">COINS</p>
+                <p className="font-bold">
+                  {Intl.NumberFormat("es-IN").format(qData.totales.coins)}
+                </p>
+              </div>
+            )}
 
-          {/* euro */}
-          {qData.totales.euro > 0 ? (
-            <section>
-              <h2>euro:</h2>
-              <p>
-                {Intl.NumberFormat("es-EU", {
-                  style: "currency",
-                  currency: "EUR",
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 0,
-                }).format(qData.totales.euro)}
-              </p>
-            </section>
-          ) : null}
+            {/* usd */}
+            {qData.totales.usd > 0 && (
+              <div className="bg-slate-800 p-2 rounded-lg border border-slate-700 text-center">
+                <p className="text-slate-400">USD</p>
+                <p className="font-bold">
+                  {Intl.NumberFormat("en-US", {
+                    style: "currency",
+                    currency: "USD",
+                    maximumFractionDigits: 0,
+                  }).format(qData.totales.usd)}
+                </p>
+              </div>
+            )}
 
-          {/* gbp */}
-          {qData.totales.gbp > 0 ? (
-            <section>
-              <h2>gbp:</h2>
-              <p>
-                {Intl.NumberFormat("en-GB", {
-                  style: "currency",
-                  currency: "GBP",
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 0,
-                }).format(qData.totales.gbp)}
-              </p>
-            </section>
-          ) : null}
+            {/* euro */}
+            {qData.totales.euro > 0 && (
+              <div className="bg-slate-800 p-2 rounded-lg border border-slate-700 text-center">
+                <p className="text-slate-400">EURO</p>
+                <p className="font-bold">
+                  {Intl.NumberFormat("es-EU", {
+                    style: "currency",
+                    currency: "EUR",
+                    maximumFractionDigits: 0,
+                  }).format(qData.totales.euro)}
+                </p>
+              </div>
+            )}
 
-          {/* cop */}
-          {qData.totales.cop > 0 ? (
-            <section>
-              <h2>pesos:</h2>
-              <p>
-                {Intl.NumberFormat("es-CO", {
-                  style: "currency",
-                  currency: "COP",
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 0,
-                }).format(qData.totales.cop)}
-              </p>
-            </section>
-          ) : null}
+            {/* gbp */}
+            {qData.totales.gbp > 0 && (
+              <div className="bg-slate-800 p-2 rounded-lg border border-slate-700 text-center">
+                <p className="text-slate-400">GBP</p>
+                <p className="font-bold">
+                  {Intl.NumberFormat("en-GB", {
+                    style: "currency",
+                    currency: "GBP",
+                    maximumFractionDigits: 0,
+                  }).format(qData.totales.gbp)}
+                </p>
+              </div>
+            )}
 
-          {/* adelantos */}
-          {qData.totales.adelantos > 0 ? (
-            <section>
-              <h2>prestamos:</h2>
-              <p>
-                {Intl.NumberFormat("es-CO", {
-                  style: "currency",
-                  currency: "COP",
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 0,
-                }).format(qData.totales.adelantos)}
-              </p>
-            </section>
-          ) : null}
+            {/* cop */}
+            {qData.totales.cop > 0 && (
+              <div className="bg-slate-800 p-2 rounded-lg border border-slate-700 text-center">
+                <p className="text-slate-400">PESOS</p>
+                <p className="font-bold text-yellow-300">
+                  {Intl.NumberFormat("es-CO", {
+                    style: "currency",
+                    currency: "COP",
+                    maximumFractionDigits: 0,
+                  }).format(qData.totales.cop)}
+                </p>
+              </div>
+            )}
 
-          {/* rojo */}
-          {qData.totales.rojo > 0 ? (
-            <section>
-              <h2>{(qData.totales.rojo) > 0 ? "a favor:": "en contra:"}</h2>
-              <p>
-                {Intl.NumberFormat("es-CO", {
-                  style: "currency",
-                  currency: "COP",
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 0,
-                }).format(qData.totales.rojo)}
-              </p>
-            </section>
-          ) : null}
+            {/* adelantos */}
+            {qData.totales.adelantos > 0 && (
+              <div className="bg-slate-800 p-2 rounded-lg border border-slate-700 text-center">
+                <p className="text-slate-400">PRÉSTAMOS</p>
+                <p className="font-bold text-red-300">
+                  {Intl.NumberFormat("es-CO", {
+                    style: "currency",
+                    currency: "COP",
+                    maximumFractionDigits: 0,
+                  }).format(qData.totales.adelantos)}
+                </p>
+              </div>
+            )}
 
-          {/* dias trabajados */}
-          {qData.totales.worked > 0 ? (
-            <section>
-              <h2>dias trabajados:</h2>
-              <p>
-                {Intl.NumberFormat("es-IN", {
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 0,
-                }).format(qData.totales.worked)}
-              </p>
-            </section>
-          ) : null}
+            {/* rojo */}
+            {qData.totales.rojo > 0 && (
+              <div className="bg-slate-800 p-2 rounded-lg border border-slate-700 text-center">
+                <p className="text-slate-400">
+                  {qData.totales.rojo > 0 ? "A FAVOR" : "EN CONTRA"}
+                </p>
+                <p
+                  className={`font-bold ${
+                    qData.totales.rojo > 0
+                      ? "text-green-300"
+                      : "text-red-500"
+                  }`}
+                >
+                  {Intl.NumberFormat("es-CO", {
+                    style: "currency",
+                    currency: "COP",
+                    maximumFractionDigits: 0,
+                  }).format(qData.totales.rojo)}
+                </p>
+              </div>
+            )}
 
+            {/* días trabajados */}
+            {qData.totales.worked > 0 && (
+              <div className="bg-slate-800 p-2 rounded-lg border border-slate-700 text-center">
+                <p className="text-slate-400">DÍAS</p>
+                <p className="font-bold">
+                  {Intl.NumberFormat("es-IN").format(qData.totales.worked)}
+                </p>
+              </div>
+            )}
+          </section>
         </motion.div>
       )}
     </div>
