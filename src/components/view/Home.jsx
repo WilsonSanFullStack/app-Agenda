@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { yearsFive } from "../../date";
 import { Moneda } from "./Moneda";
-import { div } from "framer-motion/client";
 
 export const Home = ({ setError }) => {
   const currentYear = new Date().getFullYear();
@@ -160,12 +159,12 @@ export const Home = ({ setError }) => {
         {qData?.promedios?.mejorDia && (
           <section className="text-sm border-2 border-slate-900 rounded-2xl py-1">
             <h2>promedios</h2>
-            {/* mejor dia */}
+            {/* promedios de la quincena */}
             <section className="flex flex-wrap mx-2 justify-center gap-2">
               {/* mejor pagina en creditos */}
               <div className="flex flex-col justify-center items-center gap-1  border border-slate-600 rounded-2xl px-2">
                 <h2>mejor pagina creditos</h2>
-                <section className="flex flex-wrap justify-center gap-8 text-sm">
+                <section className="flex flex-wrap justify-center gap-4 text-sm">
                   {/* nombre */}
                   <div>
                     <p>nombre:</p>
@@ -178,7 +177,7 @@ export const Home = ({ setError }) => {
                   </div>
                 </section>
               </div>
-
+              {/* mejor dia */}
               <div className="flex flex-wrap justify-center gap-8 border border-slate-600 rounded-2xl px-2">
                 <section>
                   {/* nombre */}
@@ -187,7 +186,7 @@ export const Home = ({ setError }) => {
                     <p>{qData?.promedios?.mejorDia?.name}</p>
                   </div>
                   {/* creditos */}
-                  <div className="flex flex-wrap justify-center gap-8">
+                  <div className="flex flex-wrap justify-center gap-4">
                     {/* coins */}
                     <section>
                       <p>COINS:</p>
@@ -267,7 +266,7 @@ export const Home = ({ setError }) => {
               {/* mejro pagina en pesos */}
               <div className="flex flex-col justify-center items-center gap-1  border border-slate-600 rounded-2xl px-2">
                 <h2>mejor pagina en pesos</h2>
-                <section className="flex flex-wrap justify-center gap-8">
+                <section className="flex flex-wrap justify-center gap-4">
                   {/* nombre */}
                   <div>
                     <p>nombre:</p>
@@ -285,7 +284,7 @@ export const Home = ({ setError }) => {
                 <h2>promedio quincenal</h2>
                 <section>
                   {/* creditos */}
-                  <div className="flex flex-wrap justify-center gap-8">
+                  <div className="flex flex-wrap justify-center gap-4">
                     {/* coins */}
                     <section>
                       <p>COINS:</p>
@@ -361,12 +360,16 @@ export const Home = ({ setError }) => {
           </section>
         )}
       </motion.div>
+
       {/* dias */}
       {qData?.dias && (
-        <div>
+        <div className="flex flex-wrap justify-center  gap-2 pb-4">
           {qData?.dias?.map((dia) => {
             return (
-              <div key={dia.name} className="w-fit bg-amber-600 flex- flex-wrap justify-center items-center ">
+              <div
+                key={dia.name}
+                className="bg-amber-600 justify-center flex flex-col items-center gap-2 border border-slate-400 rounded-2xl"
+              >
                 {/* nombre */}
                 <h1>{dia.name}</h1>
 
@@ -375,7 +378,10 @@ export const Home = ({ setError }) => {
                   const pagina = dia[pag.name];
                   if (!pagina) return null;
                   return (
-                    <div key={pag.id} className="flex flex-wrap gap-4 w-fit bg-amber-200">
+                    <div
+                      key={pag.id}
+                      className="flex flex-wrap gap-4 w-fit bg-amber-200"
+                    >
                       <section className="bg-slate-400">
                         <h2>{pag.name}</h2>
                         {/* coins */}
@@ -645,6 +651,126 @@ export const Home = ({ setError }) => {
             );
           })}
         </div>
+      )}
+      {qData.totales && (
+        <motion.div className="flex flex-wrap justify-center items-center gap-8 bg-slate-800 rounded-2xl w-fit px-4">
+          {/* coins */}
+          {qData.totales.coins > 0 ? (
+            <section>
+              <h2>coins:</h2>
+              <p>
+                {Intl.NumberFormat("es-IN", {
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0,
+                }).format(qData.totales.coins)}
+              </p>
+            </section>
+          ) : null}
+
+          {/* usd */}
+          {qData.totales.usd > 0 ? (
+            <section>
+              <h2>usd:</h2>
+              <p>
+                {Intl.NumberFormat("en-US", {
+                  style: "currency",
+                  currency: "USD",
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0,
+                }).format(qData.totales.usd)}
+              </p>
+            </section>
+          ) : null}
+
+          {/* euro */}
+          {qData.totales.euro > 0 ? (
+            <section>
+              <h2>euro:</h2>
+              <p>
+                {Intl.NumberFormat("es-EU", {
+                  style: "currency",
+                  currency: "EUR",
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0,
+                }).format(qData.totales.euro)}
+              </p>
+            </section>
+          ) : null}
+
+          {/* gbp */}
+          {qData.totales.gbp > 0 ? (
+            <section>
+              <h2>gbp:</h2>
+              <p>
+                {Intl.NumberFormat("en-GB", {
+                  style: "currency",
+                  currency: "GBP",
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0,
+                }).format(qData.totales.gbp)}
+              </p>
+            </section>
+          ) : null}
+
+          {/* cop */}
+          {qData.totales.cop > 0 ? (
+            <section>
+              <h2>pesos:</h2>
+              <p>
+                {Intl.NumberFormat("es-CO", {
+                  style: "currency",
+                  currency: "COP",
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0,
+                }).format(qData.totales.cop)}
+              </p>
+            </section>
+          ) : null}
+
+          {/* adelantos */}
+          {qData.totales.adelantos > 0 ? (
+            <section>
+              <h2>prestamos:</h2>
+              <p>
+                {Intl.NumberFormat("es-CO", {
+                  style: "currency",
+                  currency: "COP",
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0,
+                }).format(qData.totales.adelantos)}
+              </p>
+            </section>
+          ) : null}
+
+          {/* rojo */}
+          {qData.totales.rojo > 0 ? (
+            <section>
+              <h2>{(qData.totales.rojo) > 0 ? "a favor:": "en contra:"}</h2>
+              <p>
+                {Intl.NumberFormat("es-CO", {
+                  style: "currency",
+                  currency: "COP",
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0,
+                }).format(qData.totales.rojo)}
+              </p>
+            </section>
+          ) : null}
+
+          {/* dias trabajados */}
+          {qData.totales.worked > 0 ? (
+            <section>
+              <h2>dias trabajados:</h2>
+              <p>
+                {Intl.NumberFormat("es-IN", {
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0,
+                }).format(qData.totales.worked)}
+              </p>
+            </section>
+          ) : null}
+
+        </motion.div>
       )}
     </div>
   );
