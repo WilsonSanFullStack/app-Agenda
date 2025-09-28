@@ -50311,7 +50311,17 @@ function requireGetQData() {
     var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m;
     console.log("data id quincena", data);
     try {
-      let limpiarAdultwork = function(data2) {
+      let getAnteriorPorPagina = function(qf2, nombreDiaActual, pagina2) {
+        const idx = qf2.findIndex((d) => d.name === nombreDiaActual);
+        if (idx <= 0) return null;
+        for (let i = idx - 1; i >= 0; i--) {
+          const diaAnterior = qf2[i];
+          if (diaAnterior[pagina2]) {
+            return diaAnterior;
+          }
+        }
+        return null;
+      }, limpiarAdultwork = function(data2) {
         var _a2, _b2, _c2, _d2;
         let hayGbp = false;
         let hayGbpParcial = false;
@@ -50470,21 +50480,9 @@ function requireGetQData() {
         };
         return new Date(2e3 + parseInt(anioStr), meses[mesStr], parseInt(dia));
       };
-      const getDiaAnterior = (qf2, fechaActual) => {
-        var _a2;
-        const fecha = parseFecha(fechaActual);
-        for (let i = (qf2 == null ? void 0 : qf2.length) - 1; i >= 0; i--) {
-          const fechaQf = parseFecha((_a2 = qf2[i]) == null ? void 0 : _a2.name);
-          if (fechaQf < fecha) {
-            return qf2[i];
-          }
-        }
-        return null;
-      };
       dias.sort((a, b) => parseFecha(a == null ? void 0 : a.name) - parseFecha(b == null ? void 0 : b.name));
       const qf = [];
       for (const dia of dias) {
-        const anterior = getDiaAnterior(qf, dia == null ? void 0 : dia.name);
         let df = qf == null ? void 0 : qf.find((d) => d.name === (dia == null ? void 0 : dia.name));
         if (!df) {
           df = { name: dia == null ? void 0 : dia.name, worked: false };
@@ -50495,6 +50493,7 @@ function requireGetQData() {
         }
         const pag = paginas == null ? void 0 : paginas.find((p) => (p == null ? void 0 : p.name) === (dia == null ? void 0 : dia.page));
         if (!pag) continue;
+        const anterior = getAnteriorPorPagina(qf, dia == null ? void 0 : dia.name, pag == null ? void 0 : pag.name);
         if (!df[dia == null ? void 0 : dia.page]) {
           df[dia == null ? void 0 : dia.page] = {};
         }

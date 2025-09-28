@@ -308,12 +308,13 @@ export const Dia = ({ setError }) => {
             className={`${
               page.find((pag) => pag.name === dia.page)?.moneda === "COP"
                 ? "opacity-100"
-                : "opacity-30"
+                : "hidden"
             }`}
           >
             <label className="block mb-1 text-sm font-medium to-slate-300">
               Adelantos / Prestamos
             </label>
+            <p className="text-sm text-red-400">Haga la sumaroria de los prestamos del dia y registre un solo total [5+6+9=20] resgistra 20</p>
             <input
               onWheel={(e) => e.target.blur()}
               className="no-spin w-full px-4 py-2 bg-slate-900/70 border border-slate-600 rounded-lg shadow-sm focus:ring-emerald-400 focus:outline-none text-white"
@@ -342,7 +343,7 @@ export const Dia = ({ setError }) => {
             className={`${
               page.find((pag) => pag.name === dia.page)?.moneda === "USD"
                 ? "opacity-100"
-                : "opacity-30"
+                : "hidden"
             }`}
           >
             <label className="block mb-1 text-sm font-medium to-slate-300">
@@ -378,7 +379,7 @@ export const Dia = ({ setError }) => {
             className={`${
               page.find((pag) => pag.name === dia.page)?.coins
                 ? "opacity-100"
-                : "opacity-30"
+                : "hidden"
             }`}
           >
             <label className="block mb-1 text-sm font-medium to-slate-300">
@@ -411,7 +412,7 @@ export const Dia = ({ setError }) => {
             className={`${
               page.find((pag) => pag.name === dia.page)?.moneda === "EURO"
                 ? "opacity-100"
-                : "opacity-30"
+                : "hidden"
             }`}
           >
             <label className="block mb-1 text-sm font-medium to-slate-300">
@@ -446,12 +447,16 @@ export const Dia = ({ setError }) => {
             className={`${
               page.find((pag) => pag.name === dia.page)?.moneda === "GBP"
                 ? "opacity-100"
-                : "opacity-30"
+                : "hidden"
             }`}
           >
             <label className="block mb-1 text-sm font-medium to-slate-300">
               Libras Esterlinas
             </label>
+            <p className="text-sm text-red-400">
+              si ya registro un corte para este dia vuelvalo a registrar ahora
+              de lo contrario ese corte se borrara.
+            </p>
             <input
               onWheel={(e) => e.target.blur()}
               className="no-spin w-full px-4 py-2 bg-slate-900/70 border border-slate-600 rounded-lg shadow-sm focus:ring-emerald-400 focus:outline-none text-white"
@@ -480,7 +485,7 @@ export const Dia = ({ setError }) => {
             className={`${
               page.find((pag) => pag.name === dia.page)?.moneda === "GBP"
                 ? "opacity-100"
-                : "opacity-30"
+                : "hidden"
             }`}
           >
             <label className="block mb-1 text-sm font-medium to-slate-300">

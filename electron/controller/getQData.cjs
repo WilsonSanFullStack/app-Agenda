@@ -159,16 +159,21 @@ const getDataQ = async (data) => {
     };
 
     // buscar el día anterior más cercano en qFormatted.dias
-    const getDiaAnterior = (qf, fechaActual) => {
-      const fecha = parseFecha(fechaActual);
-      for (let i = qf?.length - 1; i >= 0; i--) {
-        const fechaQf = parseFecha(qf[i]?.name);
-        if (fechaQf < fecha) {
-          return qf[i]; // devolvemos el primero anterior encontrado
-        }
-      }
-      return null;
-    };
+    function getAnteriorPorPagina(qf, nombreDiaActual, pagina) {
+  // obtenemos el índice del día actual
+  const idx = qf.findIndex((d) => d.name === nombreDiaActual);
+  if (idx <= 0) return null;
+
+  // recorremos hacia atrás buscando el último que tenga esa página
+  for (let i = idx - 1; i >= 0; i--) {
+    const diaAnterior = qf[i];
+    if (diaAnterior[pagina]) {
+      return diaAnterior;
+    }
+  }
+  return null;
+}
+
 
     // ordenar
     dias.sort((a, b) => parseFecha(a?.name) - parseFecha(b?.name));
@@ -176,7 +181,7 @@ const getDataQ = async (data) => {
     const qf = [];
     //formateo de dias
     for (const dia of dias) {
-      const anterior = getDiaAnterior(qf, dia?.name);
+
       // buscamos si ya existe un objeto para ese día
       let df = qf?.find((d) => d.name === dia?.name);
 
@@ -193,7 +198,7 @@ const getDataQ = async (data) => {
       // buscamos el nombre de la página
       const pag = paginas?.find((p) => p?.name === dia?.page);
       if (!pag) continue;
-
+      const anterior = getAnteriorPorPagina(qf, dia?.name, pag?.name);
       // inicializamos la página en df si no existe
       if (!df[dia?.page]) {
         df[dia?.page] = {};
@@ -214,6 +219,7 @@ const getDataQ = async (data) => {
       }
 
       //revisamos si tiene coins
+
       if (pag?.coins) {
         df[dia?.page].coinsTotal = dia?.coins || 0;
         if (
