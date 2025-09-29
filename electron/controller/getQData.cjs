@@ -93,7 +93,11 @@ const getDataQ = async (data) => {
     const qFormatted = {
       id: quincena?.id,
       name: quincena?.name,
-      moneda: quincena?.Monedas || [],
+      moneda: {
+        estadisticas: { usd: 0, euro: 0, gbp: 0 },
+        pago: { usd: 0, euro: 0, gbp: 0 },
+        porcentaje: porcentaje,
+      },
       isPago: isPago,
       totales: {
         coins: 0,
@@ -136,7 +140,17 @@ const getDataQ = async (data) => {
         },
       },
     };
-
+    for (const moneda of quincena.Monedas) {
+      moneda.pago
+        ? (
+          (qFormatted.moneda.pago.usd = parseFloat(moneda?.dolar - aranceles?.dolar) || 0),
+          (qFormatted.moneda.pago.euro =parseFloat(moneda?.euro - aranceles?.euro) || 0),
+          (qFormatted.moneda.pago.gbp = parseFloat(moneda?.gbp - aranceles?.gbp) || 0))
+        : ((qFormatted.moneda.estadisticas.usd = parseFloat(moneda?.dolar) || 0),
+          (qFormatted.moneda.estadisticas.euro = parseFloat(moneda?.euro) || 0),
+          (qFormatted.moneda.estadisticas.gbp = parseFloat(moneda?.gbp) || 0));
+    }
+    console.log(qFormatted.moneda)
     const dias = quincena.dias;
     // convertir string a fecha
     const parseFecha = (str) => {
@@ -160,20 +174,19 @@ const getDataQ = async (data) => {
 
     // buscar el día anterior más cercano en qFormatted.dias
     function getAnteriorPorPagina(qf, nombreDiaActual, pagina) {
-  // obtenemos el índice del día actual
-  const idx = qf.findIndex((d) => d.name === nombreDiaActual);
-  if (idx <= 0) return null;
+      // obtenemos el índice del día actual
+      const idx = qf.findIndex((d) => d.name === nombreDiaActual);
+      if (idx <= 0) return null;
 
-  // recorremos hacia atrás buscando el último que tenga esa página
-  for (let i = idx - 1; i >= 0; i--) {
-    const diaAnterior = qf[i];
-    if (diaAnterior[pagina]) {
-      return diaAnterior;
+      // recorremos hacia atrás buscando el último que tenga esa página
+      for (let i = idx - 1; i >= 0; i--) {
+        const diaAnterior = qf[i];
+        if (diaAnterior[pagina]) {
+          return diaAnterior;
+        }
+      }
+      return null;
     }
-  }
-  return null;
-}
-
 
     // ordenar
     dias.sort((a, b) => parseFecha(a?.name) - parseFecha(b?.name));
@@ -181,7 +194,6 @@ const getDataQ = async (data) => {
     const qf = [];
     //formateo de dias
     for (const dia of dias) {
-
       // buscamos si ya existe un objeto para ese día
       let df = qf?.find((d) => d.name === dia?.name);
 
@@ -337,7 +349,7 @@ const getDataQ = async (data) => {
       ultimoDia = qfLimpio[x];
 
       for (const [pagina, valores] of Object?.entries(ultimoDia)) {
-        if (pagina === "name" ) continue;
+        if (pagina === "name") continue;
         if (valores?.coinsDia || valores?.coinsTotal)
           qFormatted.totales.coins +=
             valores?.coinsDia || valores?.coinsTotal || 0;
@@ -437,16 +449,20 @@ const getDataQ = async (data) => {
       for (const [pagina, valores] of Object?.entries(dia)) {
         if (pagina === "name" || pagina === "worked") continue;
 
-        totalUsd += valores?.usdDia||valores?.usdTotal || 0;
-        totalEuro += valores?.euroDia||valores?.euroTotal || 0;
+        totalUsd += valores?.usdDia || valores?.usdTotal || 0;
+        totalEuro += valores?.euroDia || valores?.euroTotal || 0;
         totalGbp += valores?.gbp || 0;
         totalGbpParcial += valores?.gbpParcial || 0;
-        totalCoins += valores?.coinsDia||valores?.coinsTotal || 0;
+        totalCoins += valores?.coinsDia || valores?.coinsTotal || 0;
 
         // en pesos puede venir en varias formas
-        const pesos = valores?.pesosDia||valores?.pesosTotal||0 + valores?.pesos||0 + valores?.pesosParcial||0;
+        const pesos =
+          valores?.pesosDia ||
+          valores?.pesosTotal ||
+          0 + valores?.pesos ||
+          0 + valores?.pesosParcial ||
+          0;
         totalPesos += pesos;
-          
       }
 
       // sumatoria de créditos de este día

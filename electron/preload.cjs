@@ -14,6 +14,7 @@ contextBridge.exposeInMainWorld("Electron", {
   //eventos para dias
   addDay: (data) => ipcRenderer.invoke("add-day", data),
   getDay: (id) => ipcRenderer.invoke("get-day", id),
+  deleteDay: (id) => ipcRenderer.invoke("delete-day", id),
   //eventos para pages
   addPage: (data) => ipcRenderer.invoke("add-page", data),
   getPage: () => ipcRenderer.invoke("get-page"),

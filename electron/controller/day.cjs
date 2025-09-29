@@ -4,6 +4,14 @@ const { BrowserWindow } = require("electron");
 const postDay = async (data) => {
   try {
     const q = await Quincena.findByPk(data.q);
+    // buscar si ya existe un día con el mismo name y page
+    const existingDay = await Day.findOne({
+      where: { name: data.name, page: data.page },
+    });
+     // si existe, lo borramos
+    if (existingDay) {
+      await existingDay.destroy();
+    }
     const day = await Day.create({
         name: data.name,
         coins: data.coins,
@@ -47,4 +55,31 @@ const getDay = async (id) => {
   }
 };
 
-module.exports = { postDay, getDay };
+const deleteDay = async (id) => {
+  try {
+    const dayDelete = await Day.findByPk(id);
+    if (!dayDelete) {
+      return {
+        sucess: false,
+        message: "Error al eliminar el arancel",
+        error: error,
+      };
+    }
+    await dayDelete.destroy();
+    // 🔹 Enviar evento a React para actualizar la lista
+    BrowserWindow.getAllWindows().forEach((win) => {
+      win.webContents.send("ArancelActualizado", {
+        message: "Se elimino el dia",
+      });
+    });
+    return { message: "Se elimino el dia" };
+  } catch (error) {
+    return {
+      sucess: false,
+      message: "Error al eliminar el dia",
+      error: error,
+    };
+  }
+};
+
+module.exports = { postDay, getDay, deleteDay };

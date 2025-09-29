@@ -28,15 +28,15 @@ const postQuincena = async (data) => {
     };
   }
 };
-const getAllQuincenaYear= async (year) =>{
+const getAllQuincenaYear = async (year) => {
   try {
     const res = await Quincena.findAll({
-    where:{ year: year },
-    order: [["inicio", "ASC"]],
-    attributes: ["id", "name", "inicio", "fin", "year"],
-  });
-  const quincena = res?.map((x) => x.get({ plain: true }));
-  return quincena;
+      where: { year: year },
+      order: [["inicio", "ASC"]],
+      attributes: ["id", "name", "inicio", "fin", "year"],
+    });
+    const quincena = res?.map((x) => x.get({ plain: true }));
+    return quincena;
   } catch (error) {
     return {
       success: false,
@@ -44,11 +44,11 @@ const getAllQuincenaYear= async (year) =>{
       error: error,
     };
   }
-}
+};
 
-//falta de auditoria para esta funciones 
+//falta de auditoria para esta funciones
 const getAllQuincenas = async (date) => {
-  console.log(date)
+  console.log(date);
   try {
     const months = [
       "enero",
@@ -66,20 +66,18 @@ const getAllQuincenas = async (date) => {
     ];
     const data = date?.split("-");
     const day = parseInt(data[1]);
-    const monthIndex = months.indexOf(data[0].toLowerCase())+1;
+    const monthIndex = months.indexOf(data[0].toLowerCase()) + 1;
     const year = parseInt(data[2]);
     console.log("dia", day, "mes", monthIndex, "año", year);
 
-
-
     const respuesta = await Quincena?.findAll({
-      where: {name: date},
+      where: { name: date },
       order: [["inicio", "ASC"]],
       attributes: ["id", "name", "inicio", "fin"],
       limit: 5,
-    }); 
+    });
     // Ordenar por "inicio" de mayor a menor
-    
+
     return respuesta;
   } catch (error) {
     return {
@@ -93,7 +91,7 @@ const getAllQuincenas = async (date) => {
 const getQuincenaById = async (id) => {
   try {
     const res = await Quincena.findByPk(id, {
-      include: [{ model: Day, as: "dias", attributes: ["id", "name"] }],
+      include: [{ model: Day, as: "dias" }],
       attributes: ["id", "name", "inicio", "fin"],
     });
     if (!res) {
@@ -108,6 +106,15 @@ const getQuincenaById = async (id) => {
       dias: res.dias.map((dia) => ({
         id: dia.id,
         name: dia.name,
+        page: dia.page,
+        coins: dia.coins,
+        usd: dia.usd,
+        euro: dia.euro,
+        gbp: dia.gbp,
+        gbpParcial: dia.gbpParcial,
+        mostrar: dia.mostrar,
+        adelantos: dia.adelantos,
+        worked: dia.worked,
       })),
     };
   } catch (error) {

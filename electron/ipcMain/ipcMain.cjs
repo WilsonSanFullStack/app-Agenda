@@ -6,7 +6,7 @@ const {
   getQuincenaById,
   deleteQuincena,
 } = require("../controller/quincena.cjs");
-const { postDay } = require("../controller/day.cjs");
+const { postDay, deleteDay } = require("../controller/day.cjs");
 const {
   postPage,
   getAllPage,
@@ -46,6 +46,9 @@ ipcMain.handle("add-day", async (_, data) => {
 // buscar dias
 ipcMain.handle("get-day", async (_, id) => {
   return await getDay(id);
+});
+ipcMain.handle("delete-day", async (_, id) => {
+  return await deleteDay(id);
 });
 // Pages
 ipcMain.handle("add-page", async (_, data) => {

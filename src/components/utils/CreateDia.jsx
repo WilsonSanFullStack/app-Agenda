@@ -2,7 +2,7 @@ import { motion, number } from "framer-motion";
 import React, { useEffect, useState } from "react";
 import { generarDias, yearsFive } from "../../date";
 
-export const Dia = ({ setError }) => {
+export const CreateDia = ({ setError }) => {
   const [dia, setDia] = useState({
     name: "",
     page: "",
@@ -314,7 +314,10 @@ export const Dia = ({ setError }) => {
             <label className="block mb-1 text-sm font-medium to-slate-300">
               Adelantos / Prestamos
             </label>
-            <p className="text-sm text-red-400">Haga la sumaroria de los prestamos del dia y registre un solo total [5+6+9=20] resgistra 20</p>
+            <p className="text-sm text-red-400">
+              Haga la sumaroria de los prestamos del dia y registre un solo
+              total [5+6+9=20] resgistra 20
+            </p>
             <input
               onWheel={(e) => e.target.blur()}
               className="no-spin w-full px-4 py-2 bg-slate-900/70 border border-slate-600 rounded-lg shadow-sm focus:ring-emerald-400 focus:outline-none text-white"

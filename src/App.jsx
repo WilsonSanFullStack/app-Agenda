@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 import { Navbar } from "./components/plugin/Navbar.jsx";
 import { Home } from "./components/view/Home.jsx";
-import { Dia } from "./components/utils/Dia.jsx";
+import { CreateDia } from "./components/utils/CreateDia.jsx";
 import { Quincena } from "./components/utils/Quincena.jsx";
 import {ErrorAlert} from "./components/plugin/ErrorAlert.jsx";
 import { CreatePage } from "./components/utils/CreatePage.jsx";
@@ -12,6 +12,7 @@ import { Page } from "./components/view/Page.jsx";
 import { CreateMoneda } from "./components/utils/CreateMoneda.jsx";
 import { Arancel } from "./components/view/Arancel.jsx";
 import { CreateAranceles } from "./components/utils/CreateAranceles.jsx";
+import { Dias } from "./components/view/Dias.jsx";
 //! import { Moneda } from "./components/view/Moneda.jsx";
 
 function App() {
@@ -32,9 +33,10 @@ function App() {
       <Routes>
         <Route path="/" element={<Home setError={setError}/>} />
         <Route path="/register/quincena" element={<Quincena setError={setError}/>} />
-        <Route path="/register/dia" element={<Dia setError={setError}/>} />
+        <Route path="/register/dia" element={<CreateDia setError={setError}/>} />
         <Route path="/register/pagina" element={<CreatePage setError={setError}/>} />
         <Route path="/paginas" element={<Page setError={setError}/>} />
+        <Route path="/dias" element={<Dias setError={setError}/>} />
 
         <Route path="/register/moneda" element={<CreateMoneda setError={setError} />} />
         {/*//! <Route path="//moneda" element={<Moneda setError={setError} />} /> */}

@@ -14,6 +14,7 @@ export const Navbar = () => {
       { name: "Paginas", path: "/paginas" },
       { name: "Aranceles", path: "/aranceles" },
       // { name: "Moneda", path: "/moneda" },
+      { name: "Dias", path: "/dias" },
       { name: "Opción 3", path: "/" },
     ],
     Editar: [{ name: "Opción 4", path: "/" }],

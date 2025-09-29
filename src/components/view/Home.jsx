@@ -54,7 +54,7 @@ export const Home = ({ setError }) => {
     try {
       if (pago.id !== "") {
         const res = await window.Electron.getDataQ(pago);
-        console.log(res);
+        // console.log(res);
         setQData(res);
       }
     } catch (error) {
@@ -70,7 +70,7 @@ export const Home = ({ setError }) => {
 
   const moneda = qData?.moneda;
   const isPago = qData?.isPago;
-  console.log(page);
+  // console.log(page);
   return (
     <div className="min-h-screen pt-12 bg-slate-900">
       {/* Cabecera compacta */}

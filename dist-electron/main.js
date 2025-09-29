@@ -50082,7 +50082,7 @@ function requireQuincena() {
   const getQuincenaById = async (id) => {
     try {
       const res = await Quincena.findByPk(id, {
-        include: [{ model: Day, as: "dias", attributes: ["id", "name"] }],
+        include: [{ model: Day, as: "dias" }],
         attributes: ["id", "name", "inicio", "fin"]
       });
       if (!res) {
@@ -50095,7 +50095,16 @@ function requireQuincena() {
         fin: res.fin,
         dias: res.dias.map((dia) => ({
           id: dia.id,
-          name: dia.name
+          name: dia.name,
+          page: dia.page,
+          coins: dia.coins,
+          usd: dia.usd,
+          euro: dia.euro,
+          gbp: dia.gbp,
+          gbpParcial: dia.gbpParcial,
+          mostrar: dia.mostrar,
+          adelantos: dia.adelantos,
+          worked: dia.worked
         }))
       };
     } catch (error2) {
@@ -50136,6 +50145,12 @@ function requireDay() {
   const postDay = async (data) => {
     try {
       const q = await Quincena.findByPk(data.q);
+      const existingDay = await Day.findOne({
+        where: { name: data.name, page: data.page }
+      });
+      if (existingDay) {
+        await existingDay.destroy();
+      }
       const day2 = await Day.create({
         name: data.name,
         coins: data.coins,
@@ -50175,7 +50190,32 @@ function requireDay() {
       };
     }
   };
-  day = { postDay, getDay: getDay2 };
+  const deleteDay = async (id) => {
+    try {
+      const dayDelete = await Day.findByPk(id);
+      if (!dayDelete) {
+        return {
+          sucess: false,
+          message: "Error al eliminar el arancel",
+          error
+        };
+      }
+      await dayDelete.destroy();
+      BrowserWindow.getAllWindows().forEach((win) => {
+        win.webContents.send("ArancelActualizado", {
+          message: "Se elimino el dia"
+        });
+      });
+      return { message: "Se elimino el dia" };
+    } catch (error2) {
+      return {
+        sucess: false,
+        message: "Error al eliminar el dia",
+        error: error2
+      };
+    }
+  };
+  day = { postDay, getDay: getDay2, deleteDay };
   return day;
 }
 var page;
@@ -50418,7 +50458,11 @@ function requireGetQData() {
       const qFormatted = {
         id: quincena2 == null ? void 0 : quincena2.id,
         name: quincena2 == null ? void 0 : quincena2.name,
-        moneda: (quincena2 == null ? void 0 : quincena2.Monedas) || [],
+        moneda: {
+          estadisticas: { usd: 0, euro: 0, gbp: 0 },
+          pago: { usd: 0, euro: 0, gbp: 0 },
+          porcentaje
+        },
         isPago,
         totales: {
           coins: 0,
@@ -50461,6 +50505,10 @@ function requireGetQData() {
           }
         }
       };
+      for (const moneda2 of quincena2.Monedas) {
+        moneda2.pago ? (qFormatted.moneda.pago.usd = parseFloat((moneda2 == null ? void 0 : moneda2.dolar) - (aranceles2 == null ? void 0 : aranceles2.dolar)) || 0, qFormatted.moneda.pago.euro = parseFloat((moneda2 == null ? void 0 : moneda2.euro) - (aranceles2 == null ? void 0 : aranceles2.euro)) || 0, qFormatted.moneda.pago.gbp = parseFloat((moneda2 == null ? void 0 : moneda2.gbp) - (aranceles2 == null ? void 0 : aranceles2.gbp)) || 0) : (qFormatted.moneda.estadisticas.usd = parseFloat(moneda2 == null ? void 0 : moneda2.dolar) || 0, qFormatted.moneda.estadisticas.euro = parseFloat(moneda2 == null ? void 0 : moneda2.euro) || 0, qFormatted.moneda.estadisticas.gbp = parseFloat(moneda2 == null ? void 0 : moneda2.gbp) || 0);
+      }
+      console.log(qFormatted.moneda);
       const dias = quincena2.dias;
       const parseFecha = (str) => {
         const [dia, mesStr, anioStr] = str == null ? void 0 : str.split("-");
@@ -50752,7 +50800,7 @@ function requireIpcMain() {
     getQuincenaById,
     deleteQuincena
   } = requireQuincena();
-  const { postDay } = requireDay();
+  const { postDay, deleteDay } = requireDay();
   const {
     postPage,
     getAllPage,
@@ -50786,6 +50834,9 @@ function requireIpcMain() {
   });
   ipcMain$1.handle("get-day", async (_, id) => {
     return await getDay(id);
+  });
+  ipcMain$1.handle("delete-day", async (_, id) => {
+    return await deleteDay(id);
   });
   ipcMain$1.handle("add-page", async (_, data) => {
     return await postPage(data);
