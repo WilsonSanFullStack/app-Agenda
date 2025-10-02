@@ -31,7 +31,7 @@ let capsEntries = entries.map((entry) => [
 ]);
 sequelize.models = Object.fromEntries(capsEntries);
 
-const { Quincena, Day, Page, Moneda, Aranceles} =
+const { Quincena, Day, Page, Moneda, Aranceles, CerradoQ} =
   sequelize.models;
 
 // //! relaciones entre modelos
@@ -49,4 +49,5 @@ module.exports = {
   Page,
   Moneda,
   Aranceles,
+  CerradoQ,
 };
