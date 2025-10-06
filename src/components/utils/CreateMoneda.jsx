@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { yearsFive } from "../../date";
+import { YearQuincenaSelector } from "../plugin/YearQuincenaSelector";
 
 export const CreateMoneda = ({ setError }) => {
   const [monedas, setModenas] = useState({
@@ -95,8 +96,18 @@ export const CreateMoneda = ({ setError }) => {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
         >
+          <YearQuincenaSelector
+            yearS={yearS}
+            yearFives={yearFives}
+            setYearS={setYearS}
+            q={q}
+            quincena={quincena}
+            handleQuincena={handleQuincena}
+            handlePrev={handlePrev}
+            handleNext={handleNext}
+          />
           {/* Año */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          {/* <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             <label className="text-slate-300 font-medium">
               Seleccione el Año
             </label>
@@ -129,10 +140,10 @@ export const CreateMoneda = ({ setError }) => {
                 ▶
               </motion.button>
             </div>
-          </div>
+          </div> */}
 
           {/* Quincena */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          {/* <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             <label className="text-slate-300 font-medium">
               Seleccione la Quincena
             </label>
@@ -155,7 +166,7 @@ export const CreateMoneda = ({ setError }) => {
                 </option>
               ))}
             </select>
-          </div>
+          </div> */}
         </motion.section>
 
         {/* Inputs */}

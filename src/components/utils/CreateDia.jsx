@@ -1,6 +1,7 @@
 import { motion, number } from "framer-motion";
 import React, { useEffect, useState } from "react";
 import { generarDias, yearsFive } from "../../date";
+import { YearQuincenaSelector } from "../plugin/YearQuincenaSelector";
 
 export const CreateDia = ({ setError }) => {
   const [dia, setDia] = useState({
@@ -186,6 +187,9 @@ export const CreateDia = ({ setError }) => {
     }
   };
   console.log(dia);
+  //para saber si la quincena esta cerrada
+  const quincenaSeleccionada = q?.find((select) => select.id === dia.q);
+  const quincenaCerrada = quincenaSeleccionada?.cerrado;
   return (
     <div className="pt-12 flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <motion.div
@@ -199,64 +203,16 @@ export const CreateDia = ({ setError }) => {
         </h1>
 
         <form onSubmit={crearDia} className="space-y-4">
-          {/* year */}
-          <div className="flex items-center gap-2">
-            <label htmlFor="">Seleccione El Año</label>
-            {/* Botón anterior */}
-            <button
-              type="button"
-              onClick={handlePrev}
-              className="px-3 py-1 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition"
-            >
-              ◀
-            </button>
-
-            {/* Select dinámico */}
-            <select
-              value={yearS}
-              className="p-2 border rounded bg-gray-800"
-              onChange={(e) => setYearS(Number(e.target.value))}
-            >
-              {yearFives.map((year) => (
-                <option key={year} value={year}>
-                  {year}
-                </option>
-              ))}
-            </select>
-
-            {/* Botón siguiente */}
-            <button
-              type="button"
-              onClick={handleNext}
-              className="px-3 py-1 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition"
-            >
-              ▶
-            </button>
-          </div>
-
-          {/* quincenas */}
-          <div className="flex items-center gap-2">
-            <label htmlFor="">Seleccione La Quincena</label>
-            <select
-              className="p-2 border rounded bg-gray-800"
-              value={quincena.name}
-              onChange={(e) => {
-                const qSelected = q.find(
-                  (item) => item.name === e.target.value
-                );
-                if (qSelected) handleQuincena(qSelected);
-              }}
-            >
-              <option value="" hidden>
-                Seleccione
-              </option>
-              {q.map((quincena) => (
-                <option key={quincena.id} value={quincena.name}>
-                  {quincena.name}
-                </option>
-              ))}
-            </select>
-          </div>
+          <YearQuincenaSelector
+        yearS={yearS}
+        yearFives={yearFives}
+        setYearS={setYearS}
+        q={q}
+        quincena={quincena}
+        handleQuincena={handleQuincena}
+        handlePrev={handlePrev}
+        handleNext={handleNext}
+      />
 
           {/* dias */}
           <div className="flex items-center gap-2">
@@ -517,6 +473,13 @@ export const CreateDia = ({ setError }) => {
               }).format(dia.gbpParcial) || 0}
             </p>
           </div>
+          {/* mensaje si la quincena esta cerrada */}
+          {quincenaCerrada && (
+            <div className="p-3 bg-red-500/20 border border-red-600 text-red-300 rounded-lg text-sm text-center mt-4">
+              ⚠️ Lo sentimos, esta quincena está <b>cerrada</b> y no se pueden
+              agregar créditos.
+            </div>
+          )}
           {/* Botón */}
           <motion.div
             className="mt-10 text-center"
@@ -524,26 +487,30 @@ export const CreateDia = ({ setError }) => {
             animate={{ opacity: 1 }}
             transition={{ delay: 1.4 }}
           >
-            {dia.name &&
-            dia.page &&
-            dia.q &&
-            (dia.worked ||
-              dia.usd > 0 ||
-              dia.euro > 0 ||
-              dia.coins > 0 ||
-              dia.adelantos > 0 ||
-              dia.gbp > 0 ||
-              dia.gbpParcial > 0 ||
-              dia.mostrar === true) ? (
+            {quincenaCerrada ? (
+              <p className="text-red-400 text-sm mt-2 font-medium">
+                No puedes registrar días en una quincena cerrada.
+              </p>
+            ) : dia.name &&
+              dia.page &&
+              dia.q &&
+              (dia.worked ||
+                dia.usd > 0 ||
+                dia.euro > 0 ||
+                dia.coins > 0 ||
+                dia.adelantos > 0 ||
+                dia.gbp > 0 ||
+                dia.gbpParcial > 0 ||
+                dia.mostrar === true) ? (
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 type="submit"
                 className="px-8 py-3 rounded-xl text-lg font-bold text-white 
-                               bg-gradient-to-r from-emerald-500 to-sky-500 
-                               hover:from-emerald-400 hover:to-sky-400 
-                               active:scale-95 shadow-lg shadow-emerald-500/30 
-                               transition-all duration-200"
+                 bg-gradient-to-r from-emerald-500 to-sky-500 
+                 hover:from-emerald-400 hover:to-sky-400 
+                 active:scale-95 shadow-lg shadow-emerald-500/30 
+                 transition-all duration-200"
               >
                 Cargar
               </motion.button>

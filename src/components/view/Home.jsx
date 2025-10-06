@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { yearsFive } from "../../date";
 import { Moneda } from "./Moneda";
+import { YearQuincenaPagoCierreCabecera } from "../plugin/YearQuincenaPagoCierreCabecera";
 
 export const Home = ({ setError }) => {
   const currentYear = new Date().getFullYear();
@@ -67,83 +68,31 @@ export const Home = ({ setError }) => {
     getPages();
   }, [pago]);
   console.log("qData", qData);
+  console.log("Q", q);
 
   const moneda = qData?.moneda;
   const isPago = qData?.isPago;
   // console.log(page);
+  const handleCierre = () => {
+    alert("cerrado");
+  };
   return (
     <div className="min-h-screen pt-12 bg-slate-900">
       {/* Cabecera compacta */}
-      <motion.section
-        className="flex flex-wrap justify-between items-center gap-4 px-4 py-3 rounded-xl shadow-md bg-slate-800 max-w-5xl mx-auto"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3, duration: 0.5 }}
-      >
-        {/* Año */}
-        <div className="flex items-center gap-2">
-          <label className="text-white text-sm">Año:</label>
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={handlePrev}
-            className="px-2 py-1 bg-slate-700 text-white rounded hover:bg-slate-600 text-xs"
-          >
-            ◀
-          </motion.button>
-          <select
-            value={yearS}
-            className="px-3 py-1 rounded bg-slate-700 text-white border border-slate-600 text-sm"
-            onChange={(e) => setYearS(Number(e.target.value))}
-          >
-            {yearFives.map((year) => (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            ))}
-          </select>
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={handleNext}
-            className="px-2 py-1 bg-slate-700 text-white rounded hover:bg-slate-600 text-xs"
-          >
-            ▶
-          </motion.button>
-        </div>
-        {/* estadisticas o pago */}
-        <div className="flex items-center space-x-2">
-          <input
-            id="pago"
-            className="w-5 h-5 text-emerald-500 border-gray-300 rounded focus:ring-emerald-400"
-            type="checkbox"
-            checked={pago.pago}
-            onChange={handlePago}
-          />
-          <label htmlFor="pago" className="text-sm text-slate-300">
-            ¿Para Pago?
-          </label>
-        </div>
-        {/* Quincena */}
-        <div className="flex items-center gap-2">
-          <label className="text-white text-sm">Quincena:</label>
-          <select
-            className="px-3 py-1 rounded bg-slate-700 text-white border border-slate-600 text-sm"
-            value={quincena.name}
-            onChange={(e) => {
-              const qSelected = q.find((item) => item.name === e.target.value);
-              if (qSelected) setPago({ ...pago, id: qSelected.id });
-            }}
-          >
-            <option value="" hidden>
-              Seleccione
-            </option>
-            {q.map((quincena) => (
-              <option key={quincena.id} value={quincena.name}>
-                {quincena.name}
-              </option>
-            ))}
-          </select>
-        </div>
-      </motion.section>
+      <YearQuincenaPagoCierreCabecera
+        yearS={yearS}
+        setYearS={setYearS}
+        yearFives={yearFives}
+        handlePrev={handlePrev}
+        handleNext={handleNext}
+        pago={pago}
+        setPago={setPago}
+        handlePago={handlePago}
+        q={q}
+        quincena={quincena}
+        setQuincena={setQuincena}
+        handleCierre={handleCierre}
+      />
 
       {/* Monedas */}
       <motion.div
@@ -176,7 +125,8 @@ export const Home = ({ setError }) => {
               </p>
               <p className="text-indigo-300">
                 {page.find(
-                  (pag) => pag.name === qData?.promedios?.mejorPageCreditos?.name
+                  (pag) =>
+                    pag.name === qData?.promedios?.mejorPageCreditos?.name
                 )?.moneda === "USD"
                   ? Intl.NumberFormat("en-US", {
                       style: "currency",
@@ -368,176 +318,172 @@ export const Home = ({ setError }) => {
       </motion.div>
 
       {/* Dias como cards compactas */}
-{qData?.dias && (
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 pb-2">
-    {qData.dias.map((dia) => (
-      <motion.div
-        key={dia.name}
-        className="bg-slate-800 rounded-xl p-1 shadow-md border border-slate-700"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-      >
-        {/* Encabezado del día */}
-        <h2 className="text-sm font-bold text-center text-amber-300 mb-2">
-          {dia.name}
-        </h2>
+      {qData?.dias && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 pb-2">
+          {qData.dias.map((dia) => (
+            <motion.div
+              key={dia.name}
+              className="bg-slate-800 rounded-xl p-1 shadow-md border border-slate-700"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              {/* Encabezado del día */}
+              <h2 className="text-sm font-bold text-center text-amber-300 mb-2">
+                {dia.name}
+              </h2>
 
-        {/* Recorremos las páginas */}
-        <div className="space-y-2">
-          {page.map((pag) => {
-            const pagina = dia[pag.name];
-            if (!pagina) return null;
+              {/* Recorremos las páginas */}
+              <div className="space-y-2">
+                {page.map((pag) => {
+                  const pagina = dia[pag.name];
+                  if (!pagina) return null;
 
-            return (
-              <div
-                key={pag.id}
-                className="bg-slate-700 rounded-lg p-2"
-              >
-                {/* Nombre de la página */}
-                <p className="text-xs font-semibold text-slate-200 mb-1">
-                  {pag.name}
-                </p>
+                  return (
+                    <div key={pag.id} className="bg-slate-700 rounded-lg p-2">
+                      {/* Nombre de la página */}
+                      <p className="text-xs font-semibold text-slate-200 mb-1">
+                        {pag.name}
+                      </p>
 
-                {/* Valores compactos */}
-                <div className="grid grid-cols-2 gap-1 text-[11px] text-slate-300">
-                  {/* Coins */}
-                  {pagina.coinsTotal > 0 && (
-                    <span>Coins: {pagina.coinsTotal}</span>
-                  )}
-                  {pagina.coinsDia > 0 && (
-                    <span>Día Coins: {pagina.coinsDia}</span>
-                  )}
+                      {/* Valores compactos */}
+                      <div className="grid grid-cols-2 gap-1 text-[11px] text-slate-300">
+                        {/* Coins */}
+                        {pagina.coinsTotal > 0 && (
+                          <span>Coins: {pagina.coinsTotal}</span>
+                        )}
+                        {pagina.coinsDia > 0 && (
+                          <span>Día Coins: {pagina.coinsDia}</span>
+                        )}
 
-                  {/* USD */}
-                  {pagina.usdTotal > 0 && (
-                    <span>
-                      USD:{" "}
-                      {Intl.NumberFormat("en-US", {
-                        style: "currency",
-                        currency: "USD",
-                        maximumFractionDigits: 0,
-                      }).format(pagina.usdTotal)}
-                    </span>
-                  )}
-                  {pagina.usdDia > 0 && (
-                    <span>
-                      USD día:{" "}
-                      {Intl.NumberFormat("en-US", {
-                        style: "currency",
-                        currency: "USD",
-                        maximumFractionDigits: 0,
-                      }).format(pagina.usdDia)}
-                    </span>
-                  )}
+                        {/* USD */}
+                        {pagina.usdTotal > 0 && (
+                          <span>
+                            USD:{" "}
+                            {Intl.NumberFormat("en-US", {
+                              style: "currency",
+                              currency: "USD",
+                              maximumFractionDigits: 0,
+                            }).format(pagina.usdTotal)}
+                          </span>
+                        )}
+                        {pagina.usdDia > 0 && (
+                          <span>
+                            USD día:{" "}
+                            {Intl.NumberFormat("en-US", {
+                              style: "currency",
+                              currency: "USD",
+                              maximumFractionDigits: 0,
+                            }).format(pagina.usdDia)}
+                          </span>
+                        )}
 
-                  {/* Euros */}
-                  {pagina.euroTotal > 0 && (
-                    <span>
-                      EUR:{" "}
-                      {Intl.NumberFormat("es-EU", {
-                        style: "currency",
-                        currency: "EUR",
-                        maximumFractionDigits: 0,
-                      }).format(pagina.euroTotal)}
-                    </span>
-                  )}
-                  {pagina.euroDia > 0 && (
-                    <span>
-                      EUR día:{" "}
-                      {Intl.NumberFormat("es-EU", {
-                        style: "currency",
-                        currency: "EUR",
-                        maximumFractionDigits: 0,
-                      }).format(pagina.euroDia)}
-                    </span>
-                  )}
+                        {/* Euros */}
+                        {pagina.euroTotal > 0 && (
+                          <span>
+                            EUR:{" "}
+                            {Intl.NumberFormat("es-EU", {
+                              style: "currency",
+                              currency: "EUR",
+                              maximumFractionDigits: 0,
+                            }).format(pagina.euroTotal)}
+                          </span>
+                        )}
+                        {pagina.euroDia > 0 && (
+                          <span>
+                            EUR día:{" "}
+                            {Intl.NumberFormat("es-EU", {
+                              style: "currency",
+                              currency: "EUR",
+                              maximumFractionDigits: 0,
+                            }).format(pagina.euroDia)}
+                          </span>
+                        )}
 
-                  {/* GBP */}
-                  {pagina.gbp > 0 && (
-                    <span>
-                      GBP:{" "}
-                      {Intl.NumberFormat("en-GB", {
-                        style: "currency",
-                        currency: "GBP",
-                        maximumFractionDigits: 0,
-                      }).format(pagina.gbp)}
-                    </span>
-                  )}
-                  {pagina.gbpParcial > 0 && (
-                    <span>
-                      GBP Parcial:{" "}
-                      {Intl.NumberFormat("en-GB", {
-                        style: "currency",
-                        currency: "GBP",
-                        maximumFractionDigits: 0,
-                      }).format(pagina.gbpParcial)}
-                    </span>
-                  )}
+                        {/* GBP */}
+                        {pagina.gbp > 0 && (
+                          <span>
+                            GBP:{" "}
+                            {Intl.NumberFormat("en-GB", {
+                              style: "currency",
+                              currency: "GBP",
+                              maximumFractionDigits: 0,
+                            }).format(pagina.gbp)}
+                          </span>
+                        )}
+                        {pagina.gbpParcial > 0 && (
+                          <span>
+                            GBP Parcial:{" "}
+                            {Intl.NumberFormat("en-GB", {
+                              style: "currency",
+                              currency: "GBP",
+                              maximumFractionDigits: 0,
+                            }).format(pagina.gbpParcial)}
+                          </span>
+                        )}
 
-                  {/* Pesos */}
-                  {pagina.pesosTotal > 0 && (
-                    <span>
-                      COP:{" "}
-                      {Intl.NumberFormat("es-CO", {
-                        style: "currency",
-                        currency: "COP",
-                        maximumFractionDigits: 0,
-                      }).format(pagina.pesosTotal)}
-                    </span>
-                  )}
-                  {pagina.pesosDia > 0 && (
-                    <span>
-                      COP día:{" "}
-                      {Intl.NumberFormat("es-CO", {
-                        style: "currency",
-                        currency: "COP",
-                        maximumFractionDigits: 0,
-                      }).format(pagina.pesosDia)}
-                    </span>
-                  )}
-                  {pagina.pesosParcial > 0 && (
-                    <span>
-                      COP Parcial:{" "}
-                      {Intl.NumberFormat("es-CO", {
-                        style: "currency",
-                        currency: "COP",
-                        maximumFractionDigits: 0,
-                      }).format(pagina.pesosParcial)}
-                    </span>
-                  )}
+                        {/* Pesos */}
+                        {pagina.pesosTotal > 0 && (
+                          <span>
+                            COP:{" "}
+                            {Intl.NumberFormat("es-CO", {
+                              style: "currency",
+                              currency: "COP",
+                              maximumFractionDigits: 0,
+                            }).format(pagina.pesosTotal)}
+                          </span>
+                        )}
+                        {pagina.pesosDia > 0 && (
+                          <span>
+                            COP día:{" "}
+                            {Intl.NumberFormat("es-CO", {
+                              style: "currency",
+                              currency: "COP",
+                              maximumFractionDigits: 0,
+                            }).format(pagina.pesosDia)}
+                          </span>
+                        )}
+                        {pagina.pesosParcial > 0 && (
+                          <span>
+                            COP Parcial:{" "}
+                            {Intl.NumberFormat("es-CO", {
+                              style: "currency",
+                              currency: "COP",
+                              maximumFractionDigits: 0,
+                            }).format(pagina.pesosParcial)}
+                          </span>
+                        )}
 
-                  {/* Prestamos */}
-                  {pagina.adelantosTotal > 0 && (
-                    <span>
-                      Préstamos:{" "}
-                      {Intl.NumberFormat("es-CO", {
-                        style: "currency",
-                        currency: "COP",
-                        maximumFractionDigits: 0,
-                      }).format(pagina.adelantosTotal)}
-                    </span>
-                  )}
-                  {pagina.adelantosDia > 0 && (
-                    <span>
-                      Préstamos día:{" "}
-                      {Intl.NumberFormat("es-CO", {
-                        style: "currency",
-                        currency: "COP",
-                        maximumFractionDigits: 0,
-                      }).format(pagina.adelantosDia)}
-                    </span>
-                  )}
-                </div>
+                        {/* Prestamos */}
+                        {pagina.adelantosTotal > 0 && (
+                          <span>
+                            Préstamos:{" "}
+                            {Intl.NumberFormat("es-CO", {
+                              style: "currency",
+                              currency: "COP",
+                              maximumFractionDigits: 0,
+                            }).format(pagina.adelantosTotal)}
+                          </span>
+                        )}
+                        {pagina.adelantosDia > 0 && (
+                          <span>
+                            Préstamos día:{" "}
+                            {Intl.NumberFormat("es-CO", {
+                              style: "currency",
+                              currency: "COP",
+                              maximumFractionDigits: 0,
+                            }).format(pagina.adelantosDia)}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            );
-          })}
+            </motion.div>
+          ))}
         </div>
-      </motion.div>
-    ))}
-  </div>
-)}
-
+      )}
 
       {/* Totales compactos */}
       {qData.totales && (
@@ -640,9 +586,7 @@ export const Home = ({ setError }) => {
                 </p>
                 <p
                   className={`font-bold ${
-                    qData.totales.rojo > 0
-                      ? "text-green-300"
-                      : "text-red-500"
+                    qData.totales.rojo > 0 ? "text-green-300" : "text-red-500"
                   }`}
                 >
                   {Intl.NumberFormat("es-CO", {

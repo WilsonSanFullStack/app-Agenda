@@ -29,8 +29,8 @@ const getDataQ = async (data) => {
       limit: 1,
     });
 
-    const aranceles = arancele[0].get({ plain: true });
-    const paginas = pagina.map((x) => x.get({ plain: true }));
+    const aranceles = arancele[0]?.get({ plain: true });
+    const paginas = pagina?.map((x) => x?.get({ plain: true }));
 
     const qData = await Quincena.findByPk(data.id, {
       attributes: ["name", "id"],
@@ -65,7 +65,7 @@ const getDataQ = async (data) => {
       ],
     });
     // console.log("pages", pages.get({ plain: true }))
-    const quincena = qData.get({ plain: true });
+    const quincena = qData?.get({ plain: true });
     // console.log(quincena);
     // verificamos si se quiere ver la quincena con valores de pago o estadisticas
     const isPago = data.pago;
@@ -142,15 +142,17 @@ const getDataQ = async (data) => {
     };
     for (const moneda of quincena.Monedas) {
       moneda.pago
-        ? (
-          (qFormatted.moneda.pago.usd = parseFloat(moneda?.dolar - aranceles?.dolar) || 0),
-          (qFormatted.moneda.pago.euro =parseFloat(moneda?.euro - aranceles?.euro) || 0),
-          (qFormatted.moneda.pago.gbp = parseFloat(moneda?.gbp - aranceles?.gbp) || 0))
-        : ((qFormatted.moneda.estadisticas.usd = parseFloat(moneda?.dolar) || 0),
+        ? ((qFormatted.moneda.pago.usd =
+            parseFloat(moneda?.dolar - aranceles?.dolar) || 0),
+          (qFormatted.moneda.pago.euro =
+            parseFloat(moneda?.euro - aranceles?.euro) || 0),
+          (qFormatted.moneda.pago.gbp =
+            parseFloat(moneda?.gbp - aranceles?.gbp) || 0))
+        : ((qFormatted.moneda.estadisticas.usd =
+            parseFloat(moneda?.dolar) || 0),
           (qFormatted.moneda.estadisticas.euro = parseFloat(moneda?.euro) || 0),
           (qFormatted.moneda.estadisticas.gbp = parseFloat(moneda?.gbp) || 0));
     }
-    console.log(qFormatted.moneda)
     const dias = quincena.dias;
     // convertir string a fecha
     const parseFecha = (str) => {
@@ -434,6 +436,7 @@ const getDataQ = async (data) => {
         euro: 0,
         gbp: 0,
         pesos: 0,
+        creditosTotal: 0,
       },
     };
 
@@ -485,7 +488,11 @@ const getDataQ = async (data) => {
             gbp: totalGbp + totalGbpParcial || 0, // 🔹 sumamos ambos
             pesos: totalPesos || 0,
             creditosTotal:
-              totalUsd + totalEuro + totalGbp + totalGbpParcial || 0,
+              totalUsd ||
+              0 + totalEuro ||
+              0 + totalGbp ||
+              0 + totalGbpParcial ||
+              0,
           },
         };
       }
@@ -498,11 +505,10 @@ const getDataQ = async (data) => {
     // console.log(qFormatted);
     return qFormatted;
   } catch (error) {
-    console.log(error);
     return {
       success: false,
       message: "Error al obtener las quincena",
-      error: error.message,
+      error: error,
     };
   }
 };

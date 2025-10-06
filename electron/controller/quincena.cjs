@@ -33,7 +33,7 @@ const getAllQuincenaYear = async (year) => {
     const res = await Quincena.findAll({
       where: { year: year },
       order: [["inicio", "ASC"]],
-      attributes: ["id", "name", "inicio", "fin", "year"],
+      attributes: ["id", "name", "inicio", "fin", "year", "cerrado"],
     });
     const quincena = res?.map((x) => x.get({ plain: true }));
     return quincena;

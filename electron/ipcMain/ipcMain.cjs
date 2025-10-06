@@ -20,6 +20,7 @@ const {
   updateAranceles,
   deleteArancel,
 } = require("../controller/aranceles.cjs");
+const { cerrarQ, } = require("../controller/cerradoQ.cjs");
 
 //quincenas
 ipcMain.handle("get-quincena", async (_, date) => {
@@ -85,4 +86,8 @@ ipcMain.handle("update-aranceles", async (_, data) => {
 //deleteAranceles
 ipcMain.handle("delete-aranceles", async (_, id) => {
   return await deleteArancel(id);
+});
+//deleteAranceles
+ipcMain.handle("cerrar-quincena", async (_, id) => {
+  return await cerrarQ(id);
 });

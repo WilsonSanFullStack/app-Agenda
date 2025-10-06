@@ -1,13 +1,13 @@
-import { CerradoQ } from "../db.cjs";
-import { getDataQ } from "./getQData.cjs";
+const { CerradoQ } = require("../db.cjs");
+const { getDataQ } = require("./getQData.cjs");
 
 const cerrarQ = async (data) => {
   try {
     //buscamos la quincena y la formatiamos
-    const q = await getDataQ(data.id)
+    const q = await getDataQ(data.id);
     //sacamos los valores del datavalues
-    const quincena = q.get({ plain: true })
-    
+    const quincena = q.get({ plain: true });
+
     // buscar si ya existe un día con el mismo name y page
     const existingQ = await CerradoQ.findOne({
       where: { name: quincena.name },
@@ -29,3 +29,5 @@ const cerrarQ = async (data) => {
     };
   }
 };
+
+module.exports = { cerrarQ };

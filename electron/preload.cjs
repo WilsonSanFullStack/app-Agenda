@@ -29,6 +29,9 @@ contextBridge.exposeInMainWorld("Electron", {
   updateAranceles: (data) => ipcRenderer.invoke("update-aranceles", data),
   deleteAranceles: (data) => ipcRenderer.invoke("delete-aranceles", data),
 
+  //evento para hacer el cerrado de la quincena
+  cerrarQ: (data) => ipcRenderer.invoke("cerrar-quincena", data),
+
   //eventos para actualizar quincenas en react
   onAbrirRegistroQuincena: (callback) =>
     ipcRenderer.on("abrir-registro-quincena", callback),

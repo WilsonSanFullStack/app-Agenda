@@ -49976,7 +49976,7 @@ function requireDb() {
     entry[1]
   ]);
   sequelize2.models = Object.fromEntries(capsEntries);
-  const { Quincena, Day, Page, Moneda, Aranceles } = sequelize2.models;
+  const { Quincena, Day, Page, Moneda, Aranceles, CerradoQ } = sequelize2.models;
   Quincena.hasMany(Day, { as: "dias", foreignKey: "quincena" });
   Day.belongsTo(Quincena, { foreignKey: "quincena" });
   Quincena.hasMany(Moneda, { as: "Monedas", foreignKey: "quincenaId" });
@@ -49987,7 +49987,8 @@ function requireDb() {
     Day,
     Page,
     Moneda,
-    Aranceles
+    Aranceles,
+    CerradoQ
   };
   return db;
 }
@@ -50030,7 +50031,7 @@ function requireQuincena() {
       const res = await Quincena.findAll({
         where: { year },
         order: [["inicio", "ASC"]],
-        attributes: ["id", "name", "inicio", "fin", "year"]
+        attributes: ["id", "name", "inicio", "fin", "year", "cerrado"]
       });
       const quincena2 = res == null ? void 0 : res.map((x) => x.get({ plain: true }));
       return quincena2;
@@ -50348,7 +50349,7 @@ function requireGetQData() {
   } = requireDb();
   const { Op } = requireLib();
   const getDataQ = async (data) => {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n;
     console.log("data id quincena", data);
     try {
       let getAnteriorPorPagina = function(qf2, nombreDiaActual, pagina2) {
@@ -50404,8 +50405,8 @@ function requireGetQData() {
         order: [["createdAt", "DESC"]],
         limit: 1
       });
-      const aranceles2 = arancele[0].get({ plain: true });
-      const paginas = pagina.map((x) => x.get({ plain: true }));
+      const aranceles2 = (_a = arancele[0]) == null ? void 0 : _a.get({ plain: true });
+      const paginas = pagina == null ? void 0 : pagina.map((x) => x == null ? void 0 : x.get({ plain: true }));
       const qData = await Quincena.findByPk(data.id, {
         attributes: ["name", "id"],
         include: [
@@ -50438,10 +50439,10 @@ function requireGetQData() {
           }
         ]
       });
-      const quincena2 = qData.get({ plain: true });
+      const quincena2 = qData == null ? void 0 : qData.get({ plain: true });
       const isPago = data.pago;
-      const estadisticas = ((_a = quincena2 == null ? void 0 : quincena2.Monedas) == null ? void 0 : _a.find((m) => (m == null ? void 0 : m.pago) === false)) || {};
-      const pago = ((_b = quincena2 == null ? void 0 : quincena2.Monedas) == null ? void 0 : _b.find((m) => (m == null ? void 0 : m.pago) === true)) || {};
+      const estadisticas = ((_b = quincena2 == null ? void 0 : quincena2.Monedas) == null ? void 0 : _b.find((m) => (m == null ? void 0 : m.pago) === false)) || {};
+      const pago = ((_c = quincena2 == null ? void 0 : quincena2.Monedas) == null ? void 0 : _c.find((m) => (m == null ? void 0 : m.pago) === true)) || {};
       let usd = 0;
       let euro = 0;
       let gbp = 0;
@@ -50508,7 +50509,6 @@ function requireGetQData() {
       for (const moneda2 of quincena2.Monedas) {
         moneda2.pago ? (qFormatted.moneda.pago.usd = parseFloat((moneda2 == null ? void 0 : moneda2.dolar) - (aranceles2 == null ? void 0 : aranceles2.dolar)) || 0, qFormatted.moneda.pago.euro = parseFloat((moneda2 == null ? void 0 : moneda2.euro) - (aranceles2 == null ? void 0 : aranceles2.euro)) || 0, qFormatted.moneda.pago.gbp = parseFloat((moneda2 == null ? void 0 : moneda2.gbp) - (aranceles2 == null ? void 0 : aranceles2.gbp)) || 0) : (qFormatted.moneda.estadisticas.usd = parseFloat(moneda2 == null ? void 0 : moneda2.dolar) || 0, qFormatted.moneda.estadisticas.euro = parseFloat(moneda2 == null ? void 0 : moneda2.euro) || 0, qFormatted.moneda.estadisticas.gbp = parseFloat(moneda2 == null ? void 0 : moneda2.gbp) || 0);
       }
-      console.log(qFormatted.moneda);
       const dias = quincena2.dias;
       const parseFecha = (str) => {
         const [dia, mesStr, anioStr] = str == null ? void 0 : str.split("-");
@@ -50552,22 +50552,22 @@ function requireGetQData() {
         if (pag == null ? void 0 : pag.coins) {
           df[dia == null ? void 0 : dia.page].coinsTotal = (dia == null ? void 0 : dia.coins) || 0;
           if (anterior && anterior[dia == null ? void 0 : dia.page] && anterior[dia == null ? void 0 : dia.page].coinsTotal !== void 0) {
-            df[dia == null ? void 0 : dia.page].coinsDia = (dia == null ? void 0 : dia.coins) - ((_c = anterior[dia == null ? void 0 : dia.page]) == null ? void 0 : _c.coinsTotal) || 0;
+            df[dia == null ? void 0 : dia.page].coinsDia = (dia == null ? void 0 : dia.coins) - ((_d = anterior[dia == null ? void 0 : dia.page]) == null ? void 0 : _d.coinsTotal) || 0;
           }
         }
         if ((pag == null ? void 0 : pag.moneda) === "USD") {
           df[dia == null ? void 0 : dia.page].usdTotal = (dia == null ? void 0 : dia.usd) || 0;
           df[dia == null ? void 0 : dia.page].pesosTotal = (dia == null ? void 0 : dia.usd) * porcentaje * usd || 0;
           if (anterior && anterior[dia == null ? void 0 : dia.page] && anterior[dia == null ? void 0 : dia.page].usdTotal !== void 0) {
-            df[dia == null ? void 0 : dia.page].usdDia = (dia == null ? void 0 : dia.usd) - ((_d = anterior[dia == null ? void 0 : dia.page]) == null ? void 0 : _d.usdTotal) || 0;
-            df[dia == null ? void 0 : dia.page].pesosDia = ((dia == null ? void 0 : dia.usd) - ((_e = anterior[dia == null ? void 0 : dia.page]) == null ? void 0 : _e.usdTotal)) * porcentaje * usd || 0;
+            df[dia == null ? void 0 : dia.page].usdDia = (dia == null ? void 0 : dia.usd) - ((_e = anterior[dia == null ? void 0 : dia.page]) == null ? void 0 : _e.usdTotal) || 0;
+            df[dia == null ? void 0 : dia.page].pesosDia = ((dia == null ? void 0 : dia.usd) - ((_f = anterior[dia == null ? void 0 : dia.page]) == null ? void 0 : _f.usdTotal)) * porcentaje * usd || 0;
           }
         } else if ((pag == null ? void 0 : pag.moneda) === "EURO") {
           df[dia == null ? void 0 : dia.page].euroTotal = (dia == null ? void 0 : dia.euro) || 0;
           df[dia == null ? void 0 : dia.page].pesosTotal = (dia == null ? void 0 : dia.euro) * porcentaje * euro || 0;
-          if (anterior && anterior[dia == null ? void 0 : dia.page] && ((_f = anterior[dia == null ? void 0 : dia.page]) == null ? void 0 : _f.euroTotal) !== void 0) {
-            df[dia == null ? void 0 : dia.page].euroDia = (dia == null ? void 0 : dia.euro) - ((_g = anterior[dia == null ? void 0 : dia.page]) == null ? void 0 : _g.euroTotal) || 0;
-            df[dia == null ? void 0 : dia.page].pesosDia = ((dia == null ? void 0 : dia.euro) - ((_h = anterior[dia == null ? void 0 : dia.page]) == null ? void 0 : _h.euroTotal)) * porcentaje * euro || 0;
+          if (anterior && anterior[dia == null ? void 0 : dia.page] && ((_g = anterior[dia == null ? void 0 : dia.page]) == null ? void 0 : _g.euroTotal) !== void 0) {
+            df[dia == null ? void 0 : dia.page].euroDia = (dia == null ? void 0 : dia.euro) - ((_h = anterior[dia == null ? void 0 : dia.page]) == null ? void 0 : _h.euroTotal) || 0;
+            df[dia == null ? void 0 : dia.page].pesosDia = ((dia == null ? void 0 : dia.euro) - ((_i = anterior[dia == null ? void 0 : dia.page]) == null ? void 0 : _i.euroTotal)) * porcentaje * euro || 0;
           }
         } else if ((pag == null ? void 0 : pag.moneda) === "GBP") {
           if ((dia == null ? void 0 : dia.gbpParcial) > 0) {
@@ -50578,8 +50578,8 @@ function requireGetQData() {
           df[dia == null ? void 0 : dia.page].pesos = (dia == null ? void 0 : dia.gbp) * porcentaje * gbp || 0;
         } else if ((pag == null ? void 0 : pag.moneda) === "COP") {
           df[dia == null ? void 0 : dia.page].adelantosDia = (dia == null ? void 0 : dia.adelantos) || 0;
-          if (anterior && anterior[dia == null ? void 0 : dia.page] && ((_i = anterior[dia == null ? void 0 : dia.page]) == null ? void 0 : _i.adelantosTotal) !== void 0) {
-            df[dia == null ? void 0 : dia.page].adelantosTotal = (dia == null ? void 0 : dia.adelantos) + ((_j = anterior[dia == null ? void 0 : dia.page]) == null ? void 0 : _j.adelantosTotal) || 0;
+          if (anterior && anterior[dia == null ? void 0 : dia.page] && ((_j = anterior[dia == null ? void 0 : dia.page]) == null ? void 0 : _j.adelantosTotal) !== void 0) {
+            df[dia == null ? void 0 : dia.page].adelantosTotal = (dia == null ? void 0 : dia.adelantos) + ((_k = anterior[dia == null ? void 0 : dia.page]) == null ? void 0 : _k.adelantosTotal) || 0;
           } else {
             df[dia == null ? void 0 : dia.page].adelantosTotal = (dia == null ? void 0 : dia.adelantos) || 0;
           }
@@ -50640,7 +50640,8 @@ function requireGetQData() {
           usd: 0,
           euro: 0,
           gbp: 0,
-          pesos: 0
+          pesos: 0,
+          creditosTotal: 0
         }
       };
       for (const dia of qfLimpio) {
@@ -50661,7 +50662,7 @@ function requireGetQData() {
           totalPesos += pesos;
         }
         const sumaCreditos = totalUsd + totalEuro + totalGbp + totalGbpParcial || 0;
-        if (sumaCreditos > ((_k = mejorDia == null ? void 0 : mejorDia.creditos) == null ? void 0 : _k.usd) + ((_l = mejorDia == null ? void 0 : mejorDia.creditos) == null ? void 0 : _l.euro) + ((_m = mejorDia == null ? void 0 : mejorDia.creditos) == null ? void 0 : _m.gbp)) {
+        if (sumaCreditos > ((_l = mejorDia == null ? void 0 : mejorDia.creditos) == null ? void 0 : _l.usd) + ((_m = mejorDia == null ? void 0 : mejorDia.creditos) == null ? void 0 : _m.euro) + ((_n = mejorDia == null ? void 0 : mejorDia.creditos) == null ? void 0 : _n.gbp)) {
           mejorDia = {
             name: dia == null ? void 0 : dia.name,
             creditos: {
@@ -50671,7 +50672,7 @@ function requireGetQData() {
               gbp: totalGbp + totalGbpParcial || 0,
               // 🔹 sumamos ambos
               pesos: totalPesos || 0,
-              creditosTotal: totalUsd + totalEuro + totalGbp + totalGbpParcial || 0
+              creditosTotal: totalUsd || 0 + totalEuro || 0 + totalGbp || 0 + totalGbpParcial || 0
             }
           };
         }
@@ -50679,11 +50680,10 @@ function requireGetQData() {
       qFormatted.promedios.mejorDia = mejorDia;
       return qFormatted;
     } catch (error2) {
-      console.log(error2);
       return {
         success: false,
         message: "Error al obtener las quincena",
-        error: error2.message
+        error: error2
       };
     }
   };
@@ -50788,6 +50788,39 @@ function requireAranceles() {
   };
   return aranceles;
 }
+var cerradoQ;
+var hasRequiredCerradoQ;
+function requireCerradoQ() {
+  if (hasRequiredCerradoQ) return cerradoQ;
+  hasRequiredCerradoQ = 1;
+  const { CerradoQ } = requireDb();
+  const { getDataQ } = requireGetQData();
+  const cerrarQ = async (data) => {
+    try {
+      const q = await getDataQ(data.id);
+      const quincena2 = q.get({ plain: true });
+      const existingQ = await CerradoQ.findOne({
+        where: { name: quincena2.name }
+      });
+      if (existingQ) {
+        await existingQ.destroy();
+      }
+      const res = await CerradoQ.create({
+        name: quincena2.name,
+        data: quincena2
+      });
+      return res;
+    } catch (error2) {
+      return {
+        sucess: false,
+        message: "Error al cerrar la Quincena",
+        error: error2
+      };
+    }
+  };
+  cerradoQ = { cerrarQ };
+  return cerradoQ;
+}
 var hasRequiredIpcMain;
 function requireIpcMain() {
   if (hasRequiredIpcMain) return ipcMain;
@@ -50814,6 +50847,7 @@ function requireIpcMain() {
     updateAranceles,
     deleteArancel
   } = requireAranceles();
+  const { cerrarQ } = requireCerradoQ();
   ipcMain$1.handle("get-quincena", async (_, date) => {
     return await getAllQuincenas(date);
   });
@@ -50864,6 +50898,9 @@ function requireIpcMain() {
   });
   ipcMain$1.handle("delete-aranceles", async (_, id) => {
     return await deleteArancel(id);
+  });
+  ipcMain$1.handle("cerrar-quincena", async (_, id) => {
+    return await cerrarQ(id);
   });
   return ipcMain;
 }
