@@ -352,26 +352,45 @@ const getDataQ = async (data) => {
 
       for (const [pagina, valores] of Object?.entries(ultimoDia)) {
         if (pagina === "name") continue;
-        if (valores?.coinsDia || valores?.coinsTotal)
-          qFormatted.totales.coins +=
-            valores?.coinsDia || valores?.coinsTotal || 0;
-        if (valores?.usdDia || valores?.usdTotal)
-          qFormatted.totales.usd += valores?.usdDia || valores?.usdTotal || 0;
-        if (valores?.euroDia || valores?.euroTotal)
-          qFormatted.totales.euro +=
-            valores?.euroDia || valores?.euroTotal || 0;
-        if (valores?.gbp) qFormatted.totales.gbp += valores?.gbp || 0;
-        if (valores?.gbpParcial)
-          qFormatted.totales.gbp += valores?.gbpParcial || 0;
-        if (valores?.pesosDia || valores?.pesosTotal)
-          qFormatted.totales.cop +=
-            valores.pesosDia || valores?.pesosTotal || 0;
-        if (valores?.pesos) qFormatted.totales.cop += valores?.pesos || 0;
-        if (valores?.pesosParcial)
-          qFormatted.totales.cop += valores?.pesosParcial || 0;
-        if (valores?.adelantosDia || valores?.adelantosTotal)
-          qFormatted.totales.adelantos +=
-            valores?.adelantosDia || valores?.adelantosTotal || 0;
+        if (valores?.mostrar) {
+          if (valores?.coinsDia || valores?.coinsTotal)
+            qFormatted.totales.coins +=
+              valores?.coinsDia || valores?.coinsTotal || 0;
+        }
+        if (valores?.mostrar) {
+          console.log(valores?.mostrar === true);
+          if (valores?.usdTotal)
+            qFormatted.totales.usd = valores?.usdTotal || 0;
+        }
+        if (valores?.mostrar) {
+          if (valores?.euroDia || valores?.euroTotal)
+            qFormatted.totales.euro +=
+              valores?.euroDia || valores?.euroTotal || 0;
+        }
+        if (valores?.mostrar) {
+          if (valores?.gbp) qFormatted.totales.gbp += valores?.gbp || 0;
+        }
+        if (valores?.mostrar) {
+          if (valores?.gbpParcial)
+            qFormatted.totales.gbp += valores?.gbpParcial || 0;
+        }
+        if (valores?.mostrar) {
+          if (valores?.pesosDia || valores?.pesosTotal)
+            qFormatted.totales.cop +=
+              valores.pesosDia || valores?.pesosTotal || 0;
+        }
+        if (valores?.mostrar) {
+          if (valores?.pesos) qFormatted.totales.cop += valores?.pesos || 0;
+        }
+        if (valores?.mostrar) {
+          if (valores?.pesosParcial)
+            qFormatted.totales.cop += valores?.pesosParcial || 0;
+        }
+        if (valores?.mostrar) {
+          if (valores?.adelantosDia || valores?.adelantosTotal)
+            qFormatted.totales.adelantos +=
+              valores?.adelantosDia || valores?.adelantosTotal || 0;
+        }
 
         // 🔹 Detectar mejor página en créditos (prioridad: usd, euro, gbp, gbpParcial, coinsTotal)
         const creditos =

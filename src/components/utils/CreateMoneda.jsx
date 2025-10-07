@@ -70,7 +70,11 @@ export const CreateMoneda = ({ setError }) => {
       setError("Error al registrar las monedas" + error);
     }
   };
-
+  //para saber si la quincena esta cerrada
+  const quincenaSeleccionada = q?.find(
+    (select) => select.id === monedas.quincena
+  );
+  const quincenaCerrada = quincenaSeleccionada?.cerrado;
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center py-12">
       <motion.form
@@ -106,67 +110,6 @@ export const CreateMoneda = ({ setError }) => {
             handlePrev={handlePrev}
             handleNext={handleNext}
           />
-          {/* Año */}
-          {/* <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            <label className="text-slate-300 font-medium">
-              Seleccione el Año
-            </label>
-            <div className="flex items-center gap-2">
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                type="button"
-                onClick={handlePrev}
-                className="px-3 py-1 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition"
-              >
-                ◀
-              </motion.button>
-              <select
-                value={yearS}
-                className="px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-600 focus:ring-emerald-400 focus:outline-none"
-                onChange={(e) => setYearS(Number(e.target.value))}
-              >
-                {yearFives.map((year) => (
-                  <option key={year} value={year}>
-                    {year}
-                  </option>
-                ))}
-              </select>
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                type="button"
-                onClick={handleNext}
-                className="px-3 py-1 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition"
-              >
-                ▶
-              </motion.button>
-            </div>
-          </div> */}
-
-          {/* Quincena */}
-          {/* <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            <label className="text-slate-300 font-medium">
-              Seleccione la Quincena
-            </label>
-            <select
-              className="px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-600 focus:ring-emerald-400 focus:outline-none"
-              value={quincena.name}
-              onChange={(e) => {
-                const qSelected = q.find(
-                  (item) => item.name === e.target.value
-                );
-                if (qSelected) handleQuincena(qSelected);
-              }}
-            >
-              <option value="" hidden>
-                Seleccione
-              </option>
-              {q.map((quincena) => (
-                <option key={quincena.id} value={quincena.name}>
-                  {quincena.name}
-                </option>
-              ))}
-            </select>
-          </div> */}
         </motion.section>
 
         {/* Inputs */}
@@ -246,7 +189,13 @@ export const CreateMoneda = ({ setError }) => {
             />
           </motion.div>
         </motion.section>
-
+        {/* mensaje si la quincena esta cerrada */}
+        {quincenaCerrada && (
+          <div className="p-3 bg-red-500/20 border border-red-600 text-red-300 rounded-lg text-sm text-center mt-4">
+            ⚠️ Lo sentimos, esta quincena está <b>cerrada</b> y no se pueden
+            agregar créditos.
+          </div>
+        )}
         {/* Botón */}
         <motion.div
           className="mt-10 text-center"
@@ -254,7 +203,14 @@ export const CreateMoneda = ({ setError }) => {
           animate={{ opacity: 1 }}
           transition={{ delay: 1.4 }}
         >
-          {monedas.dolar && monedas.euro && monedas.gbp && monedas.quincena ? (
+          {quincenaCerrada ? (
+            <p className="text-red-400 text-sm mt-2 font-medium">
+              No puedes registrar días en una quincena cerrada.
+            </p>
+          ) : monedas.dolar &&
+            monedas.euro &&
+            monedas.gbp &&
+            monedas.quincena ? (
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}

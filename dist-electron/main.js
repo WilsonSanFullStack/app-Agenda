@@ -50596,22 +50596,41 @@ function requireGetQData() {
         ultimoDia = qfLimpio[x];
         for (const [pagina2, valores] of Object == null ? void 0 : Object.entries(ultimoDia)) {
           if (pagina2 === "name") continue;
-          if ((valores == null ? void 0 : valores.coinsDia) || (valores == null ? void 0 : valores.coinsTotal))
-            qFormatted.totales.coins += (valores == null ? void 0 : valores.coinsDia) || (valores == null ? void 0 : valores.coinsTotal) || 0;
-          if ((valores == null ? void 0 : valores.usdDia) || (valores == null ? void 0 : valores.usdTotal))
-            qFormatted.totales.usd += (valores == null ? void 0 : valores.usdDia) || (valores == null ? void 0 : valores.usdTotal) || 0;
-          if ((valores == null ? void 0 : valores.euroDia) || (valores == null ? void 0 : valores.euroTotal))
-            qFormatted.totales.euro += (valores == null ? void 0 : valores.euroDia) || (valores == null ? void 0 : valores.euroTotal) || 0;
-          if (valores == null ? void 0 : valores.gbp) qFormatted.totales.gbp += (valores == null ? void 0 : valores.gbp) || 0;
-          if (valores == null ? void 0 : valores.gbpParcial)
-            qFormatted.totales.gbp += (valores == null ? void 0 : valores.gbpParcial) || 0;
-          if ((valores == null ? void 0 : valores.pesosDia) || (valores == null ? void 0 : valores.pesosTotal))
-            qFormatted.totales.cop += valores.pesosDia || (valores == null ? void 0 : valores.pesosTotal) || 0;
-          if (valores == null ? void 0 : valores.pesos) qFormatted.totales.cop += (valores == null ? void 0 : valores.pesos) || 0;
-          if (valores == null ? void 0 : valores.pesosParcial)
-            qFormatted.totales.cop += (valores == null ? void 0 : valores.pesosParcial) || 0;
-          if ((valores == null ? void 0 : valores.adelantosDia) || (valores == null ? void 0 : valores.adelantosTotal))
-            qFormatted.totales.adelantos += (valores == null ? void 0 : valores.adelantosDia) || (valores == null ? void 0 : valores.adelantosTotal) || 0;
+          if (valores == null ? void 0 : valores.mostrar) {
+            if ((valores == null ? void 0 : valores.coinsDia) || (valores == null ? void 0 : valores.coinsTotal))
+              qFormatted.totales.coins += (valores == null ? void 0 : valores.coinsDia) || (valores == null ? void 0 : valores.coinsTotal) || 0;
+          }
+          if (valores == null ? void 0 : valores.mostrar) {
+            console.log((valores == null ? void 0 : valores.mostrar) === true);
+            if (valores == null ? void 0 : valores.usdTotal)
+              qFormatted.totales.usd = (valores == null ? void 0 : valores.usdTotal) || 0;
+          }
+          if (valores == null ? void 0 : valores.mostrar) {
+            if ((valores == null ? void 0 : valores.euroDia) || (valores == null ? void 0 : valores.euroTotal))
+              qFormatted.totales.euro += (valores == null ? void 0 : valores.euroDia) || (valores == null ? void 0 : valores.euroTotal) || 0;
+          }
+          if (valores == null ? void 0 : valores.mostrar) {
+            if (valores == null ? void 0 : valores.gbp) qFormatted.totales.gbp += (valores == null ? void 0 : valores.gbp) || 0;
+          }
+          if (valores == null ? void 0 : valores.mostrar) {
+            if (valores == null ? void 0 : valores.gbpParcial)
+              qFormatted.totales.gbp += (valores == null ? void 0 : valores.gbpParcial) || 0;
+          }
+          if (valores == null ? void 0 : valores.mostrar) {
+            if ((valores == null ? void 0 : valores.pesosDia) || (valores == null ? void 0 : valores.pesosTotal))
+              qFormatted.totales.cop += valores.pesosDia || (valores == null ? void 0 : valores.pesosTotal) || 0;
+          }
+          if (valores == null ? void 0 : valores.mostrar) {
+            if (valores == null ? void 0 : valores.pesos) qFormatted.totales.cop += (valores == null ? void 0 : valores.pesos) || 0;
+          }
+          if (valores == null ? void 0 : valores.mostrar) {
+            if (valores == null ? void 0 : valores.pesosParcial)
+              qFormatted.totales.cop += (valores == null ? void 0 : valores.pesosParcial) || 0;
+          }
+          if (valores == null ? void 0 : valores.mostrar) {
+            if ((valores == null ? void 0 : valores.adelantosDia) || (valores == null ? void 0 : valores.adelantosTotal))
+              qFormatted.totales.adelantos += (valores == null ? void 0 : valores.adelantosDia) || (valores == null ? void 0 : valores.adelantosTotal) || 0;
+          }
           const creditos = (valores == null ? void 0 : valores.usdTotal) || (valores == null ? void 0 : valores.euroTotal) || (valores == null ? void 0 : valores.gbp) || (valores == null ? void 0 : valores.gbpParcial) || (valores == null ? void 0 : valores.coinsTotal) || 0;
           if (creditos > (mejorCreditos == null ? void 0 : mejorCreditos.creditos)) {
             mejorCreditos = { name: pagina2, creditos };
@@ -50793,10 +50812,23 @@ var hasRequiredCerradoQ;
 function requireCerradoQ() {
   if (hasRequiredCerradoQ) return cerradoQ;
   hasRequiredCerradoQ = 1;
-  const { CerradoQ } = requireDb();
+  const { CerradoQ, Page } = requireDb();
   const { getDataQ } = requireGetQData();
   const cerrarQ = async (data) => {
     try {
+      const pagina = await Page.findAll({
+        attributes: [
+          "id",
+          "name",
+          "coins",
+          "valorCoins",
+          "moneda",
+          "mensual",
+          "tope",
+          "descuento"
+        ]
+      });
+      const paginas = pagina == null ? void 0 : pagina.map((x) => x == null ? void 0 : x.get({ plain: true }));
       const q = await getDataQ(data.id);
       const quincena2 = q.get({ plain: true });
       const existingQ = await CerradoQ.findOne({

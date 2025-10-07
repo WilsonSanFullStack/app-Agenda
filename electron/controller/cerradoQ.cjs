@@ -1,13 +1,29 @@
-const { CerradoQ } = require("../db.cjs");
+const { CerradoQ, Page } = require("../db.cjs");
 const { getDataQ } = require("./getQData.cjs");
 
 const cerrarQ = async (data) => {
   try {
+    //buscamos las paginas
+    const pagina = await Page.findAll({
+      attributes: [
+        "id",
+        "name",
+        "coins",
+        "valorCoins",
+        "moneda",
+        "mensual",
+        "tope",
+        "descuento",
+      ],
+    });
+    //la consulta la convetimos en un objeto plano
+    const paginas = pagina?.map((x) => x?.get({ plain: true }));
     //buscamos la quincena y la formatiamos
     const q = await getDataQ(data.id);
     //sacamos los valores del datavalues
     const quincena = q.get({ plain: true });
 
+    
     // buscar si ya existe un día con el mismo name y page
     const existingQ = await CerradoQ.findOne({
       where: { name: quincena.name },
