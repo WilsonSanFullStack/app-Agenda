@@ -31,8 +31,7 @@ let capsEntries = entries.map((entry) => [
 ]);
 sequelize.models = Object.fromEntries(capsEntries);
 
-const { Quincena, Day, Page, Moneda, Aranceles, CerradoQ} =
-  sequelize.models;
+const { Quincena, Day, Page, Moneda, Aranceles, CerradoQ } = sequelize.models;
 
 // //! relaciones entre modelos
 Quincena.hasMany(Day, { as: "dias", foreignKey: "quincena" });
@@ -41,6 +40,16 @@ Day.belongsTo(Quincena, { foreignKey: "quincena" });
 Quincena.hasMany(Moneda, { as: "Monedas", foreignKey: "quincenaId" });
 Moneda.belongsTo(Quincena, { foreignKey: "quincenaId" });
 
+Quincena.hasOne(CerradoQ, {
+  as: "cierre",
+  foreignKey: "quincenaId",
+  onDelete: "CASCADE",
+  onUpdate: "CASCADE",
+});
+
+CerradoQ.belongsTo(Quincena, {
+  foreignKey: "quincenaId",
+});
 
 module.exports = {
   sequelize,

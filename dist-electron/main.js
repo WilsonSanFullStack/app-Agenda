@@ -49981,6 +49981,15 @@ function requireDb() {
   Day.belongsTo(Quincena, { foreignKey: "quincena" });
   Quincena.hasMany(Moneda, { as: "Monedas", foreignKey: "quincenaId" });
   Moneda.belongsTo(Quincena, { foreignKey: "quincenaId" });
+  Quincena.hasOne(CerradoQ, {
+    as: "cierre",
+    foreignKey: "quincenaId",
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE"
+  });
+  CerradoQ.belongsTo(Quincena, {
+    foreignKey: "quincenaId"
+  });
   db = {
     sequelize: sequelize2,
     Quincena,
@@ -50408,7 +50417,7 @@ function requireGetQData() {
       const aranceles2 = (_a = arancele[0]) == null ? void 0 : _a.get({ plain: true });
       const paginas = pagina == null ? void 0 : pagina.map((x) => x == null ? void 0 : x.get({ plain: true }));
       const qData = await Quincena.findByPk(data.id, {
-        attributes: ["name", "id"],
+        attributes: ["name", "id", "cerrado"],
         include: [
           {
             model: Day,
@@ -50459,6 +50468,7 @@ function requireGetQData() {
       const qFormatted = {
         id: quincena2 == null ? void 0 : quincena2.id,
         name: quincena2 == null ? void 0 : quincena2.name,
+        cerrado: quincena2 == null ? void 0 : quincena2.cerrado,
         moneda: {
           estadisticas: { usd: 0, euro: 0, gbp: 0 },
           pago: { usd: 0, euro: 0, gbp: 0 },
@@ -50596,40 +50606,39 @@ function requireGetQData() {
         ultimoDia = qfLimpio[x];
         for (const [pagina2, valores] of Object == null ? void 0 : Object.entries(ultimoDia)) {
           if (pagina2 === "name") continue;
-          if (valores == null ? void 0 : valores.mostrar) {
-            if ((valores == null ? void 0 : valores.coinsDia) || (valores == null ? void 0 : valores.coinsTotal))
-              qFormatted.totales.coins += (valores == null ? void 0 : valores.coinsDia) || (valores == null ? void 0 : valores.coinsTotal) || 0;
+          if ((valores == null ? void 0 : valores.mostrar) || (valores == null ? void 0 : valores.mostrar) === void 0) {
+            if ((valores == null ? void 0 : valores.coinsDia) > 0 || (valores == null ? void 0 : valores.coinsTotal) > qFormatted.totales.coins)
+              qFormatted.totales.coins += (valores == null ? void 0 : valores.coinsDia) || (valores == null ? void 0 : valores.coinsTotal);
           }
-          if (valores == null ? void 0 : valores.mostrar) {
-            console.log((valores == null ? void 0 : valores.mostrar) === true);
-            if (valores == null ? void 0 : valores.usdTotal)
-              qFormatted.totales.usd = (valores == null ? void 0 : valores.usdTotal) || 0;
+          if ((valores == null ? void 0 : valores.mostrar) || (valores == null ? void 0 : valores.mostrar) === void 0) {
+            if ((valores == null ? void 0 : valores.usdTotal) > 0)
+              qFormatted.totales.usd = valores == null ? void 0 : valores.usdTotal;
           }
-          if (valores == null ? void 0 : valores.mostrar) {
-            if ((valores == null ? void 0 : valores.euroDia) || (valores == null ? void 0 : valores.euroTotal))
-              qFormatted.totales.euro += (valores == null ? void 0 : valores.euroDia) || (valores == null ? void 0 : valores.euroTotal) || 0;
+          if ((valores == null ? void 0 : valores.mostrar) || (valores == null ? void 0 : valores.mostrar) === void 0) {
+            if ((valores == null ? void 0 : valores.euroDia) > 0 || (valores == null ? void 0 : valores.euroTotal) > 0)
+              qFormatted.totales.euro += (valores == null ? void 0 : valores.euroDia) || (valores == null ? void 0 : valores.euroTotal);
           }
-          if (valores == null ? void 0 : valores.mostrar) {
-            if (valores == null ? void 0 : valores.gbp) qFormatted.totales.gbp += (valores == null ? void 0 : valores.gbp) || 0;
+          if ((valores == null ? void 0 : valores.mostrar) || (valores == null ? void 0 : valores.mostrar) === void 0) {
+            if (valores == null ? void 0 : valores.gbp) qFormatted.totales.gbp += valores == null ? void 0 : valores.gbp;
           }
-          if (valores == null ? void 0 : valores.mostrar) {
+          if ((valores == null ? void 0 : valores.mostrar) || (valores == null ? void 0 : valores.mostrar) === void 0) {
             if (valores == null ? void 0 : valores.gbpParcial)
-              qFormatted.totales.gbp += (valores == null ? void 0 : valores.gbpParcial) || 0;
+              qFormatted.totales.gbp += valores == null ? void 0 : valores.gbpParcial;
           }
-          if (valores == null ? void 0 : valores.mostrar) {
+          if ((valores == null ? void 0 : valores.mostrar) || (valores == null ? void 0 : valores.mostrar) === void 0) {
             if ((valores == null ? void 0 : valores.pesosDia) || (valores == null ? void 0 : valores.pesosTotal))
-              qFormatted.totales.cop += valores.pesosDia || (valores == null ? void 0 : valores.pesosTotal) || 0;
+              qFormatted.totales.cop += valores.pesosDia || (valores == null ? void 0 : valores.pesosTotal);
           }
-          if (valores == null ? void 0 : valores.mostrar) {
-            if (valores == null ? void 0 : valores.pesos) qFormatted.totales.cop += (valores == null ? void 0 : valores.pesos) || 0;
+          if ((valores == null ? void 0 : valores.mostrar) || (valores == null ? void 0 : valores.mostrar) === void 0) {
+            if (valores == null ? void 0 : valores.pesos) qFormatted.totales.cop += valores == null ? void 0 : valores.pesos;
           }
-          if (valores == null ? void 0 : valores.mostrar) {
+          if ((valores == null ? void 0 : valores.mostrar) || (valores == null ? void 0 : valores.mostrar) === void 0) {
             if (valores == null ? void 0 : valores.pesosParcial)
-              qFormatted.totales.cop += (valores == null ? void 0 : valores.pesosParcial) || 0;
+              qFormatted.totales.cop += valores == null ? void 0 : valores.pesosParcial;
           }
-          if (valores == null ? void 0 : valores.mostrar) {
+          if ((valores == null ? void 0 : valores.mostrar) || (valores == null ? void 0 : valores.mostrar) === void 0) {
             if ((valores == null ? void 0 : valores.adelantosDia) || (valores == null ? void 0 : valores.adelantosTotal))
-              qFormatted.totales.adelantos += (valores == null ? void 0 : valores.adelantosDia) || (valores == null ? void 0 : valores.adelantosTotal) || 0;
+              qFormatted.totales.adelantos += (valores == null ? void 0 : valores.adelantosDia) || (valores == null ? void 0 : valores.adelantosTotal);
           }
           const creditos = (valores == null ? void 0 : valores.usdTotal) || (valores == null ? void 0 : valores.euroTotal) || (valores == null ? void 0 : valores.gbp) || (valores == null ? void 0 : valores.gbpParcial) || (valores == null ? void 0 : valores.coinsTotal) || 0;
           if (creditos > (mejorCreditos == null ? void 0 : mejorCreditos.creditos)) {
@@ -50812,27 +50821,63 @@ var hasRequiredCerradoQ;
 function requireCerradoQ() {
   if (hasRequiredCerradoQ) return cerradoQ;
   hasRequiredCerradoQ = 1;
-  const { CerradoQ, Page } = requireDb();
+  const { CerradoQ, Page, Quincena } = requireDb();
   const { getDataQ } = requireGetQData();
+  function buscarQuincenaSiguiente(qName) {
+    const [mes, num, anio] = qName.split("-");
+    const meses = [
+      "enero",
+      "febrero",
+      "marzo",
+      "abril",
+      "mayo",
+      "junio",
+      "julio",
+      "agosto",
+      "septiembre",
+      "octubre",
+      "noviembre",
+      "diciembre"
+    ];
+    const mesIndex = meses.indexOf(mes.toLowerCase());
+    if (mesIndex === -1) return null;
+    if (num === "1") {
+      return `${meses[mesIndex]}-2-${anio}`;
+    }
+    if (num === "2") {
+      let siguienteMesIndex = mesIndex + 1;
+      let siguienteAnio = Number(anio);
+      if (siguienteMesIndex > 11) {
+        siguienteMesIndex = 0;
+        siguienteAnio++;
+      }
+      return `${meses[siguienteMesIndex]}-1-${siguienteAnio}`;
+    }
+    return null;
+  }
   const cerrarQ = async (data) => {
     try {
-      const pagina = await Page.findAll({
-        attributes: [
-          "id",
-          "name",
-          "coins",
-          "valorCoins",
-          "moneda",
-          "mensual",
-          "tope",
-          "descuento"
-        ]
-      });
-      const paginas = pagina == null ? void 0 : pagina.map((x) => x == null ? void 0 : x.get({ plain: true }));
-      const q = await getDataQ(data.id);
+      const q = await getDataQ(data);
       const quincena2 = q.get({ plain: true });
+      const qName = quincena2.name;
+      const nextQ = buscarQuincenaSiguiente(qName);
+      if (!nextQ) {
+        return {
+          success: false,
+          message: `No se pudo determinar la siguiente quincena para ${qName}`
+        };
+      }
+      const nextQuincena = await Quincena.findOne({
+        where: { name: nextQ }
+      });
+      if (!nextQuincena) {
+        return {
+          success: false,
+          message: `Debe crear la quincena ${nextQ} antes de poder cerrar la quincena ${qName}.`
+        };
+      }
       const existingQ = await CerradoQ.findOne({
-        where: { name: quincena2.name }
+        where: { name: qName }
       });
       if (existingQ) {
         await existingQ.destroy();
@@ -50841,7 +50886,15 @@ function requireCerradoQ() {
         name: quincena2.name,
         data: quincena2
       });
-      return res;
+      if (nextQuincena) {
+        await nextQuincena.setQuincena(res);
+      }
+      console.log(res);
+      return {
+        success: true,
+        message: `Quincena ${qName} cerrada correctamente.`,
+        data: res
+      };
     } catch (error2) {
       return {
         sucess: false,

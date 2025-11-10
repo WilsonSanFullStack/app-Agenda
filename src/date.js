@@ -89,3 +89,5 @@ export function getQuincenaAnterior(periodo) {
   // Si es -1- no hay quincena anterior
   return null;
 }
+
+

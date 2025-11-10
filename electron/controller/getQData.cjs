@@ -33,7 +33,7 @@ const getDataQ = async (data) => {
     const paginas = pagina?.map((x) => x?.get({ plain: true }));
 
     const qData = await Quincena.findByPk(data.id, {
-      attributes: ["name", "id"],
+      attributes: ["name", "id", "cerrado"],
       include: [
         {
           model: Day,
@@ -93,6 +93,7 @@ const getDataQ = async (data) => {
     const qFormatted = {
       id: quincena?.id,
       name: quincena?.name,
+      cerrado: quincena?.cerrado,
       moneda: {
         estadisticas: { usd: 0, euro: 0, gbp: 0 },
         pago: { usd: 0, euro: 0, gbp: 0 },
@@ -347,51 +348,56 @@ const getDataQ = async (data) => {
     let mejorPesos = { name: "", pesos: 0 };
     // llenar con los valores del último día
     let ultimoDia;
+    // console.log(qfLimpio)
+
+    //? formateo de totales y mejor pagina creditos por promedio
     for (let x = 0; x <= qfLimpio?.length - 1; x++) {
       ultimoDia = qfLimpio[x];
 
       for (const [pagina, valores] of Object?.entries(ultimoDia)) {
+        //? se formatean los totales
         if (pagina === "name") continue;
-        if (valores?.mostrar) {
-          if (valores?.coinsDia || valores?.coinsTotal)
+        if (valores?.mostrar || valores?.mostrar === undefined) {
+          // console.log()
+          if (valores?.coinsDia > 0 || valores?.coinsTotal > qFormatted.totales.coins)
             qFormatted.totales.coins +=
-              valores?.coinsDia || valores?.coinsTotal || 0;
+              valores?.coinsDia || valores?.coinsTotal;
         }
-        if (valores?.mostrar) {
-          console.log(valores?.mostrar === true);
-          if (valores?.usdTotal)
-            qFormatted.totales.usd = valores?.usdTotal || 0;
+        if (valores?.mostrar || valores?.mostrar === undefined) {
+          // console.log(valores?.mostrar === true);
+          if (valores?.usdTotal>0)
+            qFormatted.totales.usd = valores?.usdTotal;
         }
-        if (valores?.mostrar) {
-          if (valores?.euroDia || valores?.euroTotal)
+        if (valores?.mostrar || valores?.mostrar === undefined) {
+          if (valores?.euroDia>0 || valores?.euroTotal>0)
             qFormatted.totales.euro +=
-              valores?.euroDia || valores?.euroTotal || 0;
+              valores?.euroDia || valores?.euroTotal;
         }
-        if (valores?.mostrar) {
-          if (valores?.gbp) qFormatted.totales.gbp += valores?.gbp || 0;
+        if (valores?.mostrar || valores?.mostrar === undefined) {
+          if (valores?.gbp) qFormatted.totales.gbp += valores?.gbp;
         }
-        if (valores?.mostrar) {
+        if (valores?.mostrar || valores?.mostrar === undefined) {
           if (valores?.gbpParcial)
-            qFormatted.totales.gbp += valores?.gbpParcial || 0;
+            qFormatted.totales.gbp += valores?.gbpParcial;
         }
-        if (valores?.mostrar) {
+        if (valores?.mostrar || valores?.mostrar === undefined) {
           if (valores?.pesosDia || valores?.pesosTotal)
             qFormatted.totales.cop +=
-              valores.pesosDia || valores?.pesosTotal || 0;
+              valores.pesosDia || valores?.pesosTotal;
         }
-        if (valores?.mostrar) {
-          if (valores?.pesos) qFormatted.totales.cop += valores?.pesos || 0;
+        if (valores?.mostrar || valores?.mostrar === undefined) {
+          if (valores?.pesos) qFormatted.totales.cop += valores?.pesos;
         }
-        if (valores?.mostrar) {
+        if (valores?.mostrar || valores?.mostrar === undefined) {
           if (valores?.pesosParcial)
-            qFormatted.totales.cop += valores?.pesosParcial || 0;
+            qFormatted.totales.cop += valores?.pesosParcial;
         }
-        if (valores?.mostrar) {
+        if (valores?.mostrar || valores?.mostrar === undefined) {
           if (valores?.adelantosDia || valores?.adelantosTotal)
             qFormatted.totales.adelantos +=
-              valores?.adelantosDia || valores?.adelantosTotal || 0;
+              valores?.adelantosDia || valores?.adelantosTotal;
         }
-
+ //? se formatean los promedios y mejor pagina creditos por promedio
         // 🔹 Detectar mejor página en créditos (prioridad: usd, euro, gbp, gbpParcial, coinsTotal)
         const creditos =
           valores?.usdTotal ||

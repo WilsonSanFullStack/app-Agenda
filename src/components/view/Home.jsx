@@ -17,6 +17,7 @@ export const Home = ({ setError }) => {
     id: "",
   });
 
+
   const handlePago = () => {
     const y = pago.pago;
     setPago({ ...pago, pago: !y });
@@ -73,8 +74,21 @@ export const Home = ({ setError }) => {
   const moneda = qData?.moneda;
   const isPago = qData?.isPago;
   // console.log(page);
-  const handleCierre = () => {
-    alert("cerrado");
+ 
+  const handleCierre = async () => {
+    if (pago.pago) {
+      try {
+        const res = await window.Electron.cerrarQ({ id: pago.id });
+        if (res.seccess) {
+          setError(res.message)
+        }
+      } catch (error) {
+        setError("Error al cerrar la quincena: " + error)
+      }
+      
+    } else {
+      setError("Debe estar en modo pago para poder cerrar la quincena.")
+    }
   };
   return (
     <div className="min-h-screen pt-12 bg-slate-900">

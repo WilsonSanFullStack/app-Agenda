@@ -126,6 +126,7 @@ const getQuincenaById = async (id) => {
   }
 };
 
+
 const deleteQuincena = async (quincenaId) => {
   try {
     return await Quincena.destroy({ where: { id: quincenaId } });
