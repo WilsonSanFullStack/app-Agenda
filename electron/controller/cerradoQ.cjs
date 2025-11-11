@@ -1,5 +1,6 @@
 const { CerradoQ, Page, Quincena } = require("../db.cjs");
 const { getDataQ } = require("./getQData.cjs");
+const { BrowserWindow } = require("electron");
 //buscar siguiente quincena
 function buscarQuincenaSiguiente(qName) {
   // Ejemplo de entrada: "octubre-1-2025"
@@ -47,11 +48,15 @@ function buscarQuincenaSiguiente(qName) {
 }
 const cerrarQ = async (data) => {
   try {
+    // console.log("data", data);
     //buscamos la quincena y la formatiamos
     const q = await getDataQ(data);
-    //sacamos los valores del datavalues
-    const quincena = q.get({ plain: true });
-    const qName = quincena.name;
+    // console.log("q", q);
+    //! //sacamos los valores del datavalues
+    //! const quincena = q.get({ plain: true });
+    //! console.log("quincena", quincena)
+    const qName = q.name;
+    // console.log("qName", qName);
     const nextQ = buscarQuincenaSiguiente(qName);
     if (!nextQ) {
       return {
@@ -59,6 +64,7 @@ const cerrarQ = async (data) => {
         message: `No se pudo determinar la siguiente quincena para ${qName}`,
       };
     }
+    await Quincena.update({ cerrado: true }, { where: { id: data.id } });
     const nextQuincena = await Quincena.findOne({
       where: { name: nextQ },
     });
@@ -77,16 +83,21 @@ const cerrarQ = async (data) => {
     if (existingQ) {
       await existingQ.destroy();
     }
-    
+
     const res = await CerradoQ.create({
-      name: quincena.name,
-      data: quincena,
+      name: q.name,
+      data: q,
     });
-    
+    // console.log("res", res);
+    // console.log("nextQuincena", nextQuincena);
     if (nextQuincena) {
-      await nextQuincena.setQuincena(res)
+      await nextQuincena.setCierre(res);
     }
-    console.log(res)
+    // 🔹 marca la actual como cerrada
+    // 🔹 Enviar evento a React para actualizar la lista
+    BrowserWindow.getAllWindows().forEach((win) => {
+      win.webContents.send("quincenaCerrada");
+    });
     return {
       success: true,
       message: `Quincena ${qName} cerrada correctamente.`,
@@ -101,4 +112,43 @@ const cerrarQ = async (data) => {
   }
 };
 
-module.exports = { cerrarQ };
+const abrirQ = async (data) => {
+  try {
+    const q = await Quincena.findByPk(data.id);
+    const quincena = q?.get({ plain: true });
+    if (!quincena) {
+      return {
+        success: false,
+        message: "Quincena no encontrada.",
+      };
+    }
+
+    if (!quincena.cerrado) {
+      return {
+        success: false,
+        message: "La quincena ya esta abierta.",
+      };
+    }
+    await CerradoQ.destroy({where: { name: quincena.name}})
+
+    await Quincena.update({ cerrado: false }, { where: { id: data.id } });
+    
+    // 🔹 Enviar evento a React para actualizar la lista
+    BrowserWindow.getAllWindows().forEach((win) => {
+      win.webContents.send("quincenaAbierta");
+      });
+
+    return {
+      success: true,
+      message: `La quincena ${quincena.name} ha sido abierta correctamente.`
+    };
+    
+  } catch (error) {
+    return {
+      success: false,
+      message: "Error al abrir la quincena", error
+    }
+  }
+};
+
+module.exports = { cerrarQ, abrirQ };

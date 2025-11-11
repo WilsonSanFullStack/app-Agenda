@@ -155,6 +155,7 @@ export const CreateAranceles = ({ setError }) => {
               Porcentaje del estudio
             </label>
             <input
+            placeholder="0.80"
               id="porcentaje"
               type="number"
               value={aranceles.porcentaje}

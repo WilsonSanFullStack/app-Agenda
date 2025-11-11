@@ -6,6 +6,7 @@ import { YearQuincenaPagoCierreCabecera } from "../plugin/YearQuincenaPagoCierre
 
 export const Home = ({ setError }) => {
   const currentYear = new Date().getFullYear();
+  const [reloadKey, setReloadKey] = useState(0);
   const [yearS, setYearS] = useState(currentYear);
   const [yearFives, setYearFives] = useState([]);
   const [q, setQ] = useState([]);
@@ -17,11 +18,6 @@ export const Home = ({ setError }) => {
     id: "",
   });
 
-
-  const handlePago = () => {
-    const y = pago.pago;
-    setPago({ ...pago, pago: !y });
-  };
   const handlePrev = () => setYearS(yearS - 1);
   const handleNext = () => setYearS(yearS + 1);
 
@@ -73,27 +69,78 @@ export const Home = ({ setError }) => {
 
   const moneda = qData?.moneda;
   const isPago = qData?.isPago;
-  // console.log(page);
- 
+  console.log(moneda);
+  const handlePago = () => {
+    if (moneda.pago.usd > 0 && moneda.pago.euro > 0 && moneda.pago.gbp > 0) {
+      const y = pago.pago;
+      setPago({ ...pago, pago: !y });
+    } else {
+      setError(
+        "No se puede activar el modo pago hasta que se registren las monedas de pago USD, EURO, GBP(Libra Esterlina)."
+      );
+    }
+  };
   const handleCierre = async () => {
     if (pago.pago) {
       try {
         const res = await window.Electron.cerrarQ({ id: pago.id });
-        if (res.seccess) {
-          setError(res.message)
+        console.log("res", res);
+        if (res.success) {
+          setError(res.message);
+          
         }
       } catch (error) {
-        setError("Error al cerrar la quincena: " + error)
+        setError("Error al cerrar la quincena: " + error);
       }
-      
     } else {
-      setError("Debe estar en modo pago para poder cerrar la quincena.")
+      setError("Debe estar en modo pago para poder cerrar la quincena.");
     }
   };
+  // useEffect(()=> {
+
+  // }, [handleCierre])
+
+  const handleAbrirQ = async () => {
+    if (qData?.cerrado) {
+      try {
+        const res = await window.Electron.abrirQ({ id: pago.id });
+        console.log("res", res);
+        if (res.success) {
+          setError(res.message);
+          
+        }
+      } catch (error) {
+        setError("Error al abrir la quincena: " + error);
+      }
+    }
+  };
+  // useEffect(() => {
+
+  // }, [handleAbrirQ])
+
+  useEffect(() => {
+  // 🔹 Escucha eventos globales de Electron
+  const removeCerrar = window.Electron.onCerrarQ(() => {
+    setError("🔄 Quincena Cerrada, recargando datos...");
+    setReloadKey((k) => k + 1);
+  });
+
+  const removeAbrir = window.Electron.onAbrirQ(() => {
+    setError("🔄 Quincena Abierta, recargando datos...");
+    setReloadKey((k) => k + 1);
+  });
+
+  // 🔹 Limpia listeners cuando se desmonta el componente
+  return () => {
+    removeCerrar;
+    removeAbrir;
+  };
+}, []);
   return (
-    <div className="min-h-screen pt-12 bg-slate-900">
+    <div key={reloadKey} className="min-h-screen pt-12 bg-slate-900">
       {/* Cabecera compacta */}
       <YearQuincenaPagoCierreCabecera
+        key={reloadKey + 1}
         yearS={yearS}
         setYearS={setYearS}
         yearFives={yearFives}
@@ -106,6 +153,7 @@ export const Home = ({ setError }) => {
         quincena={quincena}
         setQuincena={setQuincena}
         handleCierre={handleCierre}
+        handleAbrirQ={handleAbrirQ}
       />
 
       {/* Monedas */}

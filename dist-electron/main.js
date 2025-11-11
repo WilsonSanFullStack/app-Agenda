@@ -50823,6 +50823,7 @@ function requireCerradoQ() {
   hasRequiredCerradoQ = 1;
   const { CerradoQ, Page, Quincena } = requireDb();
   const { getDataQ } = requireGetQData();
+  const { BrowserWindow } = require$$1$5;
   function buscarQuincenaSiguiente(qName) {
     const [mes, num, anio] = qName.split("-");
     const meses = [
@@ -50858,8 +50859,10 @@ function requireCerradoQ() {
   const cerrarQ = async (data) => {
     try {
       const q = await getDataQ(data);
-      const quincena2 = q.get({ plain: true });
-      const qName = quincena2.name;
+      //! //sacamos los valores del datavalues
+      //! const quincena = q.get({ plain: true });
+      //! console.log("quincena", quincena)
+      const qName = q.name;
       const nextQ = buscarQuincenaSiguiente(qName);
       if (!nextQ) {
         return {
@@ -50867,6 +50870,7 @@ function requireCerradoQ() {
           message: `No se pudo determinar la siguiente quincena para ${qName}`
         };
       }
+      await Quincena.update({ cerrado: true }, { where: { id: data.id } });
       const nextQuincena = await Quincena.findOne({
         where: { name: nextQ }
       });
@@ -50883,13 +50887,15 @@ function requireCerradoQ() {
         await existingQ.destroy();
       }
       const res = await CerradoQ.create({
-        name: quincena2.name,
-        data: quincena2
+        name: q.name,
+        data: q
       });
       if (nextQuincena) {
-        await nextQuincena.setQuincena(res);
+        await nextQuincena.setCierre(res);
       }
-      console.log(res);
+      BrowserWindow.getAllWindows().forEach((win) => {
+        win.webContents.send("quincenaCerrada");
+      });
       return {
         success: true,
         message: `Quincena ${qName} cerrada correctamente.`,
@@ -50903,7 +50909,40 @@ function requireCerradoQ() {
       };
     }
   };
-  cerradoQ = { cerrarQ };
+  const abrirQ = async (data) => {
+    try {
+      const q = await Quincena.findByPk(data.id);
+      const quincena2 = q == null ? void 0 : q.get({ plain: true });
+      if (!quincena2) {
+        return {
+          success: false,
+          message: "Quincena no encontrada."
+        };
+      }
+      if (!quincena2.cerrado) {
+        return {
+          success: false,
+          message: "La quincena ya esta abierta."
+        };
+      }
+      await CerradoQ.destroy({ where: { name: quincena2.name } });
+      await Quincena.update({ cerrado: false }, { where: { id: data.id } });
+      BrowserWindow.getAllWindows().forEach((win) => {
+        win.webContents.send("quincenaAbierta");
+      });
+      return {
+        success: true,
+        message: `La quincena ${quincena2.name} ha sido abierta correctamente.`
+      };
+    } catch (error2) {
+      return {
+        success: false,
+        message: "Error al abrir la quincena",
+        error: error2
+      };
+    }
+  };
+  cerradoQ = { cerrarQ, abrirQ };
   return cerradoQ;
 }
 var hasRequiredIpcMain;
@@ -50932,7 +50971,7 @@ function requireIpcMain() {
     updateAranceles,
     deleteArancel
   } = requireAranceles();
-  const { cerrarQ } = requireCerradoQ();
+  const { cerrarQ, abrirQ } = requireCerradoQ();
   ipcMain$1.handle("get-quincena", async (_, date) => {
     return await getAllQuincenas(date);
   });
@@ -50986,6 +51025,9 @@ function requireIpcMain() {
   });
   ipcMain$1.handle("cerrar-quincena", async (_, id) => {
     return await cerrarQ(id);
+  });
+  ipcMain$1.handle("abrir-quincena", async (_, id) => {
+    return await abrirQ(id);
   });
   return ipcMain;
 }
