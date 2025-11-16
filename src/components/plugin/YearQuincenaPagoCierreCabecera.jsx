@@ -105,7 +105,7 @@ export const YearQuincenaPagoCierreCabecera = ({
           value={quincena.name}
           onChange={(e) => {
             const qSelected = q.find((item) => item.name === e.target.value);
-            if (qSelected) setPago({ ...pago, id: qSelected.id });
+            if (qSelected) setPago({ ...pago, id: qSelected.id, pago: false });
           }}
         >
           <option value="" hidden>

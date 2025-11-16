@@ -1,4 +1,4 @@
-const { ipcMain } = require("electron");
+const { ipcMain, BrowserWindow } = require("electron");
 const {
   postQuincena,
   getAllQuincenas,
@@ -89,9 +89,24 @@ ipcMain.handle("delete-aranceles", async (_, id) => {
 });
 //cerrar quincena
 ipcMain.handle("cerrar-quincena", async (_, id) => {
-  return await cerrarQ(id);
+  const result =await cerrarQ(id);
+  if (result.success) {
+    
+    // notificar a todas las ventanas que la quincena ha sido cerrada
+    BrowserWindow.getAllWindows().forEach((window)=> {
+      window.webContents.send("quincenaCerrada", result)
+    })
+  }
+  return result;
 });
 //abrir quincena
 ipcMain.handle("abrir-quincena", async (_, id) => {
-  return await abrirQ(id);
+  const result = await abrirQ(id);
+  if (result.success) {
+    //notificar a todas las ventanas que la quincena ha sido abierta
+    BrowserWindow.getAllWindows().forEach((window)=>{
+      window.webContents.send("quincenaAbierta", result)
+    })
+  }
+  return result;
 });

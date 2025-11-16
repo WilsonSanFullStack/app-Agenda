@@ -68,7 +68,7 @@ const getDataQ = async (data) => {
     const quincena = qData?.get({ plain: true });
     // console.log(quincena);
     // verificamos si se quiere ver la quincena con valores de pago o estadisticas
-    const isPago = data.pago;
+    const isPago = data.pago || qData.cerrado;
     // tomamos la moneda para estadisticas
     const estadisticas =
       quincena?.Monedas?.find((m) => m?.pago === false) || {};
@@ -80,6 +80,8 @@ const getDataQ = async (data) => {
     let gbp = 0;
     const porcentaje = parseFloat(aranceles?.porcentaje);
     // decicion para saber cual moneda se debe usar
+    // console.log(qData.cerrado)
+    
     if (isPago) {
       usd = parseFloat(pago?.dolar - aranceles?.dolar) || 0;
       euro = parseFloat(pago?.euro - aranceles?.euro) || 0;
@@ -89,6 +91,7 @@ const getDataQ = async (data) => {
       euro = parseFloat(estadisticas?.euro) || 0;
       gbp = parseFloat(estadisticas?.gbp) || 0;
     }
+  
     // formatiamos la respuesta para no enviar datos innecesarios
     const qFormatted = {
       id: quincena?.id,
@@ -141,7 +144,15 @@ const getDataQ = async (data) => {
         },
       },
     };
+    
     for (const moneda of quincena.Monedas) {
+      qData.cerrado?
+      ((qFormatted.moneda.pago.usd =
+            parseFloat(moneda?.dolar - aranceles?.dolar)),
+          (qFormatted.moneda.pago.euro =
+            parseFloat(moneda?.euro - aranceles?.euro)),
+          (qFormatted.moneda.pago.gbp =
+            parseFloat(moneda?.gbp - aranceles?.gbp))):
       moneda.pago
         ? ((qFormatted.moneda.pago.usd =
             parseFloat(moneda?.dolar - aranceles?.dolar) || 0),
@@ -154,6 +165,7 @@ const getDataQ = async (data) => {
           (qFormatted.moneda.estadisticas.euro = parseFloat(moneda?.euro) || 0),
           (qFormatted.moneda.estadisticas.gbp = parseFloat(moneda?.gbp) || 0));
     }
+  
     const dias = quincena.dias;
     // convertir string a fecha
     const parseFecha = (str) => {

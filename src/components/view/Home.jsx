@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { yearsFive } from "../../date";
 import { Moneda } from "./Moneda";
@@ -69,9 +69,12 @@ export const Home = ({ setError }) => {
 
   const moneda = qData?.moneda;
   const isPago = qData?.isPago;
-  console.log(moneda);
+  
+
   const handlePago = () => {
-    if (moneda.pago.usd > 0 && moneda.pago.euro > 0 && moneda.pago.gbp > 0) {
+    if (
+      (moneda.pago.usd > 0 && moneda.pago.euro > 0 && moneda.pago.gbp > 0)
+    ) {
       const y = pago.pago;
       setPago({ ...pago, pago: !y });
     } else {
@@ -87,18 +90,15 @@ export const Home = ({ setError }) => {
         console.log("res", res);
         if (res.success) {
           setError(res.message);
-          
         }
       } catch (error) {
+        console.log(error);
         setError("Error al cerrar la quincena: " + error);
       }
     } else {
       setError("Debe estar en modo pago para poder cerrar la quincena.");
     }
   };
-  // useEffect(()=> {
-
-  // }, [handleCierre])
 
   const handleAbrirQ = async () => {
     if (qData?.cerrado) {
@@ -107,35 +107,51 @@ export const Home = ({ setError }) => {
         console.log("res", res);
         if (res.success) {
           setError(res.message);
-          
+          setPago({...pago, pago: false})
         }
       } catch (error) {
+        console.log(error);
         setError("Error al abrir la quincena: " + error);
       }
     }
   };
-  // useEffect(() => {
 
-  // }, [handleAbrirQ])
+  //funcion para recargar datos
+  const reloadData = useCallback(() => {
+    handleGetQ(yearS);
+    getQData();
+    setReloadKey((prev) => prev + 1);
+  }, [yearS, pago.id]);
 
   useEffect(() => {
-  // 🔹 Escucha eventos globales de Electron
-  const removeCerrar = window.Electron.onCerrarQ(() => {
-    setError("🔄 Quincena Cerrada, recargando datos...");
-    setReloadKey((k) => k + 1);
-  });
+    // 🔹 Handlers para los eventos
+    const handleQuincenaCerrada = (event, data) => {
+      console.log("Quincena cerrada recibida:", data);
+      setError("🔄 Quincena Cerrada, recargando datos...");
+      reloadData();
+    };
 
-  const removeAbrir = window.Electron.onAbrirQ(() => {
-    setError("🔄 Quincena Abierta, recargando datos...");
-    setReloadKey((k) => k + 1);
-  });
+    const handleQuincenaAbierta = (event, data) => {
+      console.log("Quincena abierta recibida:", data);
+      setError("🔄 Quincena Abierta, recargando datos...");
+      reloadData();
+    };
 
-  // 🔹 Limpia listeners cuando se desmonta el componente
-  return () => {
-    removeCerrar;
-    removeAbrir;
-  };
-}, []);
+    // 🔹 Registrar listeners
+    window.Electron.onCerrarQ(handleQuincenaCerrada);
+    window.Electron.onAbrirQ(handleQuincenaAbierta);
+
+    // 🔹 Limpiar listeners al desmontar
+    return () => {
+      window.Electron.removeCerrarQListener(handleQuincenaCerrada);
+      window.Electron.removeAbrirQListener(handleQuincenaAbierta);
+    };
+  }, [reloadData, setError]);
+
+  // También recarga cuando cambia el año o el pago
+  useEffect(() => {
+    reloadData();
+  }, [yearS, pago.id, reloadData]);
   return (
     <div key={reloadKey} className="min-h-screen pt-12 bg-slate-900">
       {/* Cabecera compacta */}

@@ -29,15 +29,6 @@ contextBridge.exposeInMainWorld("Electron", {
   updateAranceles: (data) => ipcRenderer.invoke("update-aranceles", data),
   deleteAranceles: (data) => ipcRenderer.invoke("delete-aranceles", data),
 
-  //evento para hacer el cerrado de la quincena
-  cerrarQ: (data) => ipcRenderer.invoke("cerrar-quincena", data),
-  removeCerrarQ: () =>
-    ipcRenderer.removeAllListeners("cerrar-quincena"),
-  //evento para hacer el cerrado de la quincena
-  abrirQ: (data) => ipcRenderer.invoke("abrir-quincena", data),
-  removeAbrirQ: () =>
-    ipcRenderer.removeAllListeners("abrir-quincena"),
-
   //eventos para actualizar quincenas en react
   onAbrirRegistroQuincena: (callback) =>
     ipcRenderer.on("abrir-registro-quincena", callback),
@@ -51,8 +42,21 @@ contextBridge.exposeInMainWorld("Electron", {
   onPageActualizado: (callback) => ipcRenderer.on("pageActualizado", callback),
   //eventos para actualizar los aranceles en react
   onPostAranceles: (callback) => ipcRenderer.on("ArancelActualizado", callback),
-  //eventos para actualizar los aranceles en react
+
+  //eventos para abrir y cerrar quincenas
+  cerrarQ: (data) => ipcRenderer.invoke("cerrar-quincena", data),
+  abrirQ: (data) => ipcRenderer.invoke("abrir-quincena", data),
+  removeCerrarQ: (callback) =>
+    ipcRenderer.removeListener("quincenaCerrada", callback),
+
+  removeAbrirQ: (callback) =>
+    ipcRenderer.removeListener("quincenaAbierta", callback),
+
   onCerrarQ: (callback) => ipcRenderer.on("quincenaCerrada", callback),
-  //eventos para actualizar los aranceles en react
   onAbrirQ: (callback) => ipcRenderer.on("quincenaAbierta", callback),
+
+  removeCerrarQListener: (callback) =>
+    ipcRenderer.removeListener("quincenaCerrada", callback),
+  removeAbrirQListener: (callback) =>
+    ipcRenderer.removeListener("quincenaAbierta", callback),
 });

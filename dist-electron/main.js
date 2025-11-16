@@ -50449,7 +50449,7 @@ function requireGetQData() {
         ]
       });
       const quincena2 = qData == null ? void 0 : qData.get({ plain: true });
-      const isPago = data.pago;
+      const isPago = data.pago || qData.cerrado;
       const estadisticas = ((_b = quincena2 == null ? void 0 : quincena2.Monedas) == null ? void 0 : _b.find((m) => (m == null ? void 0 : m.pago) === false)) || {};
       const pago = ((_c = quincena2 == null ? void 0 : quincena2.Monedas) == null ? void 0 : _c.find((m) => (m == null ? void 0 : m.pago) === true)) || {};
       let usd = 0;
@@ -50517,7 +50517,7 @@ function requireGetQData() {
         }
       };
       for (const moneda2 of quincena2.Monedas) {
-        moneda2.pago ? (qFormatted.moneda.pago.usd = parseFloat((moneda2 == null ? void 0 : moneda2.dolar) - (aranceles2 == null ? void 0 : aranceles2.dolar)) || 0, qFormatted.moneda.pago.euro = parseFloat((moneda2 == null ? void 0 : moneda2.euro) - (aranceles2 == null ? void 0 : aranceles2.euro)) || 0, qFormatted.moneda.pago.gbp = parseFloat((moneda2 == null ? void 0 : moneda2.gbp) - (aranceles2 == null ? void 0 : aranceles2.gbp)) || 0) : (qFormatted.moneda.estadisticas.usd = parseFloat(moneda2 == null ? void 0 : moneda2.dolar) || 0, qFormatted.moneda.estadisticas.euro = parseFloat(moneda2 == null ? void 0 : moneda2.euro) || 0, qFormatted.moneda.estadisticas.gbp = parseFloat(moneda2 == null ? void 0 : moneda2.gbp) || 0);
+        qData.cerrado ? (qFormatted.moneda.pago.usd = parseFloat((moneda2 == null ? void 0 : moneda2.dolar) - (aranceles2 == null ? void 0 : aranceles2.dolar)), qFormatted.moneda.pago.euro = parseFloat((moneda2 == null ? void 0 : moneda2.euro) - (aranceles2 == null ? void 0 : aranceles2.euro)), qFormatted.moneda.pago.gbp = parseFloat((moneda2 == null ? void 0 : moneda2.gbp) - (aranceles2 == null ? void 0 : aranceles2.gbp))) : moneda2.pago ? (qFormatted.moneda.pago.usd = parseFloat((moneda2 == null ? void 0 : moneda2.dolar) - (aranceles2 == null ? void 0 : aranceles2.dolar)) || 0, qFormatted.moneda.pago.euro = parseFloat((moneda2 == null ? void 0 : moneda2.euro) - (aranceles2 == null ? void 0 : aranceles2.euro)) || 0, qFormatted.moneda.pago.gbp = parseFloat((moneda2 == null ? void 0 : moneda2.gbp) - (aranceles2 == null ? void 0 : aranceles2.gbp)) || 0) : (qFormatted.moneda.estadisticas.usd = parseFloat(moneda2 == null ? void 0 : moneda2.dolar) || 0, qFormatted.moneda.estadisticas.euro = parseFloat(moneda2 == null ? void 0 : moneda2.euro) || 0, qFormatted.moneda.estadisticas.gbp = parseFloat(moneda2 == null ? void 0 : moneda2.gbp) || 0);
       }
       const dias = quincena2.dias;
       const parseFecha = (str) => {
@@ -50949,7 +50949,7 @@ var hasRequiredIpcMain;
 function requireIpcMain() {
   if (hasRequiredIpcMain) return ipcMain;
   hasRequiredIpcMain = 1;
-  const { ipcMain: ipcMain$1 } = require$$1$5;
+  const { ipcMain: ipcMain$1, BrowserWindow } = require$$1$5;
   const {
     postQuincena,
     getAllQuincenas,
@@ -51024,10 +51024,22 @@ function requireIpcMain() {
     return await deleteArancel(id);
   });
   ipcMain$1.handle("cerrar-quincena", async (_, id) => {
-    return await cerrarQ(id);
+    const result = await cerrarQ(id);
+    if (result.success) {
+      BrowserWindow.getAllWindows().forEach((window2) => {
+        window2.webContents.send("quincenaCerrada", result);
+      });
+    }
+    return result;
   });
   ipcMain$1.handle("abrir-quincena", async (_, id) => {
-    return await abrirQ(id);
+    const result = await abrirQ(id);
+    if (result.success) {
+      BrowserWindow.getAllWindows().forEach((window2) => {
+        window2.webContents.send("quincenaAbierta", result);
+      });
+    }
+    return result;
   });
   return ipcMain;
 }
