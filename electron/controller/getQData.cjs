@@ -1,74 +1,59 @@
-const {
-  Quincena,
-  Day,
-  Moneda,
-  Page,
-  sequelize,
-  Aranceles,
-} = require("../db.cjs");
-const { Op } = require("sequelize");
+const { getDb } = require("./processors/getDB.cjs");
+const { procesarQuincena } = require("./processors/index.cjs");
 
 const getDataQ = async (data) => {
   console.log("data id quincena", data);
   try {
-    const pagina = await Page.findAll({
-      attributes: [
-        "id",
-        "name",
-        "coins",
-        "valorCoins",
-        "moneda",
-        "mensual",
-        "tope",
-        "descuento",
-      ],
-    });
-    const arancele = await Aranceles.findAll({
-      attributes: ["id", "dolar", "euro", "gbp", "porcentaje"],
-      order: [["createdAt", "DESC"]],
-      limit: 1,
-    });
+    const { success, quincena, aranceles, paginas } = await getDb(data.id);
 
-    const aranceles = arancele[0]?.get({ plain: true });
-    const paginas = pagina?.map((x) => x?.get({ plain: true }));
+    if (success) {
+      const { name, id, cierre, Monedas, dias, cerrado } = quincena;
+      const { dolar, euro, gbp, porcentaje } = aranceles;
+      const estadisticas = Monedas.find((e) => e.pago === false) || {
+        usd: 0,
+        euro: 0,
+        gbp: 0,
+        pago: false,
+      };
+      const pago = Monedas.find((e) => e.pago === true) || {
+        usd: 0,
+        euro: 0,
+        gbp: 0,
+        pago: true,
+      };
+      //restamos los aranceles a cada moneda
+      pago.dolar = pago.dolar - dolar;
+      pago.euro = pago.euro - euro;
+      pago.gbp = pago.gbp - gbp;
+      //-----------------------------------------
 
-    const qData = await Quincena.findByPk(data.id, {
-      attributes: ["name", "id", "cerrado"],
-      include: [
-        {
-          model: Day,
-          as: "dias",
-          attributes: [
-            "id",
-            "name",
-            "page",
-            "coins",
-            "usd",
-            "euro",
-            "gbp",
-            "gbpParcial",
-            "mostrar",
-            "adelantos",
-            "worked",
-          ],
-        },
-        {
-          model: Moneda,
-          as: "Monedas",
-          where: {
-            [Op.or]: [{ pago: true }, { pago: false }],
-          },
-          order: [["createdAt", "DESC"]],
-          limit: 2,
-          attributes: ["id", "dolar", "euro", "gbp", "pago"],
-        },
-      ],
-    });
-    // console.log("pages", pages.get({ plain: true }))
-    const quincena = qData?.get({ plain: true });
+      //verificamos si se quiere ver la quicena con valores de pago o estadisticas
+      if (data.pago || cerrado) {
+        const resultado = procesarQuincena(quincena, paginas, {
+          porcentaje,
+          usd: pago.dolar,
+          euro: pago.euro,
+          gbp: pago.gbp,
+        });
+        console.log("resultado", resultado)
+      } else {
+        const resultado = procesarQuincena(quincena, paginas, {
+          porcentaje,
+          usd: estadisticas.dolar,
+          euro: estadisticas.euro,
+          gbp: estadisticas.gbp,
+        });
+        console.log("resultado", resultado)
+      }
+    } else {
+      return {
+        success: false,
+        message: "Error al obtener la quincena",
+      };
+    }
     // console.log(quincena);
     // verificamos si se quiere ver la quincena con valores de pago o estadisticas
-    const isPago = data.pago || qData.cerrado;
+    const isPago = data.pago || quincena.cerrado;
     // tomamos la moneda para estadisticas
     const estadisticas =
       quincena?.Monedas?.find((m) => m?.pago === false) || {};
@@ -81,7 +66,7 @@ const getDataQ = async (data) => {
     const porcentaje = parseFloat(aranceles?.porcentaje);
     // decicion para saber cual moneda se debe usar
     // console.log(qData.cerrado)
-    
+
     if (isPago) {
       usd = parseFloat(pago?.dolar - aranceles?.dolar) || 0;
       euro = parseFloat(pago?.euro - aranceles?.euro) || 0;
@@ -91,7 +76,7 @@ const getDataQ = async (data) => {
       euro = parseFloat(estadisticas?.euro) || 0;
       gbp = parseFloat(estadisticas?.gbp) || 0;
     }
-  
+
     // formatiamos la respuesta para no enviar datos innecesarios
     const qFormatted = {
       id: quincena?.id,
@@ -144,16 +129,19 @@ const getDataQ = async (data) => {
         },
       },
     };
-    
+
     for (const moneda of quincena.Monedas) {
-      qData.cerrado?
-      ((qFormatted.moneda.pago.usd =
-            parseFloat(moneda?.dolar - aranceles?.dolar)),
-          (qFormatted.moneda.pago.euro =
-            parseFloat(moneda?.euro - aranceles?.euro)),
-          (qFormatted.moneda.pago.gbp =
-            parseFloat(moneda?.gbp - aranceles?.gbp))):
-      moneda.pago
+      quincena.cerrado
+        ? ((qFormatted.moneda.pago.usd = parseFloat(
+            moneda?.dolar - aranceles?.dolar
+          )),
+          (qFormatted.moneda.pago.euro = parseFloat(
+            moneda?.euro - aranceles?.euro
+          )),
+          (qFormatted.moneda.pago.gbp = parseFloat(
+            moneda?.gbp - aranceles?.gbp
+          )))
+        : moneda.pago
         ? ((qFormatted.moneda.pago.usd =
             parseFloat(moneda?.dolar - aranceles?.dolar) || 0),
           (qFormatted.moneda.pago.euro =
@@ -165,7 +153,7 @@ const getDataQ = async (data) => {
           (qFormatted.moneda.estadisticas.euro = parseFloat(moneda?.euro) || 0),
           (qFormatted.moneda.estadisticas.gbp = parseFloat(moneda?.gbp) || 0));
     }
-  
+
     const dias = quincena.dias;
     // convertir string a fecha
     const parseFecha = (str) => {
@@ -371,19 +359,20 @@ const getDataQ = async (data) => {
         if (pagina === "name") continue;
         if (valores?.mostrar || valores?.mostrar === undefined) {
           // console.log()
-          if (valores?.coinsDia > 0 || valores?.coinsTotal > qFormatted.totales.coins)
+          if (
+            valores?.coinsDia > 0 ||
+            valores?.coinsTotal > qFormatted.totales.coins
+          )
             qFormatted.totales.coins +=
               valores?.coinsDia || valores?.coinsTotal;
         }
         if (valores?.mostrar || valores?.mostrar === undefined) {
           // console.log(valores?.mostrar === true);
-          if (valores?.usdTotal>0)
-            qFormatted.totales.usd = valores?.usdTotal;
+          if (valores?.usdTotal > 0) qFormatted.totales.usd = valores?.usdTotal;
         }
         if (valores?.mostrar || valores?.mostrar === undefined) {
-          if (valores?.euroDia>0 || valores?.euroTotal>0)
-            qFormatted.totales.euro +=
-              valores?.euroDia || valores?.euroTotal;
+          if (valores?.euroDia > 0 || valores?.euroTotal > 0)
+            qFormatted.totales.euro += valores?.euroDia || valores?.euroTotal;
         }
         if (valores?.mostrar || valores?.mostrar === undefined) {
           if (valores?.gbp) qFormatted.totales.gbp += valores?.gbp;
@@ -394,8 +383,7 @@ const getDataQ = async (data) => {
         }
         if (valores?.mostrar || valores?.mostrar === undefined) {
           if (valores?.pesosDia || valores?.pesosTotal)
-            qFormatted.totales.cop +=
-              valores.pesosDia || valores?.pesosTotal;
+            qFormatted.totales.cop += valores.pesosDia || valores?.pesosTotal;
         }
         if (valores?.mostrar || valores?.mostrar === undefined) {
           if (valores?.pesos) qFormatted.totales.cop += valores?.pesos;
@@ -409,7 +397,7 @@ const getDataQ = async (data) => {
             qFormatted.totales.adelantos +=
               valores?.adelantosDia || valores?.adelantosTotal;
         }
- //? se formatean los promedios y mejor pagina creditos por promedio
+        //? se formatean los promedios y mejor pagina creditos por promedio
         // 🔹 Detectar mejor página en créditos (prioridad: usd, euro, gbp, gbpParcial, coinsTotal)
         const creditos =
           valores?.usdTotal ||
