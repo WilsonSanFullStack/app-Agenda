@@ -5,9 +5,11 @@ const getDataQ = async (data) => {
   console.log("data id quincena", data);
   try {
     const { success, quincena, aranceles, paginas } = await getDb(data.id);
-
+console.log(await getDb(data.id))
     if (success) {
       const { name, id, cierre, Monedas, dias, cerrado } = quincena;
+      console.log("cierre=", cierre)
+      console.log("dias=", cierre?.data?.dias)
       const { dolar, euro, gbp, porcentaje } = aranceles;
       const estadisticas = Monedas.find((e) => e.pago === false) || {
         usd: 0,

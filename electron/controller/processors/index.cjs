@@ -2,11 +2,8 @@ const { limpiarAdultwork } = require("./cleaners.cjs");
 const { MONEDAS } = require("./constants.cjs");
 const {
   aplicarDescuento,
-  procesarCOP,
-  procesarUSD,
-  procesarEURO,
-  procesarCoins,
-  procesarGBP,
+  procesarPaginaMensual,
+  procesarCoinsMensual,
 } = require("./handlers.cjs");
 const {
   parseFecha,
@@ -15,8 +12,8 @@ const {
 } = require("./Helpers.cjs");
 
 //se procesa la quincena completa trayendo los helpers handlers y cleaners
-const procesarQuincena = (quincena, paginas, tasas) => {
-  const { dias } = quincena;
+const procesarQuincena = (quincena, paginas, tasas ) => {
+  const { dias, name, cierre = null} = quincena;
   const { porcentaje, usd, euro, gbp } = tasas;
 
   // Ordenar días
@@ -50,24 +47,20 @@ const procesarQuincena = (quincena, paginas, tasas) => {
 
     // Procesar coins
     if (pag.coins) {
-      df = procesarCoins(df, diaConDescuento, pag, anterior);
+      df = procesarCoinsMensual(df, diaConDescuento, pag, anterior, cierre, name);
     }
 
     // Procesar por moneda
-    switch (pag.moneda) {
-      case MONEDAS.USD:
-        df = procesarUSD(df, diaConDescuento, pag, anterior, porcentaje, usd);
-        break;
-      case MONEDAS.EURO:
-        df = procesarEURO(df, diaConDescuento, pag, anterior, porcentaje, euro);
-        break;
-      case MONEDAS.GBP:
-        df = procesarGBP(df, diaConDescuento, pag, anterior, porcentaje, gbp);
-        break;
-      case MONEDAS.COP:
-        df = procesarCOP(df, diaConDescuento, pag, anterior);
-        break;
-    }
+     df[dia.page] = procesarPaginaMensual(
+      df, 
+      diaConDescuento, 
+      pag, 
+      anterior, 
+      porcentaje, 
+      { usd, euro, gbp },
+      cierre,
+      name,
+    );
 
     // Procesar topes
     if (pag.tope > 0) {

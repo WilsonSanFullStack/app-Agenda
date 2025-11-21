@@ -50360,6 +50360,7 @@ function requireGetDB() {
   const { Op } = requireLib();
   const getDb = async (id) => {
     var _a;
+    console.log("id", id);
     try {
       const pagina = await Page.findAll({
         attributes: [
@@ -50491,94 +50492,6 @@ function requireConstants() {
   };
   return constants;
 }
-var handlers;
-var hasRequiredHandlers;
-function requireHandlers() {
-  if (hasRequiredHandlers) return handlers;
-  hasRequiredHandlers = 1;
-  const { MONEDAS } = requireConstants();
-  const procesarUSD = (df, dia, pag, anterior, porcentaje, usd) => {
-    var _a;
-    const pageData = df[dia.page] || {};
-    pageData.usdTotal = dia.usd || 0;
-    pageData.pesosTotal = (dia.usd || 0) * porcentaje * usd;
-    if (((_a = anterior == null ? void 0 : anterior[dia.page]) == null ? void 0 : _a.usdTotal) !== void 0) {
-      pageData.usdDia = (dia.usd || 0) - anterior[dia.page].usdTotal;
-      pageData.pesosDia = pageData.usdDia * porcentaje * usd;
-    }
-    df[dia.page] = pageData;
-    return df;
-  };
-  const procesarEURO = (df, dia, pag, anterior, porcentaje, euro) => {
-    var _a;
-    const pageData = df[dia.page] || {};
-    pageData.euroTotal = dia.euro || 0;
-    pageData.pesosTotal = (dia.euro || 0) * porcentaje * euro;
-    if (((_a = anterior == null ? void 0 : anterior[dia.page]) == null ? void 0 : _a.euroTotal) !== void 0) {
-      pageData.euroDia = (dia.euro || 0) - anterior[dia.page].euroTotal;
-      pageData.pesosDia = pageData.euroDia * porcentaje * euro;
-    }
-    df[dia.page] = pageData;
-    return df;
-  };
-  const procesarGBP = (df, dia, pag, anterior, porcentaje, gbp) => {
-    const pageData = df[dia.page] || {};
-    if (dia.gbpParcial > 0) {
-      pageData.gbpParcial = dia.gbpParcial || 0;
-      pageData.pesosParcial = (dia.gbpParcial || 0) * porcentaje * gbp;
-    }
-    pageData.gbp = dia.gbp || 0;
-    pageData.pesos = (dia.gbp || 0) * porcentaje * gbp;
-    df[dia.page] = pageData;
-    return df;
-  };
-  const procesarCOP = (df, dia, pag, anterior) => {
-    var _a;
-    const pageData = df[dia.page] || {};
-    pageData.adelantosDia = dia.adelantos || 0;
-    pageData.adelantosTotal = ((_a = anterior == null ? void 0 : anterior[dia.page]) == null ? void 0 : _a.adelantosTotal) !== void 0 ? (dia.adelantos || 0) + anterior[dia.page].adelantosTotal : dia.adelantos || 0;
-    df[dia.page] = pageData;
-    return df;
-  };
-  const aplicarDescuento = (dia, pag) => {
-    if (!(pag == null ? void 0 : pag.descuento)) return dia;
-    const descuento = parseFloat(pag.descuento) || 0;
-    const moneda2 = pag.moneda;
-    const nuevosDatos = { ...dia };
-    switch (moneda2) {
-      case MONEDAS.USD:
-        nuevosDatos.usd = (nuevosDatos.usd || 0) * descuento;
-        break;
-      case MONEDAS.EURO:
-        nuevosDatos.euro = (nuevosDatos.euro || 0) * descuento;
-        break;
-      case MONEDAS.GBP:
-        nuevosDatos.gbp = (nuevosDatos.gbp || 0) * descuento;
-        nuevosDatos.gbpParcial = (nuevosDatos.gbpParcial || 0) * descuento;
-        break;
-    }
-    return nuevosDatos;
-  };
-  const procesarCoins = (df, dia, pag, anterior) => {
-    var _a;
-    const pageData = df[dia.page] || {};
-    pageData.coinsTotal = dia.coins || 0;
-    if (((_a = anterior == null ? void 0 : anterior[dia.page]) == null ? void 0 : _a.coinsTotal) !== void 0) {
-      pageData.coinsDia = (dia.coins || 0) - anterior[dia.page].coinsTotal;
-    }
-    df[dia.page] = pageData;
-    return df;
-  };
-  handlers = {
-    procesarCOP,
-    procesarUSD,
-    procesarEURO,
-    procesarGBP,
-    procesarCoins,
-    aplicarDescuento
-  };
-  return handlers;
-}
 var helpers;
 var hasRequiredHelpers;
 function requireHelpers() {
@@ -50604,8 +50517,194 @@ function requireHelpers() {
     name,
     worked: Boolean(worked)
   });
-  helpers = { parseFecha, getAnteriorPorPagina, crearDiaFormateado };
+  const obtenerUltimosValoresQuincenaAnterior = (cierre, paginaNombre) => {
+    var _a, _b, _c;
+    if (!((_a = cierre == null ? void 0 : cierre.data) == null ? void 0 : _a.dias) || !Array.isArray((_b = cierre == null ? void 0 : cierre.data) == null ? void 0 : _b.dias)) {
+      return null;
+    }
+    const diasAnteriores = (_c = cierre == null ? void 0 : cierre.data) == null ? void 0 : _c.dias;
+    for (let i = diasAnteriores.length - 1; i >= 0; i--) {
+      const diaAnterior = diasAnteriores[i];
+      if (diaAnterior[paginaNombre]) {
+        return {
+          dia: diaAnterior.name,
+          datos: diaAnterior[paginaNombre]
+        };
+      }
+    }
+    return null;
+  };
+  const esSegundaQuincena = (nombreQuincena) => {
+    const partes = nombreQuincena.toLowerCase().split("-");
+    if (partes.length < 3) return false;
+    const numeroQuincena = parseInt(partes[1]);
+    return numeroQuincena === 2;
+  };
+  helpers = { parseFecha, getAnteriorPorPagina, crearDiaFormateado, obtenerUltimosValoresQuincenaAnterior, esSegundaQuincena };
   return helpers;
+}
+var handlers;
+var hasRequiredHandlers;
+function requireHandlers() {
+  if (hasRequiredHandlers) return handlers;
+  hasRequiredHandlers = 1;
+  const { MONEDAS } = requireConstants();
+  const {
+    obtenerUltimosValoresQuincenaAnterior,
+    esSegundaQuincena
+  } = requireHelpers();
+  const procesarPaginaMensual = (df, dia, pag, anterior, porcentaje, tasas, cierre, nombreQuincenaActual) => {
+    const { usd, euro, gbp } = tasas;
+    const pageData = df[dia.page] || {};
+    const moneda2 = pag.moneda;
+    const ajustarQuincenaAnterior = pag.mensual === true && esSegundaQuincena(nombreQuincenaActual);
+    const ultimosValoresAnteriores = ajustarQuincenaAnterior ? obtenerUltimosValoresQuincenaAnterior(cierre, dia.page) : null;
+    switch (moneda2) {
+      case "USD":
+        return procesarUSDMensual(pageData, dia, anterior, porcentaje, usd, ultimosValoresAnteriores);
+      case "EURO":
+        return procesarEUROMensual(pageData, dia, anterior, porcentaje, euro, ultimosValoresAnteriores);
+      case "GBP":
+        return procesarGBPMensual(pageData, dia, anterior, porcentaje, gbp, ultimosValoresAnteriores);
+      case "COP":
+        return procesarCOPMensual(pageData, dia, anterior, ultimosValoresAnteriores);
+      default:
+        return pageData;
+    }
+  };
+  const procesarUSDMensual = (pageData, dia, anterior, porcentaje, usd, ultimosValores) => {
+    var _a, _b;
+    const valorBase = dia.usd || 0;
+    if (ultimosValores) {
+      pageData.usdTotal = valorBase;
+      const valorAjustado = valorBase - (ultimosValores.datos.usdTotal || 0);
+      pageData.usdQuincena = valorAjustado;
+      pageData.pesosTotal = valorAjustado * porcentaje * usd;
+      if (((_a = anterior == null ? void 0 : anterior[dia.page]) == null ? void 0 : _a.usdTotal) !== void 0) {
+        pageData.usdDia = valorBase - anterior[dia.page].usdTotal;
+        pageData.pesosDia = pageData.usdDia * porcentaje * usd;
+      } else {
+        pageData.usdDia = valorAjustado;
+        pageData.pesosDia = valorAjustado * porcentaje * usd;
+      }
+    } else {
+      pageData.usdTotal = valorBase;
+      pageData.pesosTotal = valorBase * porcentaje * usd;
+      if (((_b = anterior == null ? void 0 : anterior[dia.page]) == null ? void 0 : _b.usdTotal) !== void 0) {
+        pageData.usdDia = valorBase - anterior[dia.page].usdTotal;
+        pageData.pesosDia = pageData.usdDia * porcentaje * usd;
+      }
+    }
+    return pageData;
+  };
+  const procesarEUROMensual = (pageData, dia, anterior, porcentaje, euro, ultimosValores) => {
+    var _a, _b;
+    const valorBase = dia.euro || 0;
+    if (ultimosValores) {
+      pageData.euroTotal = valorBase;
+      const valorAjustado = valorBase - (ultimosValores.datos.euroTotal || 0);
+      pageData.euroQuincena = valorAjustado;
+      pageData.pesosTotal = valorAjustado * porcentaje * euro;
+      if (((_a = anterior == null ? void 0 : anterior[dia.page]) == null ? void 0 : _a.euroTotal) !== void 0) {
+        pageData.euroDia = valorBase - anterior[dia.page].euroTotal;
+        pageData.pesosDia = pageData.euroDia * porcentaje * euro;
+      } else {
+        pageData.euroDia = valorAjustado;
+        pageData.pesosDia = valorAjustado * porcentaje * euro;
+      }
+    } else {
+      pageData.euroTotal = valorBase;
+      pageData.pesosTotal = valorBase * porcentaje * euro;
+      if (((_b = anterior == null ? void 0 : anterior[dia.page]) == null ? void 0 : _b.euroTotal) !== void 0) {
+        pageData.euroDia = valorBase - anterior[dia.page].euroTotal;
+        pageData.pesosDia = pageData.euroDia * porcentaje * euro;
+      }
+    }
+    return pageData;
+  };
+  const procesarGBPMensual = (pageData, dia, anterior, porcentaje, gbp, ultimosValores) => {
+    if (dia.gbpParcial > 0) {
+      const gbpParcialBase = dia.gbpParcial || 0;
+      if ((ultimosValores == null ? void 0 : ultimosValores.datos.gbpParcial) !== void 0) {
+        const gbpParcialAjustado = gbpParcialBase - ultimosValores.datos.gbpParcial;
+        pageData.gbpParcialQuincena = gbpParcialAjustado;
+        pageData.pesosParcial = gbpParcialAjustado * porcentaje * gbp;
+      } else {
+        pageData.gbpParcial = gbpParcialBase;
+        pageData.pesosParcial = gbpParcialBase * porcentaje * gbp;
+      }
+    }
+    const gbpBase = dia.gbp || 0;
+    if ((ultimosValores == null ? void 0 : ultimosValores.datos.gbp) !== void 0) {
+      const gbpAjustado = gbpBase - ultimosValores.datos.gbp;
+      pageData.gbpQuincena = gbpAjustado;
+      pageData.pesos = gbpAjustado * porcentaje * gbp;
+    } else {
+      pageData.gbp = gbpBase;
+      pageData.pesos = gbpBase * porcentaje * gbp;
+    }
+    return pageData;
+  };
+  const procesarCOPMensual = (pageData, dia, anterior, ultimosValores) => {
+    var _a;
+    const adelantosBase = dia.adelantos || 0;
+    if (ultimosValores) {
+      pageData.adelantosDia = adelantosBase;
+      pageData.adelantosTotal = adelantosBase;
+    } else {
+      pageData.adelantosDia = adelantosBase;
+      pageData.adelantosTotal = ((_a = anterior == null ? void 0 : anterior[dia.page]) == null ? void 0 : _a.adelantosTotal) !== void 0 ? adelantosBase + anterior[dia.page].adelantosTotal : adelantosBase;
+    }
+    return pageData;
+  };
+  const aplicarDescuento = (dia, pag) => {
+    if (!(pag == null ? void 0 : pag.descuento)) return dia;
+    const descuento = parseFloat(pag.descuento) || 0;
+    const moneda2 = pag.moneda;
+    const nuevosDatos = { ...dia };
+    switch (moneda2) {
+      case MONEDAS.USD:
+        nuevosDatos.usd = (nuevosDatos.usd || 0) * descuento;
+        break;
+      case MONEDAS.EURO:
+        nuevosDatos.euro = (nuevosDatos.euro || 0) * descuento;
+        break;
+      case MONEDAS.GBP:
+        nuevosDatos.gbp = (nuevosDatos.gbp || 0) * descuento;
+        nuevosDatos.gbpParcial = (nuevosDatos.gbpParcial || 0) * descuento;
+        break;
+    }
+    return nuevosDatos;
+  };
+  const procesarCoinsMensual = (df, dia, pag, anterior, cierre, nombreQuincenaActual) => {
+    var _a, _b;
+    const pageData = df[dia.page] || {};
+    const ajustarQuincenaAnterior = pag.mensual && esSegundaQuincena(nombreQuincenaActual);
+    const ultimosValoresAnteriores = ajustarQuincenaAnterior ? obtenerUltimosValoresQuincenaAnterior(cierre, dia.page) : null;
+    const coinsBase = dia.coins || 0;
+    if (ultimosValoresAnteriores) {
+      pageData.coinsTotal = coinsBase;
+      const coinsAjustado = coinsBase - (ultimosValoresAnteriores.datos.coinsTotal || 0);
+      pageData.coinsQuincena = coinsAjustado;
+      if (((_a = anterior == null ? void 0 : anterior[dia.page]) == null ? void 0 : _a.coinsTotal) !== void 0) {
+        pageData.coinsDia = coinsBase - anterior[dia.page].coinsTotal;
+      } else {
+        pageData.coinsDia = coinsAjustado;
+      }
+    } else {
+      pageData.coinsTotal = coinsBase;
+      if (((_b = anterior == null ? void 0 : anterior[dia.page]) == null ? void 0 : _b.coinsTotal) !== void 0) {
+        pageData.coinsDia = coinsBase - anterior[dia.page].coinsTotal;
+      }
+    }
+    return df;
+  };
+  handlers = {
+    procesarPaginaMensual,
+    procesarCoinsMensual,
+    aplicarDescuento
+  };
+  return handlers;
 }
 var processors;
 var hasRequiredProcessors;
@@ -50616,11 +50715,8 @@ function requireProcessors() {
   const { MONEDAS } = requireConstants();
   const {
     aplicarDescuento,
-    procesarCOP,
-    procesarUSD,
-    procesarEURO,
-    procesarCoins,
-    procesarGBP
+    procesarPaginaMensual,
+    procesarCoinsMensual
   } = requireHandlers();
   const {
     parseFecha,
@@ -50628,7 +50724,7 @@ function requireProcessors() {
     crearDiaFormateado
   } = requireHelpers();
   const procesarQuincena = (quincena2, paginas, tasas) => {
-    const { dias } = quincena2;
+    const { dias, name, cierre = null } = quincena2;
     const { porcentaje, usd, euro, gbp } = tasas;
     const diasOrdenados = [...dias].sort(
       (a, b) => parseFecha(a == null ? void 0 : a.name) - parseFecha(b == null ? void 0 : b.name)
@@ -50644,22 +50740,18 @@ function requireProcessors() {
       if (!df[dia.page]) df[dia.page] = {};
       const diaConDescuento = aplicarDescuento(dia, pag);
       if (pag.coins) {
-        df = procesarCoins(df, diaConDescuento, pag, anterior);
+        df = procesarCoinsMensual(df, diaConDescuento, pag, anterior, cierre, name);
       }
-      switch (pag.moneda) {
-        case MONEDAS.USD:
-          df = procesarUSD(df, diaConDescuento, pag, anterior, porcentaje, usd);
-          break;
-        case MONEDAS.EURO:
-          df = procesarEURO(df, diaConDescuento, pag, anterior, porcentaje, euro);
-          break;
-        case MONEDAS.GBP:
-          df = procesarGBP(df, diaConDescuento, pag, anterior, porcentaje, gbp);
-          break;
-        case MONEDAS.COP:
-          df = procesarCOP(df, diaConDescuento, pag, anterior);
-          break;
-      }
+      df[dia.page] = procesarPaginaMensual(
+        df,
+        diaConDescuento,
+        pag,
+        anterior,
+        porcentaje,
+        { usd, euro, gbp },
+        cierre,
+        name
+      );
       if (pag.tope > 0) {
         df[dia.page].mostrar = dia.mostrar;
       }
@@ -50677,7 +50769,7 @@ function requireGetQData() {
   const { getDb } = requireGetDB();
   const { procesarQuincena } = requireProcessors();
   const getDataQ = async (data) => {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n;
     console.log("data id quincena", data);
     try {
       let getAnteriorPorPagina = function(qf2, nombreDiaActual, pagina) {
@@ -50717,8 +50809,11 @@ function requireGetQData() {
         return data2;
       };
       const { success, quincena: quincena2, aranceles: aranceles2, paginas } = await getDb(data.id);
+      console.log(await getDb(data.id));
       if (success) {
         const { name, id, cierre, Monedas, dias: dias2, cerrado } = quincena2;
+        console.log("cierre=", cierre);
+        console.log("dias=", (_a = cierre == null ? void 0 : cierre.data) == null ? void 0 : _a.dias);
         const { dolar, euro: euro2, gbp: gbp2, porcentaje: porcentaje2 } = aranceles2;
         const estadisticas2 = Monedas.find((e) => e.pago === false) || {
           usd: 0,
@@ -50759,8 +50854,8 @@ function requireGetQData() {
         };
       }
       const isPago = data.pago || quincena2.cerrado;
-      const estadisticas = ((_a = quincena2 == null ? void 0 : quincena2.Monedas) == null ? void 0 : _a.find((m) => (m == null ? void 0 : m.pago) === false)) || {};
-      const pago = ((_b = quincena2 == null ? void 0 : quincena2.Monedas) == null ? void 0 : _b.find((m) => (m == null ? void 0 : m.pago) === true)) || {};
+      const estadisticas = ((_b = quincena2 == null ? void 0 : quincena2.Monedas) == null ? void 0 : _b.find((m) => (m == null ? void 0 : m.pago) === false)) || {};
+      const pago = ((_c = quincena2 == null ? void 0 : quincena2.Monedas) == null ? void 0 : _c.find((m) => (m == null ? void 0 : m.pago) === true)) || {};
       let usd = 0;
       let euro = 0;
       let gbp = 0;
@@ -50877,22 +50972,22 @@ function requireGetQData() {
         if (pag == null ? void 0 : pag.coins) {
           df[dia == null ? void 0 : dia.page].coinsTotal = (dia == null ? void 0 : dia.coins) || 0;
           if (anterior && anterior[dia == null ? void 0 : dia.page] && anterior[dia == null ? void 0 : dia.page].coinsTotal !== void 0) {
-            df[dia == null ? void 0 : dia.page].coinsDia = (dia == null ? void 0 : dia.coins) - ((_c = anterior[dia == null ? void 0 : dia.page]) == null ? void 0 : _c.coinsTotal) || 0;
+            df[dia == null ? void 0 : dia.page].coinsDia = (dia == null ? void 0 : dia.coins) - ((_d = anterior[dia == null ? void 0 : dia.page]) == null ? void 0 : _d.coinsTotal) || 0;
           }
         }
         if ((pag == null ? void 0 : pag.moneda) === "USD") {
           df[dia == null ? void 0 : dia.page].usdTotal = (dia == null ? void 0 : dia.usd) || 0;
           df[dia == null ? void 0 : dia.page].pesosTotal = (dia == null ? void 0 : dia.usd) * porcentaje * usd || 0;
           if (anterior && anterior[dia == null ? void 0 : dia.page] && anterior[dia == null ? void 0 : dia.page].usdTotal !== void 0) {
-            df[dia == null ? void 0 : dia.page].usdDia = (dia == null ? void 0 : dia.usd) - ((_d = anterior[dia == null ? void 0 : dia.page]) == null ? void 0 : _d.usdTotal) || 0;
-            df[dia == null ? void 0 : dia.page].pesosDia = ((dia == null ? void 0 : dia.usd) - ((_e = anterior[dia == null ? void 0 : dia.page]) == null ? void 0 : _e.usdTotal)) * porcentaje * usd || 0;
+            df[dia == null ? void 0 : dia.page].usdDia = (dia == null ? void 0 : dia.usd) - ((_e = anterior[dia == null ? void 0 : dia.page]) == null ? void 0 : _e.usdTotal) || 0;
+            df[dia == null ? void 0 : dia.page].pesosDia = ((dia == null ? void 0 : dia.usd) - ((_f = anterior[dia == null ? void 0 : dia.page]) == null ? void 0 : _f.usdTotal)) * porcentaje * usd || 0;
           }
         } else if ((pag == null ? void 0 : pag.moneda) === "EURO") {
           df[dia == null ? void 0 : dia.page].euroTotal = (dia == null ? void 0 : dia.euro) || 0;
           df[dia == null ? void 0 : dia.page].pesosTotal = (dia == null ? void 0 : dia.euro) * porcentaje * euro || 0;
-          if (anterior && anterior[dia == null ? void 0 : dia.page] && ((_f = anterior[dia == null ? void 0 : dia.page]) == null ? void 0 : _f.euroTotal) !== void 0) {
-            df[dia == null ? void 0 : dia.page].euroDia = (dia == null ? void 0 : dia.euro) - ((_g = anterior[dia == null ? void 0 : dia.page]) == null ? void 0 : _g.euroTotal) || 0;
-            df[dia == null ? void 0 : dia.page].pesosDia = ((dia == null ? void 0 : dia.euro) - ((_h = anterior[dia == null ? void 0 : dia.page]) == null ? void 0 : _h.euroTotal)) * porcentaje * euro || 0;
+          if (anterior && anterior[dia == null ? void 0 : dia.page] && ((_g = anterior[dia == null ? void 0 : dia.page]) == null ? void 0 : _g.euroTotal) !== void 0) {
+            df[dia == null ? void 0 : dia.page].euroDia = (dia == null ? void 0 : dia.euro) - ((_h = anterior[dia == null ? void 0 : dia.page]) == null ? void 0 : _h.euroTotal) || 0;
+            df[dia == null ? void 0 : dia.page].pesosDia = ((dia == null ? void 0 : dia.euro) - ((_i = anterior[dia == null ? void 0 : dia.page]) == null ? void 0 : _i.euroTotal)) * porcentaje * euro || 0;
           }
         } else if ((pag == null ? void 0 : pag.moneda) === "GBP") {
           if ((dia == null ? void 0 : dia.gbpParcial) > 0) {
@@ -50903,8 +50998,8 @@ function requireGetQData() {
           df[dia == null ? void 0 : dia.page].pesos = (dia == null ? void 0 : dia.gbp) * porcentaje * gbp || 0;
         } else if ((pag == null ? void 0 : pag.moneda) === "COP") {
           df[dia == null ? void 0 : dia.page].adelantosDia = (dia == null ? void 0 : dia.adelantos) || 0;
-          if (anterior && anterior[dia == null ? void 0 : dia.page] && ((_i = anterior[dia == null ? void 0 : dia.page]) == null ? void 0 : _i.adelantosTotal) !== void 0) {
-            df[dia == null ? void 0 : dia.page].adelantosTotal = (dia == null ? void 0 : dia.adelantos) + ((_j = anterior[dia == null ? void 0 : dia.page]) == null ? void 0 : _j.adelantosTotal) || 0;
+          if (anterior && anterior[dia == null ? void 0 : dia.page] && ((_j = anterior[dia == null ? void 0 : dia.page]) == null ? void 0 : _j.adelantosTotal) !== void 0) {
+            df[dia == null ? void 0 : dia.page].adelantosTotal = (dia == null ? void 0 : dia.adelantos) + ((_k = anterior[dia == null ? void 0 : dia.page]) == null ? void 0 : _k.adelantosTotal) || 0;
           } else {
             df[dia == null ? void 0 : dia.page].adelantosTotal = (dia == null ? void 0 : dia.adelantos) || 0;
           }
@@ -51004,7 +51099,7 @@ function requireGetQData() {
           totalPesos += pesos;
         }
         const sumaCreditos = totalUsd + totalEuro + totalGbp + totalGbpParcial || 0;
-        if (sumaCreditos > ((_k = mejorDia == null ? void 0 : mejorDia.creditos) == null ? void 0 : _k.usd) + ((_l = mejorDia == null ? void 0 : mejorDia.creditos) == null ? void 0 : _l.euro) + ((_m = mejorDia == null ? void 0 : mejorDia.creditos) == null ? void 0 : _m.gbp)) {
+        if (sumaCreditos > ((_l = mejorDia == null ? void 0 : mejorDia.creditos) == null ? void 0 : _l.usd) + ((_m = mejorDia == null ? void 0 : mejorDia.creditos) == null ? void 0 : _m.euro) + ((_n = mejorDia == null ? void 0 : mejorDia.creditos) == null ? void 0 : _n.gbp)) {
           mejorDia = {
             name: dia == null ? void 0 : dia.name,
             creditos: {

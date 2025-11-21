@@ -11,6 +11,7 @@ const { Op } = require("sequelize");
 
 //buscamos los datos necesarios de la base de datos
 const getDb = async (id) => {
+  console.log("id", id)
   try {
     //get de las paginas existentes
     const pagina = await Page.findAll({
