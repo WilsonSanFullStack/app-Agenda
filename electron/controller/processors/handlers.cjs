@@ -28,6 +28,7 @@ const procesarPaginaMensual = (df, dia, pag, anterior, porcentaje, tasas, cierre
       return pageData;
   }
 };
+
 //hadler para pocesar las paginas en usd
 const procesarUSDMensual = (pageData, dia, anterior, porcentaje, usd, ultimosValores) => {
   const valorBase = dia.usd || 0;
@@ -60,6 +61,7 @@ const procesarUSDMensual = (pageData, dia, anterior, porcentaje, usd, ultimosVal
 
   return pageData;
 };
+
 //handler para procesar las paginas en euros
 const procesarEUROMensual = (pageData, dia, anterior, porcentaje, euro, ultimosValores) => {
   const valorBase = dia.euro || 0;
@@ -89,6 +91,7 @@ const procesarEUROMensual = (pageData, dia, anterior, porcentaje, euro, ultimosV
 
   return pageData;
 };
+
 //handler para procesar las paginas en gbp
 const procesarGBPMensual = (pageData, dia, anterior, porcentaje, gbp, ultimosValores) => {
   // Procesar GBP parcial
@@ -111,14 +114,14 @@ const procesarGBPMensual = (pageData, dia, anterior, porcentaje, gbp, ultimosVal
   if (ultimosValores?.datos.gbp !== undefined) {
     const gbpAjustado = gbpBase - ultimosValores.datos.gbp;
     pageData.gbpQuincena = gbpAjustado;
-    pageData.pesos = gbpAjustado * porcentaje * gbp;
+    pageData.pesosTotal = gbpAjustado * porcentaje * gbp;
   } else {
     pageData.gbp = gbpBase;
-    pageData.pesos = gbpBase * porcentaje * gbp;
+    pageData.pesosTotal = gbpBase * porcentaje * gbp;
   }
-
   return pageData;
 };
+
 //handler para pocersar las paginas en cop o adelantos o prestamos
 const procesarCOPMensual = (pageData, dia, anterior, ultimosValores) => {
   const adelantosBase = dia.adelantos || 0;
@@ -136,6 +139,7 @@ const procesarCOPMensual = (pageData, dia, anterior, ultimosValores) => {
 
   return pageData;
 };
+
 //aplica los porcentajes de descuento que tenga una pagina
 const aplicarDescuento = (dia, pag) => {
   if (!pag?.descuento) return dia;
@@ -160,6 +164,7 @@ const aplicarDescuento = (dia, pag) => {
 
   return nuevosDatos;
 };
+
 //handler para pocesar los coins de una pagina
 const procesarCoinsMensual = (df, dia, pag, anterior, cierre, nombreQuincenaActual) => {
   const pageData = df[dia.page] || {};
@@ -191,8 +196,136 @@ const procesarCoinsMensual = (df, dia, pag, anterior, cierre, nombreQuincenaActu
   return df;
 };
 
+// Calcular totales por día
+const calcularTotalesDia = (dia) => {
+  let totales = {
+    coins: 0,
+    usd: 0,
+    euro: 0,
+    gbp: 0,
+    cop: 0,
+    adelantos: 0
+  };
+
+  for (const [pagina, valores] of Object.entries(dia)) {
+    if (pagina === "name" || pagina === "worked") continue;
+    if (valores?.mostrar === false) continue;
+
+    // Coins
+    totales.coins += valores?.coinsDia || valores?.coinsTotal || 0;
+    
+    // USD
+    totales.usd += valores?.usdDia || valores?.usdTotal || 0;
+    
+    // Euro
+    totales.euro += valores?.euroDia || valores?.euroTotal || 0;
+    
+    // GBP
+    totales.gbp += (valores?.gbp || 0) + (valores?.gbpParcial || 0);
+    
+    // COP (pesos)
+    totales.cop += 
+      (valores?.pesosDia || 0) + 
+      (valores?.pesosTotal || 0) + 
+      (valores?.pesos || 0) + 
+      (valores?.pesosParcial || 0);
+    
+    // Adelantos
+    totales.adelantos += valores?.adelantosDia || valores?.adelantosTotal || 0;
+  }
+
+  return totales;
+};
+
+// Encontrar mejor página
+const encontrarMejorPagina = (qfLimpio) => {
+  let mejorCreditos = { name: "", creditos: 0 };
+  let mejorPesos = { name: "", pesos: 0 };
+
+  const ultimoDia = qfLimpio[qfLimpio.length - 1];
+
+  for (const [pagina, valores] of Object.entries(ultimoDia)) {
+    if (pagina === "name" || pagina === "worked") continue;
+    if (valores?.mostrar === false) continue;
+
+    // Créditos (prioridad: usd, euro, gbp, coins)
+    const creditos = 
+      valores?.usdTotal ||
+      valores?.euroTotal ||
+      valores?.gbp ||
+      valores?.gbpParcial ||
+      valores?.coinsTotal ||
+      0;
+
+    if (creditos > mejorCreditos.creditos) {
+      mejorCreditos = { name: pagina, creditos };
+    }
+
+    // Pesos
+    const pesos = 
+      valores?.pesosTotal || 
+      valores?.pesos || 
+      valores?.pesosParcial || 
+      0;
+
+    if (pesos > mejorPesos.pesos) {
+      mejorPesos = { name: pagina, pesos };
+    }
+  }
+
+  return { mejorCreditos, mejorPesos };
+};
+
+// Encontrar mejor día
+const encontrarMejorDia = (qfLimpio) => {
+  let mejorDia = {
+    name: "",
+    creditos: { coins: 0, usd: 0, euro: 0, gbp: 0, pesos: 0, creditosTotal: 0 }
+  };
+
+  for (const dia of qfLimpio) {
+    const totalesDia = calcularTotalesDia(dia);
+    const creditosTotal = totalesDia.usd + totalesDia.euro + totalesDia.gbp;
+
+    if (creditosTotal > mejorDia.creditos.creditosTotal) {
+      mejorDia = {
+        name: dia.name,
+        creditos: {
+          ...totalesDia,
+          creditosTotal
+        }
+      };
+    }
+  }
+
+  return mejorDia;
+};
+
+// Calcular promedios
+const calcularPromedios = (totales, diasTrabajados) => {
+  if (diasTrabajados === 0) {
+    return {
+      coins: 0, usd: 0, euro: 0, gbp: 0, pesos: 0, 
+      creditos: 0
+    };
+  }
+
+  return {
+    coins: totales.coins / diasTrabajados,
+    usd: totales.usd / diasTrabajados,
+    euro: totales.euro / diasTrabajados,
+    gbp: totales.gbp / diasTrabajados,
+    pesos: totales.cop / diasTrabajados,
+    creditos: (totales.usd + totales.euro + totales.gbp) / diasTrabajados
+  };
+};
+
 module.exports = {
   procesarPaginaMensual,
   procesarCoinsMensual,
   aplicarDescuento,
+  encontrarMejorPagina,
+  encontrarMejorDia,
+  calcularPromedios,
+  calcularTotalesDia
 };

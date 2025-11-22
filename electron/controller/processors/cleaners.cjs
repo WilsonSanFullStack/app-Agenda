@@ -1,5 +1,19 @@
-const limpiarAdultwork = (data) => {
+const limpiarAdultwork = (data, pago, cerrado) => {
   const resultado = [...data];
+  if (pago === true || cerrado === true) {
+    resultado.forEach(day => {
+      if (day?.adultwork) {
+        // Eliminar todas las propiedades relacionadas con parcial
+        delete day.adultwork.gbpParcial;
+        delete day.adultwork.gbpParcialAjustado;
+        delete day.adultwork.pesosParcial;
+        
+        // Asegurar que solo queden gbp y pesos
+        // (no eliminamos gbpAjustado por si acaso se necesita para cálculos)
+      }
+    });
+    return resultado;
+  }
   let ultimoGbpIndex = -1;
   let ultimoGbpParcialIndex = -1;
   

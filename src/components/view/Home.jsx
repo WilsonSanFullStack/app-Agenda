@@ -69,12 +69,9 @@ export const Home = ({ setError }) => {
 
   const moneda = qData?.moneda;
   const isPago = qData?.isPago;
-  
 
   const handlePago = () => {
-    if (
-      (moneda.pago.usd > 0 && moneda.pago.euro > 0 && moneda.pago.gbp > 0)
-    ) {
+    if (moneda.pago.usd > 0 && moneda.pago.euro > 0 && moneda.pago.gbp > 0) {
       const y = pago.pago;
       setPago({ ...pago, pago: !y });
     } else {
@@ -107,7 +104,7 @@ export const Home = ({ setError }) => {
         console.log("res", res);
         if (res.success) {
           setError(res.message);
-          setPago({...pago, pago: false})
+          setPago({ ...pago, pago: false });
         }
       } catch (error) {
         console.log(error);
@@ -292,7 +289,7 @@ export const Home = ({ setError }) => {
                       currency: "COP",
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
-                    }).format(qData.promedios.mejorDia.creditos.pesos)}
+                    }).format(qData.promedios.mejorDia.creditos.cop)}
                   </span>
                 </p>
                 <p>
@@ -410,6 +407,68 @@ export const Home = ({ setError }) => {
               <h2 className="text-sm font-bold text-center text-amber-300 mb-2">
                 {dia.name}
               </h2>
+              {/* totales de los dias */}
+              <div className="grid grid-cols-3 gap-1 text-[11px] text-slate-300 bg-slate-900 rounded-lg p-2 mb-2">
+                {/* Coins */}
+                        {dia.totalesDia.coins > 0 && (
+                          <span>Coins: {dia.totalesDia.coins}</span>
+                        )}
+                {/* USD */}
+                        {dia.totalesDia.usd > 0 && (
+                          <span>
+                            USD:{" "}
+                            {Intl.NumberFormat("en-US", {
+                              style: "currency",
+                              currency: "USD",
+                              maximumFractionDigits: 2,
+                            }).format(dia.totalesDia.usd)}
+                          </span>
+                        )}
+                        {/* EURO */}
+                        {dia.totalesDia.euro > 0 && (
+                          <span>
+                            EUR:{" "}
+                            {Intl.NumberFormat("es-EU", {
+                              style: "currency",
+                              currency: "EUR",
+                              maximumFractionDigits: 2,
+                            }).format(dia.totalesDia.euro)}
+                          </span>
+                        )}
+                        {/* GBP */}
+                        {dia.totalesDia.gbp > 0 && (
+                          <span>
+                            GBP:{" "}
+                            {Intl.NumberFormat("en-GB", {
+                              style: "currency",
+                              currency: "GBP",
+                              maximumFractionDigits: 2,
+                            }).format(dia.totalesDia.gbp)}
+                          </span>
+                        )}
+                        {/* Pesos */}
+                        {dia.totalesDia.cop > 0 && (
+                            <span>
+                              Ganancia:{" "}
+                              {Intl.NumberFormat("es-CO", {
+                                style: "currency",
+                                currency: "COP",
+                                maximumFractionDigits: 2,
+                              }).format(dia.totalesDia.cop)}
+                            </span>
+                          )}
+                        {/* adelantos */}
+                        {dia.totalesDia.adelantos > 0 && (
+                            <span>
+                              Prestamos:{" "}
+                              {Intl.NumberFormat("es-CO", {
+                                style: "currency",
+                                currency: "COP",
+                                maximumFractionDigits: 2,
+                              }).format(dia.totalesDia.adelantos)}
+                            </span>
+                          )}
+                      </div>
 
               {/* Recorremos las páginas */}
               <div className="space-y-2">
@@ -441,7 +500,7 @@ export const Home = ({ setError }) => {
                             {Intl.NumberFormat("en-US", {
                               style: "currency",
                               currency: "USD",
-                              maximumFractionDigits: 0,
+                              maximumFractionDigits: 2,
                             }).format(pagina.usdTotal)}
                           </span>
                         )}
@@ -451,7 +510,7 @@ export const Home = ({ setError }) => {
                             {Intl.NumberFormat("en-US", {
                               style: "currency",
                               currency: "USD",
-                              maximumFractionDigits: 0,
+                              maximumFractionDigits: 2,
                             }).format(pagina.usdDia)}
                           </span>
                         )}
@@ -463,7 +522,7 @@ export const Home = ({ setError }) => {
                             {Intl.NumberFormat("es-EU", {
                               style: "currency",
                               currency: "EUR",
-                              maximumFractionDigits: 0,
+                              maximumFractionDigits: 2,
                             }).format(pagina.euroTotal)}
                           </span>
                         )}
@@ -473,7 +532,7 @@ export const Home = ({ setError }) => {
                             {Intl.NumberFormat("es-EU", {
                               style: "currency",
                               currency: "EUR",
-                              maximumFractionDigits: 0,
+                              maximumFractionDigits: 2,
                             }).format(pagina.euroDia)}
                           </span>
                         )}
@@ -485,7 +544,7 @@ export const Home = ({ setError }) => {
                             {Intl.NumberFormat("en-GB", {
                               style: "currency",
                               currency: "GBP",
-                              maximumFractionDigits: 0,
+                              maximumFractionDigits: 2,
                             }).format(pagina.gbp)}
                           </span>
                         )}
@@ -495,29 +554,29 @@ export const Home = ({ setError }) => {
                             {Intl.NumberFormat("en-GB", {
                               style: "currency",
                               currency: "GBP",
-                              maximumFractionDigits: 0,
+                              maximumFractionDigits: 2,
                             }).format(pagina.gbpParcial)}
                           </span>
                         )}
 
                         {/* Pesos */}
                         {pagina.pesosTotal > 0 && (
-                          <span>
-                            COP:{" "}
-                            {Intl.NumberFormat("es-CO", {
-                              style: "currency",
-                              currency: "COP",
-                              maximumFractionDigits: 0,
-                            }).format(pagina.pesosTotal)}
-                          </span>
-                        )}
+                            <span>
+                              COP:{" "}
+                              {Intl.NumberFormat("es-CO", {
+                                style: "currency",
+                                currency: "COP",
+                                maximumFractionDigits: 2,
+                              }).format(pagina.pesosTotal)}
+                            </span>
+                          )}
                         {pagina.pesosDia > 0 && (
                           <span>
                             COP día:{" "}
                             {Intl.NumberFormat("es-CO", {
                               style: "currency",
                               currency: "COP",
-                              maximumFractionDigits: 0,
+                              maximumFractionDigits: 2,
                             }).format(pagina.pesosDia)}
                           </span>
                         )}
@@ -527,7 +586,7 @@ export const Home = ({ setError }) => {
                             {Intl.NumberFormat("es-CO", {
                               style: "currency",
                               currency: "COP",
-                              maximumFractionDigits: 0,
+                              maximumFractionDigits: 2,
                             }).format(pagina.pesosParcial)}
                           </span>
                         )}
@@ -539,7 +598,7 @@ export const Home = ({ setError }) => {
                             {Intl.NumberFormat("es-CO", {
                               style: "currency",
                               currency: "COP",
-                              maximumFractionDigits: 0,
+                              maximumFractionDigits: 2,
                             }).format(pagina.adelantosTotal)}
                           </span>
                         )}
@@ -549,12 +608,14 @@ export const Home = ({ setError }) => {
                             {Intl.NumberFormat("es-CO", {
                               style: "currency",
                               currency: "COP",
-                              maximumFractionDigits: 0,
+                              maximumFractionDigits: 2,
                             }).format(pagina.adelantosDia)}
                           </span>
                         )}
                       </div>
+                      
                     </div>
+                    
                   );
                 })}
               </div>
@@ -594,7 +655,7 @@ export const Home = ({ setError }) => {
                   {Intl.NumberFormat("en-US", {
                     style: "currency",
                     currency: "USD",
-                    maximumFractionDigits: 0,
+                    maximumFractionDigits: 2,
                   }).format(qData.totales.usd)}
                 </p>
               </div>
@@ -608,7 +669,7 @@ export const Home = ({ setError }) => {
                   {Intl.NumberFormat("es-EU", {
                     style: "currency",
                     currency: "EUR",
-                    maximumFractionDigits: 0,
+                    maximumFractionDigits: 2,
                   }).format(qData.totales.euro)}
                 </p>
               </div>
@@ -622,7 +683,7 @@ export const Home = ({ setError }) => {
                   {Intl.NumberFormat("en-GB", {
                     style: "currency",
                     currency: "GBP",
-                    maximumFractionDigits: 0,
+                    maximumFractionDigits: 2,
                   }).format(qData.totales.gbp)}
                 </p>
               </div>
@@ -636,7 +697,7 @@ export const Home = ({ setError }) => {
                   {Intl.NumberFormat("es-CO", {
                     style: "currency",
                     currency: "COP",
-                    maximumFractionDigits: 0,
+                    maximumFractionDigits: 2,
                   }).format(qData.totales.cop)}
                 </p>
               </div>
@@ -650,17 +711,56 @@ export const Home = ({ setError }) => {
                   {Intl.NumberFormat("es-CO", {
                     style: "currency",
                     currency: "COP",
-                    maximumFractionDigits: 0,
+                    maximumFractionDigits: 2,
                   }).format(qData.totales.adelantos)}
+                </p>
+              </div>
+            )}
+            {/* intereses */}
+            {qData?.interes?.interes > 0 && (
+              <div className="bg-slate-800 p-2 rounded-lg border border-slate-700 text-center">
+                <p className="text-slate-400">INTERES 10%</p>
+                <p className="font-bold text-red-300">
+                  {Intl.NumberFormat("es-CO", {
+                    style: "currency",
+                    currency: "COP",
+                    maximumFractionDigits: 2,
+                  }).format(qData?.interes?.interes)}
+                </p>
+              </div>
+            )}
+            {/* rojo quincena anterior */}
+            {qData?.interes?.rojoAnterior < 0 && (
+              <div className="bg-slate-800 p-2 rounded-lg border border-slate-700 text-center">
+                <p className="text-slate-400">DEUDA</p>
+                <p className="font-bold text-red-300">
+                  {Intl.NumberFormat("es-CO", {
+                    style: "currency",
+                    currency: "COP",
+                    maximumFractionDigits: 2,
+                  }).format(qData?.interes?.rojoAnterior)}
+                </p>
+              </div>
+            )}
+            {/* rojo quincena anterior */}
+            {qData?.interes?.rojoConInteres < 0 && (
+              <div className="bg-slate-800 p-2 rounded-lg border border-slate-700 text-center">
+                <p className="text-slate-400">DEUDA + INTERES</p>
+                <p className="font-bold text-red-300">
+                  {Intl.NumberFormat("es-CO", {
+                    style: "currency",
+                    currency: "COP",
+                    maximumFractionDigits: 2,
+                  }).format(qData?.interes?.rojoConInteres)}
                 </p>
               </div>
             )}
 
             {/* rojo */}
-            {qData.totales.rojo > 0 && (
+            {qData.totales.rojo && (
               <div className="bg-slate-800 p-2 rounded-lg border border-slate-700 text-center">
                 <p className="text-slate-400">
-                  {qData.totales.rojo > 0 ? "A FAVOR" : "EN CONTRA"}
+                  {qData.totales.rojo > 0 ? "TIENES" : "DEBE"}
                 </p>
                 <p
                   className={`font-bold ${
@@ -670,7 +770,7 @@ export const Home = ({ setError }) => {
                   {Intl.NumberFormat("es-CO", {
                     style: "currency",
                     currency: "COP",
-                    maximumFractionDigits: 0,
+                    maximumFractionDigits: 2,
                   }).format(qData.totales.rojo)}
                 </p>
               </div>

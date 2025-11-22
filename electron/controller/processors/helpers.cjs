@@ -53,4 +53,43 @@ const esSegundaQuincena = (nombreQuincena) => {
   const numeroQuincena = parseInt(partes[1]);
   return numeroQuincena === 2;
 };
-module.exports = { parseFecha, getAnteriorPorPagina, crearDiaFormateado, obtenerUltimosValoresQuincenaAnterior, esSegundaQuincena };
+//calcular el rojo
+const calcularInteresQuincenaAnterior = (quincenaActual, cierreAnterior) => {
+  if (!cierreAnterior?.data?.totales?.rojo) {
+    return {
+      tieneInteres: false,
+      rojoAnterior: 0,
+      interes: 0,
+      rojoTotal: 0
+    };
+  }
+
+  const rojoAnterior = cierreAnterior.data.totales.rojo;
+  
+  // Solo aplicar interés si el rojo es negativo (deuda)
+  if (rojoAnterior >= 0) {
+    return {
+      tieneInteres: false,
+      rojoAnterior: 0,
+      interes: 0,
+      rojoTotal: 0
+    };
+  }
+
+  // Calcular 10% de interés sobre la deuda
+  const interes = Math.abs(rojoAnterior) * 0.10;
+  const rojoTotal = rojoAnterior - interes; // Se resta porque rojoAnterior es negativo
+
+  console.log(`💰 CÁLCULO DE INTERÉS:`);
+  console.log(`   Rojo anterior: ${rojoAnterior}`);
+  console.log(`   Interés (10%): ${interes}`);
+  console.log(`   Rojo total con interés: ${rojoTotal}`);
+
+  return {
+    tieneInteres: true,
+    rojoAnterior: rojoAnterior,
+    interes: interes,
+    rojoTotal: rojoTotal
+  };
+};
+module.exports = { parseFecha, getAnteriorPorPagina, crearDiaFormateado, obtenerUltimosValoresQuincenaAnterior, esSegundaQuincena, calcularInteresQuincenaAnterior };
