@@ -15,19 +15,19 @@ export const Navbar = () => {
       { name: "Aranceles", path: "/aranceles" },
       // { name: "Moneda", path: "/moneda" },
       { name: "Dias", path: "/dias" },
-      { name: "Opción 3", path: "/" },
+      // { name: "Opción 3", path: "/" },
     ],
-    Editar: [{ name: "Opción 4", path: "/" }],
+    // Editar: [{ name: "Opción 4", path: "/" }],
     Registrar: [
       { name: "Quincena", path: "/register/quincena" },
       { name: "Día", path: "/register/dia" },
       { name: "Moneda", path: "/register/moneda" },
       { name: "Aranceles", path: "/register/aranceles" },
       { name: "Página", path: "/register/pagina" },
-      { name: "Opción 5", path: "/" },
+      // { name: "Opción 5", path: "/" },
     ],
     Ayuda: [
-      { name: "Opción 6", path: "/" },
+      // { name: "Opción 6", path: "/" },
       {
         name: "Abrir Consola",
         action: () => {

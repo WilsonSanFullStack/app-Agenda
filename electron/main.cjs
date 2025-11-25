@@ -49,19 +49,25 @@ app.whenReady().then(async () => {
 
   // Eventos para manejar acciones de la ventana desde el frontend
   ipcMain.on("window:minimize", () => {
-    mainWindow.minimize();
+    if (mainWindow) {
+      mainWindow.minimize();
+    }
   });
 
   ipcMain.on("window:maximize", () => {
-    if (mainWindow.isMaximized()) {
-      mainWindow.unmaximize();
-    } else {
-      mainWindow.maximize();
+    if (mainWindow) {
+      if (mainWindow.isMaximized()) {
+        mainWindow.unmaximize();
+      } else {
+        mainWindow.maximize();
+      }
     }
   });
 
   ipcMain.on("window:close", () => {
-    mainWindow.close();
+    if (mainWindow) {
+      mainWindow.close();
+    }
   });
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
@@ -73,5 +79,7 @@ app.whenReady().then(async () => {
   });
 });
 app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") app.quit();
+  if (process.platform !== "darwin") app.quit();
   if (process.platform !== "darwin") app.quit();
 });

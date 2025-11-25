@@ -17,7 +17,6 @@ export const YearQuincenaPagoCierreCabecera = ({
   handleCierre,
   handleAbrirQ,
 }) => {
-  console.log(q);
   return (
     <motion.section
       //* Cabecera compacta

@@ -2,21 +2,47 @@
   "name": "appagenda",
   "private": true,
   "version": "2.0.0",
+   "description": "Aplicación de estadísticas y gestión de quincenas",
+  "author": "Wilson Sanchez <harveysanch@gmail.com> <+573156226982>",
   "type": "module",
   "main": "electron/main.cjs",
+   "homepage": "./",
+  "build": {
+    "appId": "com.wilsonsanchez.appagenda",
+    "productName": "AppAgenda",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "dist/**/*",
+      "main.js",
+      "preload.cjs",
+      "db.cjs",
+      "ipcMain/**/*",
+      "processors/**/*"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
   "scripts": {
-    "dev": "vite && electronmon .",
+    "dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electronmon .\"",
     "build": "vite build",
     "start": "vite",
     "electron-dev": "vite && electron .",
     "lint": "eslint .",
     "preview": "vite preview",
-    "electrom-pack": "electron-builder"
+    "electron-pack": "electron-builder",
+    "electron": "electron ."
   },
+
   "dependencies": {
     "@tailwindcss/vite": "^4.0.6",
     "chokidar": "^4.0.3",
-    "electron-builder": "^25.1.8",
     "framer-motion": "^12.23.12",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -35,6 +61,7 @@
     "@types/react-dom": "^19.0.3",
     "@vitejs/plugin-react": "^4.3.4",
     "electron": "^34.2.0",
+    "electron-builder": "^26.0.12",
     "electronmon": "^2.0.3",
     "eslint": "^9.19.0",
     "eslint-plugin-react": "^7.37.4",

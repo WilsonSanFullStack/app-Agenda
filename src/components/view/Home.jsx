@@ -52,7 +52,6 @@ export const Home = ({ setError }) => {
     try {
       if (pago.id !== "") {
         const res = await window.Electron.getDataQ(pago);
-        // console.log(res);
         setQData(res);
       }
     } catch (error) {
@@ -65,7 +64,7 @@ export const Home = ({ setError }) => {
     getPages();
   }, [pago]);
   console.log("qData", qData);
-  console.log("Q", q);
+  // console.log("Q", q);
 
   const moneda = qData?.moneda;
   const isPago = qData?.isPago;
@@ -84,12 +83,12 @@ export const Home = ({ setError }) => {
     if (pago.pago) {
       try {
         const res = await window.Electron.cerrarQ({ id: pago.id });
-        console.log("res", res);
+        // console.log("res", res);
         if (res.success) {
           setError(res.message);
         }
       } catch (error) {
-        console.log(error);
+        // console.log(error);
         setError("Error al cerrar la quincena: " + error);
       }
     } else {
@@ -101,13 +100,13 @@ export const Home = ({ setError }) => {
     if (qData?.cerrado) {
       try {
         const res = await window.Electron.abrirQ({ id: pago.id });
-        console.log("res", res);
+        // console.log("res", res);
         if (res.success) {
           setError(res.message);
           setPago({ ...pago, pago: false });
         }
       } catch (error) {
-        console.log(error);
+        // console.log(error);
         setError("Error al abrir la quincena: " + error);
       }
     }
@@ -123,13 +122,13 @@ export const Home = ({ setError }) => {
   useEffect(() => {
     // 🔹 Handlers para los eventos
     const handleQuincenaCerrada = (event, data) => {
-      console.log("Quincena cerrada recibida:", data);
+      // console.log("Quincena cerrada recibida:", data);
       setError("🔄 Quincena Cerrada, recargando datos...");
       reloadData();
     };
 
     const handleQuincenaAbierta = (event, data) => {
-      console.log("Quincena abierta recibida:", data);
+      // console.log("Quincena abierta recibida:", data);
       setError("🔄 Quincena Abierta, recargando datos...");
       reloadData();
     };
