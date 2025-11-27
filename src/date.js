@@ -1,22 +1,23 @@
 //funcion para generar 5 years atras y 5 years adelante del puntero seleccionado
 //recibe un numero con el year central
 export function yearsFive(year) {
-  const years = Array.from({ length: 11 }, (_, i) => year - 5 + i);
+  const years = Array?.from({ length: 11 }, (_, i) => year - 5 + i);
   return years;
 }
 //funcion que genera las quincena que no estan registradas de todo un year
 //recibe el year y el array de quincenas registradas
 export function quincenasYear(yearC, q) {
+  const safeQ = Array.isArray(q) ? q : [];
   const quincena = [];
-  const meses = Array.from({ length: 12 }, (_, i) =>
+  const meses = Array?.from({ length: 12 }, (_, i) =>
     new Date(2000, i, 1).toLocaleString("es-ES", { month: "long" })
   );
 
-  meses.forEach((mes, index) => {
+  meses?.forEach((mes, index) => {
     const year = yearC;
     const ultimoDiaMes = new Date(year, index + 1, 0).getDate();
 
-    if (!q?.some((x) => x.name === `${mes}-1-${year}`)) {
+    if (!safeQ?.some((x) => x.name === `${mes}-1-${year}`)) {
       quincena.push({
         year,
         name: `${mes}-1-${year}`,
@@ -24,7 +25,7 @@ export function quincenasYear(yearC, q) {
         fin: new Date(year, index, 15),
       });
     }
-    if (!q?.some((x) => x.name === `${mes}-2-${year}`)) {
+    if (!safeQ?.some((x) => x.name === `${mes}-2-${year}`)) {
       quincena.push({
         year,
         name: `${mes}-2-${year}`,
@@ -78,7 +79,7 @@ export function generarDias(quincena) {
     return dias;
   }
 }
-console.log(generarDias());
+// console.log(generarDias());
 export function getQuincenaAnterior(periodo) {
   const [mes, quincena, year] = periodo.split("-");
 

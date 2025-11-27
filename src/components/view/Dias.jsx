@@ -1,16 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { yearsFive } from "../../date";
-import { h1 } from "framer-motion/client";
 import { YearQuincenaSelectorCabecera } from "../plugin/YearQuincenaSelectorCabecera";
 
-export const Dias = () => {
+export const Dias = ({ setError }) => {
   const currentYear = new Date().getFullYear();
   const [yearS, setYearS] = useState(currentYear);
   const [yearFives, setYearFives] = useState([]);
   const [q, setQ] = useState([]);
   const [quincena, setQuincena] = useState({});
   const [qid, setQid] = useState({});
+  const [loading, setLoading] = useState(false);
+
+  // 🔧 FUNCIONES REUTILIZABLES
+  const handleApiResponse = (response) => {
+    return Array.isArray(response) ? response : [];
+  };
+
+  const handleObjectResponse = (response) => {
+    return response && typeof response === 'object' ? response : {};
+  };
 
   const handlePrev = () => setYearS(yearS - 1);
   const handleNext = () => setYearS(yearS + 1);
@@ -18,33 +27,60 @@ export const Dias = () => {
   const getQuincenaYear = async (year) => {
     try {
       const quincenas = await window.Electron.getQuincenaYear(year);
-      return quincenas;
+      return handleApiResponse(quincenas);
     } catch (error) {
-      setError("Error al buscar las quincenas: " + error);
+      setError("Error al buscar las quincenas: " + error.message);
+      return [];
     }
   };
+
   const handleGetQ = async () => {
-    const quincenas = await getQuincenaYear(yearS);
-    setQ(quincenas);
+    try {
+      setLoading(true);
+      const quincenas = await getQuincenaYear(yearS);
+      setQ(quincenas);
+    } catch (error) {
+      setError("Error al cargar quincenas: " + error.message);
+      setQ([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     const years = yearsFive(yearS);
-    setYearFives(years);
-    handleGetQ(yearS);
-  }, [yearS, currentYear]);
+    setYearFives(handleApiResponse(years));
+    handleGetQ();
+  }, [yearS]);
 
-  console.log(quincena);
   const getQuincenaById = async (id) => {
+    if (!id) {
+      setQid({});
+      return {};
+    }
+
     try {
+      setLoading(true);
       const res = await window.Electron.getQuincenaById(id);
-      console.log("res", res);
-      setQid(res);
-      return res;
+      const safeRes = handleObjectResponse(res);
+      setQid(safeRes);
+      return safeRes;
     } catch (error) {
-      setError("Error al buscar la quincena: " + error);
+      setError("Error al buscar la quincena: " + error.message);
+      setQid({});
+      return {};
+    } finally {
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (quincena?.id) {
+      getQuincenaById(quincena.id);
+    } else {
+      setQid({});
+    }
+  }, [quincena]);
 
   return (
     <div className="mt-10">
@@ -61,6 +97,7 @@ export const Dias = () => {
         quincena={quincena}
         q={q}
         getQuincenaById={getQuincenaById}
+        disabled={loading}
       />
 
       {qid.id && (
@@ -84,7 +121,7 @@ export const Dias = () => {
           </section>
           {qid.dias && (
             <div className="flex flex-wrap justify-center items-center gap-4 mt-6 p-2">
-              {qid.dias.map((dia) => (
+              {qid?.dias?.map((dia) => (
                 <motion.div
                   key={dia.id}
                   className="bg-slate-800 rounded-xl shadow-md p-4 border border-slate-700"

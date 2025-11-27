@@ -1,8 +1,11 @@
-const { MONEDAS } = require("./constants.cjs");
+const path = require("path");
+
+const { MONEDAS } = require(path.join(__dirname, "constants.cjs"));
+
 const {
   obtenerUltimosValoresQuincenaAnterior,
   esSegundaQuincena,
-} = require("./Helpers.cjs");
+} = require(path.join(__dirname, "helpers.cjs"));
 
 //handler para procesar datos con paginas mensuales
 const procesarPaginaMensual = (df, dia, pag, anterior, porcentaje, tasas, cierre, nombreQuincenaActual) => {

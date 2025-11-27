@@ -6,10 +6,23 @@ import electron from "vite-plugin-electron";
 // https://vite.dev/config/
 export default defineConfig({
   base: "./",
+  build: {
+    // Excluir módulos problemáticos de Tailwind v4
+    rollupOptions: {
+      external: [
+        "@tailwindcss/oxide",
+        "@tailwindcss/oxide-wasm32-wasi",
+        "@emnapi/core",
+      ],
+    },
+  },
   plugins: [
     electron({ entry: "electron/main.cjs" }),
     tailwindcss({
       config: {
+        experimental: {
+          optimizeUniversalDefaults: false,
+        },
         theme: {
           extend: {
             keyframes: {

@@ -14,18 +14,18 @@ const basename = path.basename(__filename);
 
 const modelDefiners = [];
 
-fs.readdirSync(path.join(__dirname, "/models"))
-  .filter(
+fs.readdirSync(path.join(__dirname, "models"))
+  ?.filter(
     (file) =>
       file.indexOf(".") !== 0 && file !== basename && file.slice(-4) === ".cjs"
   )
-  .forEach((file) => {
-    modelDefiners.push(require(path.join(__dirname, "/models", file)));
+  ?.forEach((file) => {
+    modelDefiners.push(require(path.join(__dirname, "models", file)));
   });
-modelDefiners.forEach((model) => model(sequelize));
+modelDefiners?.forEach((model) => model(sequelize));
 
-let entries = Object.entries(sequelize.models);
-let capsEntries = entries.map((entry) => [
+let entries = Object?.entries(sequelize.models);
+let capsEntries = entries?.map((entry) => [
   entry[0][0].toUpperCase() + entry[0].slice(1),
   entry[1],
 ]);

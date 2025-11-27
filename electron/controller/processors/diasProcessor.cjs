@@ -1,9 +1,14 @@
+const path = require("path");
+
+// Importar handlers
 const {
   aplicarDescuento,
   procesarCoinsMensual,
   procesarPaginaMensual,
-} = require("./handlers.cjs");
-const { getAnteriorPorPagina, parseFecha } = require("./Helpers.cjs");
+} = require(path.join(__dirname, "handlers.cjs"));
+
+// Importar helpers
+const { getAnteriorPorPagina, parseFecha } = require(path.join(__dirname, "helpers.cjs"));
 
 const procesarDias = (dias, paginas, tasas, nombreQuincena, cierre = null) => {
   //ordenar dias

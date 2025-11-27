@@ -1,4 +1,6 @@
-const { Quincena, Day } = require("../db.cjs");
+const path = require("path");
+
+const { Quincena, Day } = require(path.join(__dirname, "..", "db.cjs"));
 const { BrowserWindow } = require("electron");
 
 const postQuincena = async (data) => {
@@ -48,7 +50,7 @@ const getAllQuincenaYear = async (year) => {
 
 //falta de auditoria para esta funciones
 const getAllQuincenas = async (date) => {
-  console.log(date);
+  // console.log(date);
   try {
     const months = [
       "enero",
@@ -68,7 +70,7 @@ const getAllQuincenas = async (date) => {
     const day = parseInt(data[1]);
     const monthIndex = months.indexOf(data[0].toLowerCase()) + 1;
     const year = parseInt(data[2]);
-    console.log("dia", day, "mes", monthIndex, "año", year);
+    // console.log("dia", day, "mes", monthIndex, "año", year);
 
     const respuesta = await Quincena?.findAll({
       where: { name: date },

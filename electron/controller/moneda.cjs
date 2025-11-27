@@ -1,4 +1,6 @@
-const { Quincena, Moneda,  } = require("../db.cjs");
+const path = require("path");
+
+const { Quincena, Moneda } = require(path.join(__dirname, "..", "db.cjs"));
 const { BrowserWindow } = require("electron");
 
 const postMoneda = async ({ dolar, euro, gbp, pago, quincena }) => {

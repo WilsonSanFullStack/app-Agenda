@@ -18,25 +18,34 @@ export const Home = ({ setError }) => {
     id: "",
   });
 
+  // 🔧 FUNCIÓN REUTILIZABLE para manejar respuestas API
+  const handleApiResponse = (response) => {
+    return Array.isArray(response) ? response : [];
+  };
+
   const handlePrev = () => setYearS(yearS - 1);
   const handleNext = () => setYearS(yearS + 1);
 
   const getQuincenaYear = async (year) => {
     try {
       const quincenas = await window.Electron.getQuincenaYear(year);
-      return quincenas;
+      return handleApiResponse(quincenas); // 🔧 Siempre array
     } catch (error) {
       setError("Error al buscar las quincenas: " + error);
+      return []; // 🔧 Array vacío en caso de error
     }
   };
+
   const getPages = async () => {
     try {
       const res = await window.Electron.getPage();
-      setPage(res);
+      setPage(handleApiResponse(res)); // 🔧 Siempre array
     } catch (error) {
       setError("Error al obtener las paginas: " + error);
+      setPage([]); // 🔧 Array vacío en caso de error
     }
   };
+
   const handleGetQ = async () => {
     const quincenas = await getQuincenaYear(yearS);
     setQ(quincenas);
@@ -44,7 +53,7 @@ export const Home = ({ setError }) => {
 
   useEffect(() => {
     const years = yearsFive(yearS);
-    setYearFives(years);
+    setYearFives(Array.isArray(years) ? years : []); // 🔧 Proteger yearsFive
     handleGetQ(yearS);
   }, [yearS, currentYear]);
 
@@ -52,25 +61,31 @@ export const Home = ({ setError }) => {
     try {
       if (pago.id !== "") {
         const res = await window.Electron.getDataQ(pago);
-        setQData(res);
+        // 🔧 Proteger qData - si no es objeto, usar objeto vacío
+        setQData(res && typeof res === 'object' ? res : {});
+      } else {
+        setQData({}); // 🔧 Objeto vacío si no hay pago.id
       }
     } catch (error) {
       setError("Error al cargar la quincena." + error);
+      setQData({}); // 🔧 Objeto vacío en caso de error
     }
   };
 
   useEffect(() => {
-    getQData(pago);
+    getQData();
     getPages();
   }, [pago]);
-  console.log("qData", qData);
-  // console.log("Q", q);
 
-  const moneda = qData?.moneda;
-  const isPago = qData?.isPago;
+  // console.log("qData", qData);
+
+  // 🔧 PROTEGER acceso a propiedades anidadas
+  const moneda = qData?.moneda || {};
+  const isPago = qData?.isPago || false;
 
   const handlePago = () => {
-    if (moneda.pago.usd > 0 && moneda.pago.euro > 0 && moneda.pago.gbp > 0) {
+    // 🔧 Verificar que moneda y moneda.pago existan
+    if (moneda?.pago?.usd > 0 && moneda?.pago?.euro > 0 && moneda?.pago?.gbp > 0) {
       const y = pago.pago;
       setPago({ ...pago, pago: !y });
     } else {
@@ -79,40 +94,43 @@ export const Home = ({ setError }) => {
       );
     }
   };
-  const handleCierre = async () => {
-    if (pago.pago) {
+
+  const handleCierre = async (currentQ) => {
+    if (pago.pago && currentQ?.id) {
       try {
-        const res = await window.Electron.cerrarQ({ id: pago.id });
-        // console.log("res", res);
-        if (res.success) {
-          setError(res.message);
+        const res = await window.Electron.cerrarQ({ id: currentQ.id });
+        // 🔧 Verificar que la respuesta sea válida
+        if (res && res.success) {
+          setError(res.message || "Quincena cerrada exitosamente");
+        } else {
+          setError("Error: Respuesta inválida del servidor");
         }
       } catch (error) {
-        // console.log(error);
         setError("Error al cerrar la quincena: " + error);
       }
     } else {
-      setError("Debe estar en modo pago para poder cerrar la quincena.");
+      setError("Debe estar en modo pago y tener una quincena seleccionada para poder cerrar la quincena.");
     }
   };
 
-  const handleAbrirQ = async () => {
-    if (qData?.cerrado) {
+  const handleAbrirQ = async (currentQ) => {
+    if (currentQ?.cerrado && currentQ?.id) {
       try {
-        const res = await window.Electron.abrirQ({ id: pago.id });
-        // console.log("res", res);
-        if (res.success) {
-          setError(res.message);
+        const res = await window.Electron.abrirQ({ id: currentQ.id });
+        // 🔧 Verificar que la respuesta sea válida
+        if (res && res.success) {
+          setError(res.message || "Quincena abierta exitosamente");
           setPago({ ...pago, pago: false });
+        } else {
+          setError("Error: Respuesta inválida del servidor");
         }
       } catch (error) {
-        // console.log(error);
         setError("Error al abrir la quincena: " + error);
       }
     }
   };
 
-  //funcion para recargar datos
+  // 🔧 Función para recargar datos
   const reloadData = useCallback(() => {
     handleGetQ(yearS);
     getQData();
@@ -122,25 +140,31 @@ export const Home = ({ setError }) => {
   useEffect(() => {
     // 🔹 Handlers para los eventos
     const handleQuincenaCerrada = (event, data) => {
-      // console.log("Quincena cerrada recibida:", data);
       setError("🔄 Quincena Cerrada, recargando datos...");
       reloadData();
     };
 
     const handleQuincenaAbierta = (event, data) => {
-      // console.log("Quincena abierta recibida:", data);
       setError("🔄 Quincena Abierta, recargando datos...");
       reloadData();
     };
 
     // 🔹 Registrar listeners
-    window.Electron.onCerrarQ(handleQuincenaCerrada);
-    window.Electron.onAbrirQ(handleQuincenaAbierta);
+    if (window.Electron?.onCerrarQ) {
+      window.Electron.onCerrarQ(handleQuincenaCerrada);
+    }
+    if (window.Electron?.onAbrirQ) {
+      window.Electron.onAbrirQ(handleQuincenaAbierta);
+    }
 
     // 🔹 Limpiar listeners al desmontar
     return () => {
-      window.Electron.removeCerrarQListener(handleQuincenaCerrada);
-      window.Electron.removeAbrirQListener(handleQuincenaAbierta);
+      if (window.Electron?.removeCerrarQListener) {
+        window.Electron.removeCerrarQListener(handleQuincenaCerrada);
+      }
+      if (window.Electron?.removeAbrirQListener) {
+        window.Electron.removeAbrirQListener(handleQuincenaAbierta);
+      }
     };
   }, [reloadData, setError]);
 
@@ -152,7 +176,7 @@ export const Home = ({ setError }) => {
     <div key={reloadKey} className="min-h-screen pt-12 bg-slate-900">
       {/* Cabecera compacta */}
       <YearQuincenaPagoCierreCabecera
-        key={reloadKey + 1}
+        key={reloadKey}
         yearS={yearS}
         setYearS={setYearS}
         yearFives={yearFives}
@@ -166,6 +190,7 @@ export const Home = ({ setError }) => {
         setQuincena={setQuincena}
         handleCierre={handleCierre}
         handleAbrirQ={handleAbrirQ}
+        // disabled={loading}
       />
 
       {/* Monedas */}
@@ -198,7 +223,7 @@ export const Home = ({ setError }) => {
                 {qData.promedios.mejorPageCreditos.name}
               </p>
               <p className="text-indigo-300">
-                {page.find(
+                {page?.find(
                   (pag) =>
                     pag.name === qData?.promedios?.mejorPageCreditos?.name
                 )?.moneda === "USD"
@@ -208,7 +233,7 @@ export const Home = ({ setError }) => {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
                     }).format(qData.promedios.mejorPageCreditos.creditos)
-                  : page.find(
+                  : page?.find(
                       (pag) =>
                         pag.name === qData?.promedios?.mejorPageCreditos?.name
                     )?.moneda === "EURO"
@@ -218,7 +243,7 @@ export const Home = ({ setError }) => {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
                     }).format(qData?.promedios?.mejorPageCreditos?.creditos)
-                  : page.find(
+                  : page?.find(
                       (pag) =>
                         pag.name === qData?.promedios?.mejorPageCreditos?.name
                     )?.moneda === "GBP"
@@ -394,9 +419,9 @@ export const Home = ({ setError }) => {
       {/* Dias como cards compactas */}
       {qData?.dias && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 pb-2">
-          {qData.dias.map((dia) => (
+          {qData?.dias?.map((dia) => (
             <motion.div
-              key={dia.name}
+              key={dia?.name}
               className="bg-slate-800 rounded-xl p-1 shadow-md border border-slate-700"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -471,7 +496,7 @@ export const Home = ({ setError }) => {
 
               {/* Recorremos las páginas */}
               <div className="space-y-2">
-                {page.map((pag) => {
+                {page?.map((pag) => {
                   const pagina = dia[pag.name];
                   if (!pagina) return null;
 

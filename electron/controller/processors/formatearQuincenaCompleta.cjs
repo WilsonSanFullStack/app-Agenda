@@ -1,5 +1,15 @@
-const { encontrarMejorPagina, encontrarMejorDia, calcularPromedios, calcularTotalesDia } = require("./handlers.cjs");
-const { calcularInteresQuincenaAnterior } = require("./Helpers.cjs");
+const path = require("path");
+
+// Importar handlers
+const {
+  encontrarMejorPagina,
+  encontrarMejorDia,
+  calcularPromedios,
+  calcularTotalesDia
+} = require(path.join(__dirname, "handlers.cjs"));
+
+// Importar helpers
+const { calcularInteresQuincenaAnterior } = require(path.join(__dirname, "helpers.cjs"));
 
 const formatearQuincenaCompleta = (quincena, qfLimpio, porcentaje, isPago, monedasCompletas) => {
   // 1. Estructura base - ahora recibe monedasCompletas con ambas
@@ -56,7 +66,7 @@ const crearEstructuraBase = (quincena, porcentaje, isPago, monedasCompletas) => 
     estadisticas: { dolar: 0, euro: 0, gbp: 0 },
     pago: { dolar: 0, euro: 0, gbp: 0 }
   };
-
+// console.log("monedas", monedas)
   return {
     id: quincena?.id,
     name: quincena?.name,

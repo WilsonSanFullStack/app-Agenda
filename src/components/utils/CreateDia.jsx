@@ -1,10 +1,11 @@
-import { motion, number } from "framer-motion";
+import { motion } from "framer-motion";
 import React, { useEffect, useState } from "react";
 import { generarDias, yearsFive } from "../../date";
 import { YearQuincenaSelector } from "../plugin/YearQuincenaSelector";
 
 export const CreateDia = ({ setError }) => {
-  const [dia, setDia] = useState({
+  // 🔧 ESTADO INICIAL PROTEGIDO
+  const initialDiaState = {
     name: "",
     page: "",
     coins: 0,
@@ -16,506 +17,599 @@ export const CreateDia = ({ setError }) => {
     adelantos: 0,
     worked: false,
     q: "",
-  });
-  const [q, setQ] = useState([]);
-  const [quincena, setQuincena] = useState({
+  };
+
+  const initialQuincenaState = {
     year: null,
     name: "",
     inicio: null,
     fin: null,
     coins: null,
     valorCoins: null,
-  });
+  };
+
+  const [dia, setDia] = useState(initialDiaState);
+  const [q, setQ] = useState([]);
+  const [quincena, setQuincena] = useState(initialQuincenaState);
   const [dias, setDias] = useState([]);
   const [page, setPage] = useState([]);
+  const [loading, setLoading] = useState(false);
+
   const currentYear = new Date().getFullYear();
   const [yearS, setYearS] = useState(currentYear);
   const [yearFives, setYearFives] = useState([]);
 
-  const handlePrev = () => setYearS(yearS - 1);
-  const handleNext = () => setYearS(yearS + 1);
+  // 🔧 FUNCIONES REUTILIZABLES
+  const handleApiResponse = (response) => {
+    return Array.isArray(response) ? response : [];
+  };
+
+  const handleObjectResponse = (response) => {
+    return response && typeof response === "object" ? response : {};
+  };
+
+  // 🔧 MANEJADORES DE AÑO CON LÍMITES
+  const handlePrev = () => {
+    if (yearS > 2000) setYearS(yearS - 1);
+  };
+
+  const handleNext = () => {
+    if (yearS < 2100) setYearS(yearS + 1);
+  };
 
   const getQuincenaYear = async (year) => {
     try {
       const quincenas = await window.Electron.getQuincenaYear(year);
-      return quincenas;
+      return handleApiResponse(quincenas);
     } catch (error) {
-      setError("Error al buscar las quincenas: " + error);
+      setError("Error al buscar las quincenas: " + error.message);
+      return [];
     }
   };
+
   const getPagesName = async () => {
     try {
       const pages = await window.Electron.getPageName();
-      return pages;
+      return handleApiResponse(pages);
     } catch (error) {
-      setError("Error al buscar las paginas: " + error);
+      setError("Error al buscar las paginas: " + error.message);
+      return [];
     }
   };
+
   const handleGetQ = async () => {
-    const quincenas = await getQuincenaYear(yearS);
-    const pages = await getPagesName();
-    setQ(quincenas);
-    setPage(pages);
+    try {
+      const [quincenas, pages] = await Promise.all([
+        getQuincenaYear(yearS),
+        getPagesName(),
+      ]);
+      setQ(quincenas);
+      setPage(pages);
+    } catch (error) {
+      console.error("Error loading data:", error);
+      setQ([]);
+      setPage([]);
+    }
   };
-  useEffect(() => {
-    const years = yearsFive(yearS);
-    setYearFives(years);
-    handleGetQ(yearS);
-  }, [yearS, currentYear]);
 
   useEffect(() => {
-    const getDias = generarDias(quincena);
-    setDias(getDias);
+    // 🔧 Proteger yearsFive
+    const years = yearsFive ? yearsFive(yearS) : [];
+    setYearFives(handleApiResponse(years));
+    handleGetQ();
+  }, [yearS]);
+
+  useEffect(() => {
+    // 🔧 Proteger generarDias
+    const getDias = generarDias ? generarDias(quincena) : [];
+    setDias(handleApiResponse(getDias));
   }, [quincena]);
 
+  // 🔧 FUNCIONES DE VALIDACIÓN Y CÁLCULO
   const handleMostrar = () => {
-    const tope = parseFloat(page?.find((pag) => dia.page === pag.name)?.tope);
-    const moneda = page?.find((pag) => dia.page === pag.name)?.moneda;
-    const money =
-      moneda === "USD"
-        ? dia.usd
-        : moneda === "EURO"
-        ? dia.euro
-        : moneda === "GBP"
-        ? dia.gbp
-        : 0;
+    const currentPage = page.find((pag) => dia.page === pag?.name);
+    if (!currentPage) return;
+
+    const tope = parseFloat(currentPage?.tope) || 0;
+    const moneda = currentPage?.moneda;
+
+    // Si tiene coins, usar el valor calculado de coins
+    let money = 0;
+    if (currentPage.coins) {
+      const valorCoins = parseFloat(currentPage?.valorCoins) || 0;
+      money = dia.coins * valorCoins;
+    } else {
+      money =
+        moneda === "USD"
+          ? dia.usd
+          : moneda === "EURO"
+          ? dia.euro
+          : moneda === "GBP"
+          ? dia.gbp
+          : 0;
+    }
+
     const mostra = tope <= money;
     setDia((prev) => ({ ...prev, mostrar: mostra }));
   };
-  const handleName = (e) => {
-    setDia({ ...dia, name: e });
+
+  const handleName = (selectedName) => {
+    setDia({ ...dia, name: selectedName });
   };
-  const handlePage = (e) => {
+
+  const handlePage = (selectedPage) => {
+    if (!selectedPage?.name) return;
+
+    // 🔧 RESETEAR TODOS LOS VALORES MONETARIOS AL CAMBIAR PÁGINA
     setDia({
-      ...dia,
-      page: e.name,
-      coins: 0,
+      ...initialDiaState,
+      name: dia.name, // 🔧 Mantener el día seleccionado
+      page: selectedPage.name,
+      q: dia.q, // 🔧 Mantener la quincena seleccionada
+    });
+  };
+
+  const handleCoins = (e) => {
+    const currentPage = page.find((pag) => pag?.name === dia.page);
+    if (!currentPage) return;
+
+    const valorCoins = parseFloat(currentPage?.valorCoins) || 0;
+    const moneda = currentPage?.moneda;
+    const coinsValue = parseInt(e.target.value) || 0;
+    const money = coinsValue * valorCoins;
+
+    // 🔧 ACTUALIZAR SOLO LOS COINS Y LA MONEDA CORRESPONDIENTE
+    const updates = {
+      coins: coinsValue,
       usd: 0,
       euro: 0,
       gbp: 0,
       gbpParcial: 0,
-      mostrar: true,
-      adelantos: 0,
-      worked: false,
-    });
-  };
-  const handleUsd = (e) => {
-    setDia({ ...dia, usd: parseFloat(e.target.value || 0) });
-  };
-  const handleCoins = (e) => {
-    //buscamos el valor de los coins
-    const valorCoins = page.find((pag) => pag.name === dia.page)?.valorCoins;
-    //buscamos la moneda a la cual convertir los coins
-    const moneda = page.find((pag) => pag.name === dia.page)?.moneda;
-    //conversion de coins a moneda
-    const money = parseInt(e.target.value) * valorCoins || 0;
-    //revisamos a que moneda pertenecen el dinero de los coins
+    };
+
     if (moneda === "USD") {
-      //si es usd
-      setDia({ ...dia, usd: money, coins: parseInt(e.target.value) || 0 });
+      updates.usd = money;
     } else if (moneda === "EURO") {
-      //si es euro
-      setDia({ ...dia, euro: money, coins: parseInt(e.target.value) || 0 });
+      updates.euro = money;
     } else if (moneda === "GBP") {
-      //si es liras esterlinas
-      setDia({ ...dia, gbp: money, coins: parseInt(e.target.value) || 0 });
+      updates.gbp = money;
     }
+
+    setDia({ ...dia, ...updates });
   };
+
+  const handleUsd = (e) => {
+    const value = parseFloat(e.target.value) || 0;
+    setDia({ ...dia, usd: Math.max(0, value), coins: 0 }); // 🔧 Resetear coins si se modifica USD manualmente
+  };
+
   const handleEuro = (e) => {
-    setDia({ ...dia, euro: parseFloat(e.target.value) || 0 });
+    const value = parseFloat(e.target.value) || 0;
+    setDia({ ...dia, euro: Math.max(0, value), coins: 0 }); // 🔧 Resetear coins si se modifica EURO manualmente
   };
+
   const handleGbp = (e) => {
-    setDia({ ...dia, gbp: parseFloat(e.target.value) || 0 });
+    const value = parseFloat(e.target.value) || 0;
+    setDia({ ...dia, gbp: Math.max(0, value), coins: 0 }); // 🔧 Resetear coins si se modifica GBP manualmente
   };
+
   const handleGbpParcial = (e) => {
-    setDia({ ...dia, gbpParcial: parseFloat(e.target.value) || 0 });
+    const value = parseFloat(e.target.value) || 0;
+    setDia({ ...dia, gbpParcial: Math.max(0, value) });
   };
+
   const handleAdelantos = (e) => {
-    setDia({ ...dia, adelantos: parseFloat(e.target.value) || 0 });
+    const value = parseFloat(e.target.value) || 0;
+    setDia({ ...dia, adelantos: Math.max(0, value) });
   };
+
   const handleWorked = () => {
-    if (
+    const hasWork =
       dia.coins > 0 ||
       dia.euro > 0 ||
       dia.usd > 0 ||
       dia.gbp > 0 ||
-      dia.gbpParcial > 0
-    ) {
-      setDia({ ...dia, worked: true });
-    } else {
-      setDia({ ...dia, worked: false });
-    }
+      dia.gbpParcial > 0 ||
+      dia.adelantos > 0;
+
+    setDia({ ...dia, worked: hasWork });
   };
-  const handleQuincena = (e) => {
+
+  const handleQuincena = (selectedQuincena) => {
+    if (!selectedQuincena?.id) return;
+
     setQuincena({
-      ...quincena,
-      name: e.name,
-      inicio: e.inicio,
-      fin: e.fin,
-      year: e.year,
+      year: selectedQuincena.year || null,
+      name: selectedQuincena.name || "",
+      inicio: selectedQuincena.inicio || null,
+      fin: selectedQuincena.fin || null,
+      coins: selectedQuincena.coins || null,
+      valorCoins: selectedQuincena.valorCoins || null,
     });
-    setDia({ ...dia, q: e.id });
+    setDia({ ...dia, q: selectedQuincena.id });
   };
+
   useEffect(() => {
     handleWorked();
     handleMostrar();
-  }, [dia.usd, dia.euro, dia.coins, dia.gbp, dia.gbpParcial, dia.mostrar]);
+  }, [dia.usd, dia.euro, dia.coins, dia.gbp, dia.gbpParcial, dia.adelantos]);
+
+  // 🔧 VALIDACIÓN DEL FORMULARIO
+  const validateForm = () => {
+    if (!dia.name) {
+      setError("Debe seleccionar un día");
+      return false;
+    }
+
+    if (!dia.page) {
+      setError("Debe seleccionar una página");
+      return false;
+    }
+
+    if (!dia.q) {
+      setError("Debe seleccionar una quincena");
+      return false;
+    }
+
+    if (!dia.worked) {
+      setError("Debe ingresar al menos un valor en alguna moneda");
+      return false;
+    }
+
+    return true;
+  };
+
   const crearDia = async (e) => {
     e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    // 🔧 Verificar si la quincena está cerrada
+    if (quincenaCerrada) {
+      setError("No se pueden registrar días en una quincena cerrada");
+      return;
+    }
+
+    setLoading(true);
+
     try {
       const res = await window.Electron.addDay(dia);
-      if (res.error) {
-        console.log(res.error);
-        setError(res.error);
-      } else {
-        setError("Dia creado correctamente ✅");
+      const safeRes = handleObjectResponse(res);
+// console.log(safeRes)
+      if (safeRes.error) {
+        setError(safeRes.error);
+      } else if (safeRes?.dataValues.id||safeRes.id) {
+        // console.log(safeRes)
+        setError("✅ Día creado correctamente");
         setDia({
-          ...dia,
-          page: "",
-          coins: 0,
-          usd: 0,
-          euro: 0,
-          gbp: 0,
-          gbpParcial: 0,
-          mostrar: true,
-          adelantos: 0,
-          worked: false,
+          ...initialDiaState,
+          q: dia.q, // 🔧 Mantener la quincena seleccionada
         });
+      } else {
+        setError("Error inesperado al crear el día");
       }
     } catch (error) {
-      setError("Error al crear Dia: " + error);
+      console.error("Error creating day:", error);
+      setError("Error al crear Día: " + error.message);
+    } finally {
+      setLoading(false);
     }
   };
-  console.log(dia);
-  //para saber si la quincena esta cerrada
-  const quincenaSeleccionada = q?.find((select) => select.id === dia.q);
+
+  // 🔧 PARA SABER SI LA QUINCENA ESTÁ CERRADA
+  const quincenaSeleccionada = q.find((select) => select?.id === dia.q);
   const quincenaCerrada = quincenaSeleccionada?.cerrado;
+
+  // 🔧 DATOS PROTEGIDOS PARA RENDERIZADO
+  const safeDias = handleApiResponse(dias);
+  const safePage = handleApiResponse(page);
+  const currentPageData = safePage.find((pag) => pag?.name === dia.page);
+
+  // 🔧 FUNCIÓN PARA FORMATEAR MONEDA
+  const formatCurrency = (value, currency, locale = "en-US") => {
+    const numberValue = typeof value === "number" ? value : 0;
+
+    const formats = {
+      USD: { style: "currency", currency: "USD" },
+      EURO: { style: "currency", currency: "EUR" },
+      GBP: { style: "currency", currency: "GBP" },
+      COP: { style: "currency", currency: "COP" },
+    };
+
+    const format = formats[currency] || formats.USD;
+
+    return Intl.NumberFormat(locale, {
+      ...format,
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+    }).format(numberValue);
+  };
+
+  // 🔧 DESHABILITAR SCROLL EN INPUTS NUMBER
+  const handleWheel = (e) => e.target.blur();
+
+  // 🔧 VERIFICAR SI EL FORMULARIO ESTÁ COMPLETO
+  const isFormComplete = dia.name && dia.page && dia.q && dia.worked;
+
   return (
-    <div className="pt-12 flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="pt-12 flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-4">
       <motion.div
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="w-full max-w-md p-8 bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-700"
+        className="w-full max-w-md p-6 md:p-8 bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-700"
       >
-        <h1 className="text-3xl font-bold text-center text-emerald-400 mb-6 tracking-wide">
-          Registro Creditos diarios
+        <h1 className="text-2xl md:text-3xl font-bold text-center text-emerald-400 mb-6 tracking-wide">
+          Registro Créditos Diarios
         </h1>
 
         <form onSubmit={crearDia} className="space-y-4">
           <YearQuincenaSelector
-        yearS={yearS}
-        yearFives={yearFives}
-        setYearS={setYearS}
-        q={q}
-        quincena={quincena}
-        handleQuincena={handleQuincena}
-        handlePrev={handlePrev}
-        handleNext={handleNext}
-      />
+            yearS={yearS}
+            yearFives={handleApiResponse(yearFives)}
+            setYearS={setYearS}
+            q={handleApiResponse(q)}
+            quincena={quincena}
+            handleQuincena={handleQuincena}
+            handlePrev={handlePrev}
+            handleNext={handleNext}
+            disabled={loading}
+          />
 
-          {/* dias */}
-          <div className="flex items-center gap-2">
-            <label htmlFor="">Seleccione El Dia</label>
+          {/* Días */}
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-medium text-slate-300">
+              Seleccione El Día
+            </label>
             <select
-              className="p-2 border rounded bg-gray-800"
+              className="p-2 border border-slate-600 rounded-lg bg-slate-900 text-white focus:ring-2 focus:ring-emerald-400 focus:outline-none disabled:opacity-50"
+              value={dia.name}
               onChange={(e) => {
-                const daySelected = dias.find(
+                const daySelected = safeDias.find(
                   (item) => item === e.target.value
                 );
                 if (daySelected) handleName(daySelected);
               }}
+              disabled={loading || quincenaCerrada}
             >
               <option value="" hidden>
-                Seleccione
+                Seleccione un día
               </option>
-              {dias?.map((dia) => (
-                <option key={dia} value={dia}>
-                  {dia}
+              {safeDias.map((diaItem) => (
+                <option key={diaItem} value={diaItem}>
+                  {diaItem}
                 </option>
               ))}
             </select>
           </div>
-          {/* paginas */}
-          <div className="flex items-center gap-2">
-            <label htmlFor="">Seleccione La Pagina</label>
+
+          {/* Páginas */}
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-medium text-slate-300">
+              Seleccione La Página
+            </label>
             <select
-              className="p-2 border rounded bg-gray-800"
+              className="p-2 border border-slate-600 rounded-lg bg-slate-900 text-white focus:ring-2 focus:ring-emerald-400 focus:outline-none disabled:opacity-50"
+              value={dia.page}
               onChange={(e) => {
-                const pageSelected = page.find(
-                  (item) => item.name === e.target.value
+                const pageSelected = safePage.find(
+                  (item) => item?.name === e.target.value
                 );
                 if (pageSelected) handlePage(pageSelected);
               }}
+              disabled={loading || quincenaCerrada}
             >
               <option value="" hidden>
-                Seleccione
+                Seleccione una página
               </option>
-              {page?.map((pag) => (
-                <option key={pag.id} value={pag.name}>
-                  {pag.name}
+              {safePage.map((pag) => (
+                <option key={pag?.id} value={pag?.name}>
+                  {pag?.name}
                 </option>
               ))}
             </select>
           </div>
 
-          {/* cop */}
-          <div
-            className={`${
-              page.find((pag) => pag.name === dia.page)?.moneda === "COP"
-                ? "opacity-100"
-                : "hidden"
-            }`}
-          >
-            <label className="block mb-1 text-sm font-medium to-slate-300">
-              Adelantos / Prestamos
-            </label>
-            <p className="text-sm text-red-400">
-              Haga la sumaroria de los prestamos del dia y registre un solo
-              total [5+6+9=20] resgistra 20
-            </p>
-            <input
-              onWheel={(e) => e.target.blur()}
-              className="no-spin w-full px-4 py-2 bg-slate-900/70 border border-slate-600 rounded-lg shadow-sm focus:ring-emerald-400 focus:outline-none text-white"
-              type="number"
-              value={dia.adelantos}
-              disabled={
-                page.find((pag) => pag.name === dia.page)?.moneda === "COP"
-                  ? false
-                  : true
-              }
-              onChange={handleAdelantos}
-              placeholder=""
-              // min={0}
-            />
-            <p className="block mb-1 text-sm font-medium to-slate-300">
-              {Intl.NumberFormat("es-CO", {
-                style: "currency",
-                currency: "COP",
-                minimumFractionDigits: 1,
-                maximumFractionDigits: 1,
-              }).format(dia.adelantos) || 0}
-            </p>
-          </div>
-          {/* usd */}
-          <div
-            className={`${
-              page.find((pag) => pag.name === dia.page)?.moneda === "USD"
-                ? "opacity-100"
-                : "hidden"
-            }`}
-          >
-            <label className="block mb-1 text-sm font-medium to-slate-300">
-              Dolares
-            </label>
-            <input
-              onWheel={(e) => e.target.blur()}
-              className="no-spin w-full px-4 py-2 bg-slate-900/70 border border-slate-600 rounded-lg shadow-sm focus:ring-emerald-400 focus:outline-none text-white"
-              type="number"
-              value={dia.usd}
-              disabled={
-                page.find((pag) => pag.name === dia.page)?.moneda === "USD"
-                  ? false
-                  : true
-              }
-              onChange={handleUsd}
-              placeholder="0"
-              // min={0}
-            />
-            <p className="block mb-1 text-sm font-medium to-slate-300">
-              {Intl.NumberFormat("en-US", {
-                style: "currency",
-                currency: "USD",
-                minimumFractionDigits: 1,
-                maximumFractionDigits: 1,
-              }).format(typeof dia.usd !== "number")
-                ? 0
-                : dia.usd}
-            </p>
-          </div>
-          {/* coins */}
-          <div
-            className={`${
-              page.find((pag) => pag.name === dia.page)?.coins
-                ? "opacity-100"
-                : "hidden"
-            }`}
-          >
-            <label className="block mb-1 text-sm font-medium to-slate-300">
-              Coins
-            </label>
-            <input
-              onWheel={(e) => e.target.blur()}
-              className="no-spin w-full px-4 py-2 bg-slate-900/70 border border-slate-600 rounded-lg shadow-sm focus:ring-emerald-400 focus:outline-none text-white"
-              type="number"
-              value={dia.coins}
-              disabled={
-                page.find((pag) => pag.name === dia.page)?.coins ? false : true
-              }
-              onChange={handleCoins}
-              placeholder=""
-              // min={0}
-            />
-            <p className="block mb-1 text-sm font-medium to-slate-300">
-              {Intl.NumberFormat("es-EU", {
-                style: "currency",
-                currency: "EUR",
-                minimumFractionDigits: 1,
-                maximumFractionDigits: 1,
-              }).format(dia.euro) || 0}
-            </p>
-          </div>
+          {/* Campos condicionales basados en la página seleccionada */}
+          {currentPageData && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              transition={{ duration: 0.3 }}
+              className="space-y-4"
+            >
+              {/* COP - Adelantos */}
+              {currentPageData.moneda === "COP" && (
+                <div>
+                  <label className="block mb-1 text-sm font-medium text-slate-300">
+                    Adelantos / Préstamos
+                  </label>
+                  <p className="text-xs text-red-400 mb-2">
+                    Haga la sumatoria de los préstamos del día y registre un
+                    solo total [5+6+9=20] registra 20
+                  </p>
+                  <input
+                    onWheel={handleWheel}
+                    className="no-spin w-full px-4 py-2 bg-slate-900/70 border border-slate-600 rounded-lg shadow-sm focus:ring-2 focus:ring-emerald-400 focus:outline-none text-white disabled:opacity-50"
+                    type="number"
+                    value={dia.adelantos}
+                    onChange={handleAdelantos}
+                    disabled={loading || quincenaCerrada}
+                    min="0"
+                    step="0.01"
+                  />
+                  <p className="text-sm text-slate-300 mt-1">
+                    {formatCurrency(dia.adelantos, "COP", "es-CO")}
+                  </p>
+                </div>
+              )}
 
-          {/* euros */}
-          <div
-            className={`${
-              page.find((pag) => pag.name === dia.page)?.moneda === "EURO"
-                ? "opacity-100"
-                : "hidden"
-            }`}
-          >
-            <label className="block mb-1 text-sm font-medium to-slate-300">
-              Euros
-            </label>
-            <input
-              onWheel={(e) => e.target.blur()}
-              className="no-spin w-full px-4 py-2 bg-slate-900/70 border border-slate-600 rounded-lg shadow-sm focus:ring-emerald-400 focus:outline-none text-white"
-              type="number"
-              value={dia.euro}
-              disabled={
-                page.find((pag) => pag.name === dia.page)?.moneda === "EURO" &&
-                !page.find((pag) => pag.name === dia.page)?.coins
-                  ? false
-                  : true
-              }
-              onChange={handleEuro}
-              placeholder=""
-              // min={0}
-            />
-            <p className="block mb-1 text-sm font-medium to-slate-300">
-              {Intl.NumberFormat("es-EU", {
-                style: "currency",
-                currency: "EUR",
-                minimumFractionDigits: 1,
-                maximumFractionDigits: 1,
-              }).format(dia.euro) || 0}
-            </p>
-          </div>
-          {/* gbp */}
-          <div
-            className={`${
-              page.find((pag) => pag.name === dia.page)?.moneda === "GBP"
-                ? "opacity-100"
-                : "hidden"
-            }`}
-          >
-            <label className="block mb-1 text-sm font-medium to-slate-300">
-              Libras Esterlinas
-            </label>
-            <p className="text-sm text-red-400">
-              si ya registro un corte para este dia vuelvalo a registrar ahora
-              de lo contrario ese corte se borrara.
-            </p>
-            <input
-              onWheel={(e) => e.target.blur()}
-              className="no-spin w-full px-4 py-2 bg-slate-900/70 border border-slate-600 rounded-lg shadow-sm focus:ring-emerald-400 focus:outline-none text-white"
-              type="number"
-              value={dia.gbp}
-              disabled={
-                page.find((pag) => pag.name === dia.page)?.moneda === "GBP"
-                  ? false
-                  : true
-              }
-              onChange={handleGbp}
-              placeholder=""
-              // min={0}
-            />
-            <p className="block mb-1 text-sm font-medium to-slate-300">
-              {Intl.NumberFormat("en-GB", {
-                style: "currency",
-                currency: "GBP",
-                minimumFractionDigits: 1,
-                maximumFractionDigits: 1,
-              }).format(dia.gbp) || 0}
-            </p>
-          </div>
-          {/* gbp parcial*/}
-          <div
-            className={`${
-              page.find((pag) => pag.name === dia.page)?.moneda === "GBP"
-                ? "opacity-100"
-                : "hidden"
-            }`}
-          >
-            <label className="block mb-1 text-sm font-medium to-slate-300">
-              Libras Esterlinas Parcial
-            </label>
-            <input
-              onWheel={(e) => e.target.blur()}
-              className="no-spin w-full px-4 py-2 bg-slate-900/70 border border-slate-600 rounded-lg shadow-sm focus:ring-emerald-400 focus:outline-none text-white"
-              type="number"
-              value={dia.gbpParcial}
-              disabled={
-                page.find((pag) => pag.name === dia.page)?.moneda === "GBP"
-                  ? false
-                  : true
-              }
-              onChange={handleGbpParcial}
-              placeholder=""
-              // min={0}
-            />
-            <p className="block mb-1 text-sm font-medium to-slate-300">
-              {Intl.NumberFormat("en-GB", {
-                style: "currency",
-                currency: "GBP",
-                minimumFractionDigits: 1,
-                maximumFractionDigits: 1,
-              }).format(dia.gbpParcial) || 0}
-            </p>
-          </div>
-          {/* mensaje si la quincena esta cerrada */}
+              {/* COINS - MOSTRAR SOLO SI LA PÁGINA TIENE COINS */}
+              {currentPageData.coins && (
+                <div>
+                  <label className="block mb-1 text-sm font-medium text-slate-300">
+                    Coins
+                  </label>
+                  <input
+                    onWheel={handleWheel}
+                    className="no-spin w-full px-4 py-2 bg-slate-900/70 border border-slate-600 rounded-lg shadow-sm focus:ring-2 focus:ring-emerald-400 focus:outline-none text-white disabled:opacity-50"
+                    type="number"
+                    value={dia.coins}
+                    onChange={handleCoins}
+                    disabled={loading || quincenaCerrada}
+                    min="0"
+                  />
+                  <p className="text-sm text-slate-300 mt-1">
+                    Valor en {currentPageData.moneda}:{" "}
+                    {formatCurrency(
+                      currentPageData.moneda === "USD"
+                        ? dia.usd
+                        : currentPageData.moneda === "EURO"
+                        ? dia.euro
+                        : currentPageData.moneda === "GBP"
+                        ? dia.gbp
+                        : 0,
+                      currentPageData.moneda
+                    )}
+                  </p>
+                </div>
+              )}
+
+              {/* USD - SOLO MOSTRAR SI NO TIENE COINS */}
+              {currentPageData.moneda === "USD" && !currentPageData.coins && (
+                <div>
+                  <label className="block mb-1 text-sm font-medium text-slate-300">
+                    Dólares
+                  </label>
+                  <input
+                    onWheel={handleWheel}
+                    className="no-spin w-full px-4 py-2 bg-slate-900/70 border border-slate-600 rounded-lg shadow-sm focus:ring-2 focus:ring-emerald-400 focus:outline-none text-white disabled:opacity-50"
+                    type="number"
+                    value={dia.usd}
+                    onChange={handleUsd}
+                    disabled={loading || quincenaCerrada}
+                    min="0"
+                    step="0.01"
+                  />
+                  <p className="text-sm text-slate-300 mt-1">
+                    {formatCurrency(dia.usd, "USD")}
+                  </p>
+                </div>
+              )}
+
+              {/* EURO - SOLO MOSTRAR SI NO TIENE COINS */}
+              {currentPageData.moneda === "EURO" && !currentPageData.coins && (
+                <div>
+                  <label className="block mb-1 text-sm font-medium text-slate-300">
+                    Euros
+                  </label>
+                  <input
+                    onWheel={handleWheel}
+                    className="no-spin w-full px-4 py-2 bg-slate-900/70 border border-slate-600 rounded-lg shadow-sm focus:ring-2 focus:ring-emerald-400 focus:outline-none text-white disabled:opacity-50"
+                    type="number"
+                    value={dia.euro}
+                    onChange={handleEuro}
+                    disabled={loading || quincenaCerrada}
+                    min="0"
+                    step="0.01"
+                  />
+                  <p className="text-sm text-slate-300 mt-1">
+                    {formatCurrency(dia.euro, "EURO", "es-EU")}
+                  </p>
+                </div>
+              )}
+
+              {/* GBP - SOLO MOSTRAR SI NO TIENE COINS */}
+              {currentPageData.moneda === "GBP" && !currentPageData.coins && (
+                <>
+                  <div>
+                    <label className="block mb-1 text-sm font-medium text-slate-300">
+                      Libras Esterlinas
+                    </label>
+                    <p className="text-xs text-red-400 mb-2">
+                      Si ya registró un corte para este día vuélvalo a registrar
+                      ahora, de lo contrario ese corte se borrará.
+                    </p>
+                    <input
+                      onWheel={handleWheel}
+                      className="no-spin w-full px-4 py-2 bg-slate-900/70 border border-slate-600 rounded-lg shadow-sm focus:ring-2 focus:ring-emerald-400 focus:outline-none text-white disabled:opacity-50"
+                      type="number"
+                      value={dia.gbp}
+                      onChange={handleGbp}
+                      disabled={loading || quincenaCerrada}
+                      min="0"
+                      step="0.01"
+                    />
+                    <p className="text-sm text-slate-300 mt-1">
+                      {formatCurrency(dia.gbp, "GBP", "en-GB")}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block mb-1 text-sm font-medium text-slate-300">
+                      Libras Esterlinas Parcial
+                    </label>
+                    <input
+                      onWheel={handleWheel}
+                      className="no-spin w-full px-4 py-2 bg-slate-900/70 border border-slate-600 rounded-lg shadow-sm focus:ring-2 focus:ring-emerald-400 focus:outline-none text-white disabled:opacity-50"
+                      type="number"
+                      value={dia.gbpParcial}
+                      onChange={handleGbpParcial}
+                      disabled={loading || quincenaCerrada}
+                      min="0"
+                      step="0.01"
+                    />
+                    <p className="text-sm text-slate-300 mt-1">
+                      {formatCurrency(dia.gbpParcial, "GBP", "en-GB")}
+                    </p>
+                  </div>
+                </>
+              )}
+            </motion.div>
+          )}
+
+          {/* Mensaje si la quincena está cerrada */}
           {quincenaCerrada && (
-            <div className="p-3 bg-red-500/20 border border-red-600 text-red-300 rounded-lg text-sm text-center mt-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="p-3 bg-red-500/20 border border-red-600 text-red-300 rounded-lg text-sm text-center"
+            >
               ⚠️ Lo sentimos, esta quincena está <b>cerrada</b> y no se pueden
               agregar créditos.
-            </div>
+            </motion.div>
           )}
+
           {/* Botón */}
           <motion.div
-            className="mt-10 text-center"
+            className="mt-6 text-center"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1.4 }}
+            transition={{ delay: 0.3 }}
           >
             {quincenaCerrada ? (
-              <p className="text-red-400 text-sm mt-2 font-medium">
+              <p className="text-red-400 text-sm font-medium">
                 No puedes registrar días en una quincena cerrada.
               </p>
-            ) : dia.name &&
-              dia.page &&
-              dia.q &&
-              (dia.worked ||
-                dia.usd > 0 ||
-                dia.euro > 0 ||
-                dia.coins > 0 ||
-                dia.adelantos > 0 ||
-                dia.gbp > 0 ||
-                dia.gbpParcial > 0 ||
-                dia.mostrar === true) ? (
+            ) : isFormComplete ? (
               <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: loading ? 1 : 1.05 }}
+                whileTap={{ scale: loading ? 1 : 0.95 }}
                 type="submit"
-                className="px-8 py-3 rounded-xl text-lg font-bold text-white 
-                 bg-gradient-to-r from-emerald-500 to-sky-500 
-                 hover:from-emerald-400 hover:to-sky-400 
-                 active:scale-95 shadow-lg shadow-emerald-500/30 
-                 transition-all duration-200"
+                disabled={loading}
+                className={`px-8 py-3 rounded-xl text-lg font-bold text-white 
+                       shadow-lg transition-all duration-200 ${
+                         loading
+                           ? "bg-gray-600 cursor-not-allowed"
+                           : "bg-gradient-to-r from-emerald-500 to-sky-500 hover:from-emerald-400 hover:to-sky-400"
+                       }`}
               >
-                Cargar
+                {loading ? "⏳ Cargando..." : "🚀 Cargar Día"}
               </motion.button>
             ) : (
-              <p className="text-slate-500 text-sm mt-2">
+              <p className="text-slate-400 text-sm">
                 Complete todos los campos para habilitar el botón
               </p>
             )}

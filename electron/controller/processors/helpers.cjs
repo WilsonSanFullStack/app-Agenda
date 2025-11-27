@@ -1,4 +1,6 @@
-const { MESES } = require("./constants.cjs");
+const path = require("path");
+
+const { MESES } = require(path.join(__dirname, "constants.cjs"));
 //convierte una fecha en formato dd-mm-mma a objeto date
 const parseFecha = (str) => {
 

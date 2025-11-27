@@ -1,6 +1,8 @@
-const { limpiarAdultwork } = require("./cleaners.cjs");
-const { procesarDias } = require("./diasProcessor.cjs");
-const { formatearQuincenaCompleta } = require("./formatearQuincenaCompleta.cjs");
+const path = require("path");
+
+const { limpiarAdultwork } = require(path.join(__dirname, "cleaners.cjs"));
+const { procesarDias } = require(path.join(__dirname, "diasProcessor.cjs"));
+const { formatearQuincenaCompleta } = require(path.join(__dirname, "formatearQuincenaCompleta.cjs"));
 
 
 //se procesa la quincena completa trayendo los helpers handlers y cleaners

@@ -1,4 +1,6 @@
-const { Day, Quincena } = require("../db.cjs")
+const path = require("path");
+
+const { Day, Quincena } = require(path.join(__dirname, "..", "db.cjs"));
 const { BrowserWindow } = require("electron");
 
 const postDay = async (data) => {
