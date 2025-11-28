@@ -2,310 +2,320 @@ const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
 const fs = require("fs");
 
-console.log("🚀 ELECTRON INICIANDO...");
-console.log("📁 Directorio actual:", __dirname);
-
 let mainWindow;
+let diagnosticLogs = [];
 
-// 🔧 CARGAR IPC MAIN DE FORMA SEGURA
-function loadIpcMain() {
-  const ipcMainPath = path.join(__dirname, "ipcMain", "ipcMain.cjs");
-  console.log("📁 Ruta de IPC Main:", ipcMainPath);
-  console.log("📁 ¿Existe el archivo?", fs.existsSync(ipcMainPath));
+function sendToFrontend(message, type = 'info') {
+  diagnosticLogs.push({ message, type, timestamp: new Date().toISOString() });
+  console.log(`${type === 'error' ? '❌' : '✅'} ${message}`);
+}
 
-  if (fs.existsSync(ipcMainPath)) {
+// 🔧 VERIFICAR HANDLERS IPC (MÉTODO CORREGIDO)
+function verifyIpcHandlers() {
+  sendToFrontend('🔍 Verificando handlers IPC...');
+  const testHandlers = ['get-page', 'ping'];
+  const registeredHandlers = ipcMain.eventNames();
+  
+  testHandlers.forEach(handler => {
+    if (registeredHandlers.includes(handler)) {
+      sendToFrontend(`   ✅ ${handler} registrado`);
+    } else {
+      sendToFrontend(`   ❌ ${handler} NO registrado`, 'error');
+    }
+  });
+}
+
+// 🔧 CONFIGURAR RUTA DE BASE DE DATOS PARA PRODUCCIÓN
+function getDatabasePath() {
+  if (app.isPackaged) {
+    // En producción: usar AppData del usuario
+    const userDataPath = app.getPath('userData');
+    const dbPath = path.join(userDataPath, 'database.sqlite');
+    sendToFrontend(`📁 Ruta DB producción: ${dbPath}`);
+    return dbPath;
+  } else {
+    // En desarrollo: usar ruta local
+    const devDbPath = path.join(__dirname, 'database.sqlite');
+    sendToFrontend(`📁 Ruta DB desarrollo: ${devDbPath}`);
+    return devDbPath;
+  }
+}
+
+// 🔧 DIAGNÓSTICO ESPECÍFICO DE LA BASE DE DATOS (CORREGIDO)
+async function diagnoseDatabase() {
+  sendToFrontend('🗄️ DIAGNÓSTICO DE BASE DE DATOS');
+  
+  try {
+    // Cargar db.cjs
+    const dbPath = path.join(__dirname, 'db.cjs');
+    sendToFrontend(`📁 Cargando: ${dbPath}`);
+    
+    const dbModule = require(dbPath);
+    sendToFrontend('✅ db.cjs cargado');
+
+    // Verificar sequelize
+    if (!dbModule.sequelize) {
+      throw new Error('sequelize no está exportado en db.cjs');
+    }
+    sendToFrontend('✅ sequelize encontrado');
+
+    // OBTENER RUTA CORRECTA DE LA BASE DE DATOS
+    const correctDbPath = getDatabasePath();
+    
+    // Actualizar la configuración de sequelize con la ruta correcta
+    const sequelize = dbModule.sequelize;
+    sequelize.options.storage = correctDbPath;
+    
+    sendToFrontend(`📊 Configuración sequelize actualizada:`);
+    sendToFrontend(`   - Dialect: ${sequelize.options.dialect}`);
+    sendToFrontend(`   - Storage: ${sequelize.options.storage}`);
+    sendToFrontend(`   - Logging: ${sequelize.options.logging}`);
+
+    // Verificar si el directorio de la DB existe
+    const dbDir = path.dirname(correctDbPath);
+    sendToFrontend(`📁 Directorio de DB: ${dbDir}`);
+    
+    if (!fs.existsSync(dbDir)) {
+      sendToFrontend(`⚠️ Directorio no existe, creando: ${dbDir}`);
+      fs.mkdirSync(dbDir, { recursive: true });
+    }
+
+    // Verificar permisos de escritura
     try {
-      require(ipcMainPath);
-      console.log("✅ IPC Main cargado exitosamente");
+      const testFile = path.join(dbDir, 'test-write.txt');
+      fs.writeFileSync(testFile, 'test');
+      fs.unlinkSync(testFile);
+      sendToFrontend('✅ Permisos de escritura OK');
     } catch (error) {
-      console.error("❌ Error cargando IPC Main:", error);
+      sendToFrontend(`❌ Sin permisos de escritura en: ${dbDir}`, 'error');
+      throw error;
     }
-  } else {
-    console.error("❌ Archivo IPC Main NO encontrado");
-  }
-}
 
-// 🔧 CONFIGURAR MANEJADORES DE VENTANA
-function setupWindowHandlers() {
-  // 🔧 MANEJADORES PARA EL CONTROL DE VENTANA
-  ipcMain.on("window:minimize", () => {
-    if (mainWindow) {
-      mainWindow.minimize();
-    }
-  });
-
-  ipcMain.on("window:maximize", () => {
-    if (mainWindow) {
-      if (mainWindow.isMaximized()) {
-        mainWindow.unmaximize();
-      } else {
-        mainWindow.maximize();
-      }
-    }
-  });
-
-  ipcMain.on("window:unmaximize", () => {
-    if (mainWindow) {
-      mainWindow.unmaximize();
-    }
-  });
-
-  ipcMain.on("window:close", () => {
-    if (mainWindow) {
-      mainWindow.close();
-    }
-  });
-
-  // 🔧 MANEJADORES PARA RECARGAS
-  ipcMain.on("window:reload", () => {
-    if (mainWindow) {
-      mainWindow.reload();
-    }
-  });
-
-  ipcMain.on("window:reload-force", () => {
-    if (mainWindow) {
-      mainWindow.webContents.reloadIgnoringCache();
-    }
-  });
-
-  // 🔧 MANEJADOR PARA HERRAMIENTAS DE DESARROLLO
-  ipcMain.on("open-devtools", () => {
-    if (mainWindow) {
-      mainWindow.webContents.openDevTools();
-    }
-  });
-}
-
-// 🔧 CONFIGURAR EVENTOS DE VENTANA
-function setupWindowEvents() {
-  if (!mainWindow) return;
-
-  // 🔹 EVENTOS DE DEBUG
-  mainWindow.webContents.on("did-finish-load", () => {
-    console.log("✅ Contenido cargado correctamente");
-  });
-
-  mainWindow.webContents.on(
-    "did-fail-load",
-    (event, errorCode, errorDescription) => {
-      console.log("❌ Error cargando contenido:", errorCode, errorDescription);
-    }
-  );
-
-  mainWindow.on("ready-to-show", () => {
-    console.log("✅ Ventana lista para mostrar - MOSTRANDO...");
-    mainWindow.show();
-    mainWindow.focus();
-
-    // 🔹 SOLO abrir DevTools en desarrollo
-    if (process.env.NODE_ENV === "development") {
-      mainWindow.webContents.openDevTools();
-    }
-  });
-
-  mainWindow.on("show", () => {
-    console.log("👀 Ventana VISIBLE en pantalla");
-  });
-
-  mainWindow.on("closed", () => {
-    console.log("🔴 Ventana cerrada");
-    mainWindow = null;
-  });
-
-  // 🔧 EVENTOS DE ESTADO DE VENTANA
-  mainWindow.on("maximize", () => {
-    if (mainWindow) {
-      mainWindow.webContents.send("window:maximized");
-    }
-  });
-
-  mainWindow.on("unmaximize", () => {
-    if (mainWindow) {
-      mainWindow.webContents.send("window:unmaximized");
-    }
-  });
-}
-
-// 🔧 CARGAR CONTENIDO DE LA VENTANA
-function loadWindowContent() {
-  if (!mainWindow) return;
-
-  const devURL = "http://localhost:5173";
-  const prodPath = path.join(__dirname, "..", "dist", "index.html");
-
-  console.log("🔍 Rutas verificadas:");
-  console.log("   - Desarrollo:", devURL);
-  console.log("   - Producción:", prodPath);
-  console.log("   - ¿Existe dist/index.html?", fs.existsSync(prodPath));
-
-  if (process.env.NODE_ENV === "development") {
-    console.log("🔧 MODO DESARROLLO - Cargando desde Vite...");
-    mainWindow.loadURL(devURL).catch((err) => {
-      console.error("❌ Error cargando URL de desarrollo:", err);
-      loadEmergencyHTML();
+    // Verificar modelos cargados en sequelize
+    sendToFrontend('🔍 Verificando modelos en sequelize...');
+    const modelNames = Object.keys(sequelize.models);
+    sendToFrontend(`📊 Modelos cargados: ${modelNames.length}`);
+    modelNames.forEach(name => {
+      sendToFrontend(`   ✅ ${name}`);
     });
-  } else {
-    console.log("📦 MODO PRODUCCIÓN - Cargando archivo local...");
 
-    // 🔹 INTENTAR DIFERENTES RUTAS
-    const possiblePaths = [
-      path.join(__dirname, "..", "dist", "index.html"),
-      path.join(process.resourcesPath, "app", "dist", "index.html"),
-      path.join(process.cwd(), "dist", "index.html"),
-    ];
+    if (modelNames.length === 0) {
+      throw new Error('No se cargaron modelos en sequelize');
+    }
 
-    let loaded = false;
-    for (const htmlPath of possiblePaths) {
-      if (fs.existsSync(htmlPath)) {
-        console.log("✅ Cargando desde:", htmlPath);
-        mainWindow.loadFile(htmlPath).catch((err) => {
-          console.error("❌ Error cargando archivo:", htmlPath, err);
-        });
-        loaded = true;
-        break;
-      } else {
-        console.log("❌ No existe:", htmlPath);
+    // DIAGNÓSTICO DETALLADO: Verificar cada modelo individualmente
+    sendToFrontend('🔍 Diagnóstico detallado de modelos...');
+    for (const modelName of modelNames) {
+      try {
+        const model = sequelize.models[modelName];
+        sendToFrontend(`   ✅ Modelo ${modelName}: OK`);
+        
+        // Verificar atributos del modelo
+        const attributes = Object.keys(model.rawAttributes || {});
+        sendToFrontend(`      Atributos: ${attributes.length}`);
+        
+      } catch (error) {
+        sendToFrontend(`   ❌ Error en modelo ${modelName}: ${error.message}`, 'error');
       }
     }
 
-    if (!loaded) {
-      console.log(
-        "❌ NO SE ENCONTRÓ NINGÚN ARCHIVO HTML - Creando HTML de emergencia"
-      );
-      loadEmergencyHTML();
+    // INTENTAR SINCRONIZACIÓN CON MÁS DETALLES
+    sendToFrontend('🔄 Intentando sincronización...');
+    
+    try {
+      await sequelize.authenticate();
+      sendToFrontend('✅ Autenticación con DB exitosa');
+    } catch (authError) {
+      sendToFrontend(`❌ Error de autenticación: ${authError.message}`, 'error');
+      throw authError;
     }
+
+    // Sincronizar con opciones específicas
+    const syncOptions = {
+      force: false,
+      alter: false,
+      logging: (sql) => {
+        sendToFrontend(`   📝 SQL: ${sql}`, 'info');
+      }
+    };
+
+    sendToFrontend('🔧 Sincronizando con opciones:', syncOptions);
+    await sequelize.sync(syncOptions);
+    sendToFrontend('✅ Sincronización completada');
+
+    return true;
+
+  } catch (error) {
+    sendToFrontend(`💥 ERROR en diagnoseDatabase: ${error.message}`, 'error');
+    
+    // Información adicional del error
+    if (error.original) {
+      sendToFrontend(`   📌 Error original: ${error.original.message}`, 'error');
+    }
+    if (error.parent) {
+      sendToFrontend(`   📌 Error parent: ${error.parent.message}`, 'error');
+    }
+    
+    throw error;
   }
 }
 
-// 🔧 CARGAR HTML DE EMERGENCIA
-function loadEmergencyHTML() {
-  if (!mainWindow) return;
+// 🔧 CARGAR MÓDULOS SIMPLIFICADO (CORREGIDO)
+async function loadAllModules() {
+  sendToFrontend('🚀 CARGANDO MÓDULOS');
+  
+  try {
+    // 1. DIAGNÓSTICO DE BASE DE DATOS
+    await diagnoseDatabase();
 
-  const emergencyHTML = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>AppAgenda - EMERGENCY</title>
-        <style>
-            body { 
-                font-family: Arial, sans-serif; 
-                padding: 40px; 
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                text-align: center;
-            }
-            h1 { font-size: 2.5em; margin-bottom: 20px; }
-            p { font-size: 1.2em; margin-bottom: 10px; }
-            .info { 
-                background: rgba(255,255,255,0.1); 
-                padding: 20px; 
-                border-radius: 10px; 
-                margin: 20px 0; 
-                text-align: left;
-            }
-            .button {
-                background: #4CAF50;
-                color: white;
-                padding: 10px 20px;
-                border: none;
-                border-radius: 5px;
-                cursor: pointer;
-                margin: 5px;
-            }
-            .button:hover {
-                background: #45a049;
-            }
-        </style>
-    </head>
-    <body>
-        <h1>🚨 MODO EMERGENCIA</h1>
-        <p>La aplicación se está ejecutando pero no encontró los archivos.</p>
-        <div class="info">
-            <p><strong>Directorio:</strong> ${__dirname}</p>
-            <p><strong>Plataforma:</strong> ${process.platform}</p>
-            <p><strong>Recursos:</strong> ${process.resourcesPath}</p>
-            <p><strong>Modo:</strong> ${
-              process.env.NODE_ENV || "production"
-            }</p>
-        </div>
-        <p>✅ Electron está funcionando correctamente</p>
-        <div>
-            <button class="button" onclick="window.location.reload()">Reintentar Carga</button>
-            <button class="button" onclick="window.Electron?.openDevTools?.()">Abrir Consola</button>
-        </div>
-    </body>
-    </html>
-  `;
+    // 2. CARGAR IPC MAIN
+    sendToFrontend('📦 Cargando IPC Main...');
+    const ipcMainPath = path.join(__dirname, 'ipcMain', 'ipcMain.cjs');
+    
+    if (!fs.existsSync(ipcMainPath)) {
+      throw new Error(`ipcMain.cjs no encontrado: ${ipcMainPath}`);
+    }
+    
+    require(ipcMainPath);
+    sendToFrontend('✅ IPC Main cargado');
 
-  mainWindow.loadURL(
-    `data:text/html;charset=utf-8,${encodeURIComponent(emergencyHTML)}`
-  );
+    // 3. VERIFICAR HANDLERS (USANDO MÉTODO CORREGIDO)
+    verifyIpcHandlers();
+
+    return true;
+
+  } catch (error) {
+    sendToFrontend(`💥 ERROR: ${error.message}`, 'error');
+    throw error;
+  }
 }
 
-function createWindow() {
-  console.log("🪟 Creando ventana principal...");
+// 🔧 CREAR VENTANA PRINCIPAL
+function createMainWindow() {
+  sendToFrontend('🪟 Creando ventana principal...');
 
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 720,
-    icon: path.join(__dirname, "../dist/notebook.ico"),
-    frame: false, // 🔹 NAVBAR PERSONALIZADA
-    titleBarStyle: "hidden",
-    show: false, // 🔹 No mostrar hasta que esté lista
-    minWidth: 800,
-    minHeight: 600,
+    frame: false,
+    titleBarStyle: 'hidden',
+    show: false,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      enableRemoteModule: false,
-      spellcheck: false,
-      preload: path.join(__dirname, "preload.cjs"),
+      preload: path.join(__dirname, 'preload.cjs'),
     },
   });
 
-  console.log("✅ Ventana creada");
+  mainWindow.on('ready-to-show', () => {
+    mainWindow.show();
+    mainWindow.focus();
+    sendToFrontend('✅ Ventana lista');
+    // Solo abrir DevTools en desarrollo
+    if (!app.isPackaged) {
+      mainWindow.webContents.openDevTools();
+    }
+  });
 
-  // 🔧 CONFIGURAR EVENTOS Y MANEJADORES
-  setupWindowEvents();
-  setupWindowHandlers();
-
-  // 🔧 CARGAR CONTENIDO
+  // Cargar contenido
   loadWindowContent();
 }
 
+function loadWindowContent() {
+  sendToFrontend('🌐 Cargando interfaz...');
+  
+  if (process.env.NODE_ENV === 'development') {
+    mainWindow.loadURL('http://localhost:5173');
+  } else {
+    const htmlPath = path.join(__dirname, '..', 'dist', 'index.html');
+    if (fs.existsSync(htmlPath)) {
+      mainWindow.loadFile(htmlPath);
+    } else {
+      throw new Error(`index.html no encontrado: ${htmlPath}`);
+    }
+  }
+}
+
+// 🔧 CREAR VENTANA DE DIAGNÓSTICO
+function createDiagnosticWindow(error = null) {
+  const win = new BrowserWindow({
+    width: 1000,
+    height: 700,
+    show: true,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: false,
+    }
+  });
+
+  const diagnosticHTML = `
+<html>
+<head>
+  <title>Diagnóstico Base de Datos</title>
+  <style>
+    body { font-family: Arial; padding: 20px; background: #1e1e1e; color: white; }
+    .header { background: #2d2d2d; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+    .error { background: #5c2a2a; padding: 15px; border-radius: 5px; margin-bottom: 20px; border-left: 5px solid #ff4444; }
+    .logs { background: #2d2d2d; padding: 20px; border-radius: 10px; height: 400px; overflow-y: auto; font-family: 'Courier New', monospace; font-size: 14px; }
+    .log-entry { margin: 8px 0; padding: 5px; border-left: 3px solid #666; }
+    .log-error { border-left-color: #ff4444; color: #ff8888; }
+    .log-info { border-left-color: #44ff44; color: #88ff88; }
+    .timestamp { color: #888; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🔧 Diagnóstico Base de Datos</h1>
+    <p>Identificando el error ENOTDIR en sequelize.sync()</p>
+  </div>
+
+  ${error ? `<div class="error"><h2>❌ ERROR</h2><p><strong>${error.message}</strong></p></div>` : ''}
+
+  <div class="logs" id="logsContainer">
+    <div class="log-entry log-info">
+      <span class="timestamp">[Iniciando...]</span> Diagnóstico de base de datos...
+    </div>
+  </div>
+
+  <script>
+    const logsContainer = document.getElementById('logsContainer');
+    const logs = ${JSON.stringify(diagnosticLogs)};
+
+    logs.forEach(log => {
+      const logEntry = document.createElement('div');
+      logEntry.className = 'log-entry log-' + (log.type || 'info');
+      const timestamp = new Date(log.timestamp).toLocaleTimeString();
+      logEntry.innerHTML = '<span class="timestamp">[' + timestamp + ']</span> ' + log.message;
+      logsContainer.appendChild(logEntry);
+    });
+
+    logsContainer.scrollTop = logsContainer.scrollHeight;
+  </script>
+</body>
+</html>
+  `;
+
+  win.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(diagnosticHTML)}`);
+  if (!app.isPackaged) {
+    win.webContents.openDevTools();
+  }
+}
+
 // 🔹 INICIAR APLICACIÓN
-app.whenReady().then(() => {
-  console.log("🎉 APP READY - Creando ventana...");
-
-  // 🔧 CARGAR IPC PRIMERO
-  loadIpcMain();
-
-  // 🔧 CREAR VENTANA
-  createWindow();
-});
-
-app.on("activate", () => {
-  console.log("🔹 App activada");
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
+app.whenReady().then(async () => {
+  console.log('=== DIAGNÓSTICO DB ENOTDIR ===');
+  sendToFrontend(`📦 Modo: ${app.isPackaged ? 'PRODUCCIÓN' : 'DESARROLLO'}`);
+  
+  try {
+    await loadAllModules();
+    createMainWindow();
+    sendToFrontend('🎉 APLICACIÓN INICIADA CORRECTAMENTE');
+  } catch (error) {
+    sendToFrontend(`💥 ERROR: ${error.message}`, 'error');
+    createDiagnosticWindow(error);
   }
 });
 
-app.on("window-all-closed", () => {
-  console.log("🔴 Todas las ventanas cerradas - Saliendo...");
-  if (process.platform !== "darwin") {
-    app.quit();
-  }
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') app.quit();
 });
-
-// 🔹 ERROR HANDLING
-process.on("uncaughtException", (error) => {
-  console.error("💥 ERROR NO CAPTURADO:", error);
-});
-
-process.on("unhandledRejection", (reason, promise) => {
-  console.error("💥 PROMESA RECHAZADA NO MANEJADA:", reason);
-});
-
-console.log("🔹 MAIN.JS CARGADO - Esperando app.ready...");

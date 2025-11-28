@@ -1,6 +1,6 @@
 const path = require("path");
 
-const { CerradoQ, Page, Quincena } = require(path.join(__dirname, "..", "db.cjs"));
+const { CerradoQ, Page, Quincena } = require(path.join(__dirname,  "..", "db.cjs"));
 const { getDataQ } = require(path.join(__dirname, "getQData.cjs"));
 const { BrowserWindow } = require("electron");
 //buscar siguiente quincena

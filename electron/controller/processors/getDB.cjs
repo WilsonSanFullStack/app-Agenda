@@ -9,7 +9,7 @@ const {
   sequelize,
   Aranceles,
   CerradoQ,
-} = require(path.join(__dirname, "..", "..", "db.cjs"));
+} = require(path.join(__dirname,"..", "..", "db.cjs"));
 
 // Importar Sequelize (no necesita path.join ya que es de node_modules)
 const { Op } = require("sequelize");

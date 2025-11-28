@@ -1,13 +1,19 @@
-const { Sequelize } = require("sequelize");
-const path = require("path");
 const fs = require("fs");
-// Ruta de la base de datos SQLite
-const dbPath = path.join(__dirname, "database.sqlite");
+const { Sequelize } = require('sequelize');
+const path = require('path');
+const { app } = require('electron');
+// Configuración dinámica según el entorno
+const dbPath = app.isPackaged 
+  ? path.join(app.getPath('userData'), 'database.sqlite')
+  : path.join(__dirname, 'database.sqlite');
 
 const sequelize = new Sequelize({
-  dialect: "sqlite",
+  dialect: 'sqlite',
   storage: dbPath,
-  logging: false, // Desactiva logs de SQL
+  logging: false,
+  define: {
+    timestamps: false
+  }
 });
 
 const basename = path.basename(__filename);
