@@ -1,77 +1,102 @@
-const { app, BrowserWindow, ipcMain, Menu, nativeImage } = require("electron");
+const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
-const chokidar = require("chokidar");
-const { sequelize } = require("./db.cjs");
-
-require("./ipcMain/ipcMain.cjs");
 
 let mainWindow;
 
-app.whenReady().then(async () => {
-  await sequelize.sync({ force: false }); //sincroniza la db sin eliminar datos
-  console.log("🔹 Base de datos lista");
+// ===== CARGAR MÓDULOS =====
+async function loadModules() {
+  const { sequelize } = require(path.join(__dirname, "db.cjs"));
 
+  await sequelize.sync({ force: false });
+  // require(path.join(__dirname, "db.cjs"));
+  require(path.join(__dirname, "ipcMain", "ipcMain.cjs"));
+}
+
+// ===== MANEJADORES DE VENTANA =====
+function setupWindowHandlers() {
+  ipcMain.on("window:minimize", () => {
+    mainWindow?.minimize();
+  });
+
+  ipcMain.on("window:maximize", () => {
+    if (!mainWindow) return;
+    mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize();
+  });
+
+  ipcMain.on("window:unmaximize", () => {
+    mainWindow?.unmaximize();
+  });
+
+  ipcMain.on("window:close", () => {
+    mainWindow?.close();
+  });
+
+  ipcMain.on("window:reload", () => {
+    mainWindow?.reload();
+  });
+
+  ipcMain.on("window:reload-force", () => {
+    mainWindow?.webContents.reloadIgnoringCache();
+  });
+
+  ipcMain.on("open-devtools", () => {
+    mainWindow?.webContents.openDevTools();
+  });
+}
+
+// ===== CARGAR FRONTEND =====
+function loadWindowContent() {
+  if (process.env.NODE_ENV === "development") {
+    mainWindow.loadURL("http://localhost:5173");
+  } else {
+    const htmlPath = path.join(__dirname, "..", "dist", "index.html");
+    mainWindow.loadFile(htmlPath);
+  }
+}
+
+// ===== CREAR VENTANA =====
+function createMainWindow() {
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 720,
+    minWidth: 800,
+    minHeight: 600,
     frame: false,
+    titleBarStyle: "hidden",
+    show: false,
+    icon: path.join(__dirname, "../dist/notebook.ico"),
     webPreferences: {
-      nodeIntegration: true,
+      nodeIntegration: false,
       contextIsolation: true,
-      enableRemoteModule: false,
-      spellcheck: true, // 🔹 Desactiva el autocompletado
       preload: path.join(__dirname, "preload.cjs"),
     },
   });
 
-  // ipcMain.handle();
-  if (process.env.NODE_ENV === "development") {
-    mainWindow.loadURL("http://localhost:5173"); // 🔥 Carga desde Vite en dev
-  } else {
-    // mainWindow.loadFile("dist/index.html"); // 📦 Carga el archivo en producción
-    mainWindow.loadURL(`file://${path.join(__dirname, "../dist/index.html")}`);
-  }
-
-  // 🔄 Detectar cambios en la carpeta de Vite y recargar Electron
-  chokidar.watch("./dist").on("change", () => {
-    if (mainWindow) {
-      console.log("🔄 Recargando ventana...");
-      mainWindow.reload();
-    }
-  });
-
-  //manejo de otros ipcmain
-  ipcMain.on("open-devtools", () => {
-    if (mainWindow) {
+  mainWindow.on("ready-to-show", () => {
+    mainWindow.show();
+    mainWindow.focus();
+    if (!app.isPackaged) {
       mainWindow.webContents.openDevTools();
     }
   });
 
-  // Eventos para manejar acciones de la ventana desde el frontend
-  ipcMain.on("window:minimize", () => {
-    mainWindow.minimize();
-  });
+  loadWindowContent();
+  setupWindowHandlers();
+}
 
-  ipcMain.on("window:maximize", () => {
-    if (mainWindow.isMaximized()) {
-      mainWindow.unmaximize();
-    } else {
-      mainWindow.maximize();
-    }
-  });
-
-  ipcMain.on("window:close", () => {
-    mainWindow.close();
-  });
-  app.on("activate", () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
-    }
-  });
-  mainWindow.on("closed", () => {
-    mainWindow = null;
-  });
+// ===== APP READY =====
+app.whenReady().then(async () => {
+  await loadModules();
+  
+  createMainWindow();
 });
+
+app.on("activate", () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createMainWindow();
+  }
+});
+
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
 });

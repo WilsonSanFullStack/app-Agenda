@@ -13,6 +13,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      page: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
       coins: {
         type: DataTypes.INTEGER,
         allowNull: false,

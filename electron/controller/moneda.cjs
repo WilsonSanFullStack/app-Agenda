@@ -1,10 +1,12 @@
-const { Quincena, Moneda,  } = require("../db.cjs");
+const path = require("path");
+
+const { Quincena, Moneda } = require(path.join(__dirname, "..", "db.cjs"));
 const { BrowserWindow } = require("electron");
 
-const postMoneda = async ({ dolar, euro, lb, pago, quincena }) => {
+const postMoneda = async ({ dolar, euro, gbp, pago, quincena }) => {
   try {
     const quincenaId = await Quincena.findOne({ where: { id: quincena } });
-    const newMoneda = await Moneda.create({ dolar: dolar, euro: euro, lb: lb, pago: pago });
+    const newMoneda = await Moneda.create({ dolar: dolar, euro: euro, gbp: gbp, pago: pago });
     if (newMoneda) {
       await newMoneda.setQuincena(quincenaId);
     }
@@ -22,6 +24,17 @@ const postMoneda = async ({ dolar, euro, lb, pago, quincena }) => {
   }
 };
 
-
+// const getMoney = async () => {
+// try {
+// const x = await 
+// return x
+// } catch (error) {
+// return {
+// sucess: false,
+// message: "Error al registrar ###",
+// error: error,
+// };
+// }
+// };
 
 module.exports = { postMoneda };

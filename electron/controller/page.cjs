@@ -1,4 +1,6 @@
-const { Page } = require("../db.cjs");
+const path = require("path");
+
+const { Page } = require(path.join(__dirname, "..", "db.cjs"));
 const { BrowserWindow } = require("electron");
 
 const postPage = async ({
@@ -79,5 +81,45 @@ const getAllPageName = async () => {
     };
   }
 };
+const deletePage = async (id) => {
+  try {
+    // 🔍 Verificar que la página existe
+    const page = await Page.findByPk(id);
+    
+    if (!page) {
+      return { 
+        success: false, 
+        message: "La página no existe",
+        error: "Página no encontrada" 
+      };
+    }
 
-module.exports = { postPage, getAllPage, getAllPageName };
+    // 🗑️ Eliminar la página
+    await Page.destroy({
+      where: { id: id }
+    });
+
+    // 🔹 Enviar evento a React para actualizar la lista
+    BrowserWindow.getAllWindows().forEach((win) => {
+      win.webContents.send("page-actualizado", { 
+        id: id, 
+        action: "deleted" 
+      });
+    });
+
+    return { 
+      success: true, 
+      message: "Página eliminada correctamente",
+      deletedPage: page.dataValues
+    };
+
+  } catch (error) {
+    console.error("❌ Error eliminando página:", error);
+    return {
+      success: false,
+      message: "Error al eliminar la página",
+      error: error.message,
+    };
+  }
+};
+module.exports = { postPage, getAllPage, getAllPageName, deletePage };
