@@ -106,6 +106,14 @@ Es una herramienta pensada para mejorar la organización, la transparencia y la 
 
 ---
 
+## 📥 Descarga
+
+Puedes descargar la aplicación desde el siguiente enlace:
+
+[**Descargar App Agenda v2**](https://drive.google.com/file/d/1DpRvXI-4QuOsPLi7J8qvvY76383ZPaIn/view?usp=sharing)
+
+---
+
 ## 👤 Autor
 
 **Wilson San** — Full Stack Developer
