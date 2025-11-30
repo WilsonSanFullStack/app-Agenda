@@ -261,5 +261,3 @@ La aplicación está pensada para **organizar**, **automatizar** y **visualizar*
 Full Stack Developer
 
 ---
-
-Si deseas, puedo crear también el archivo separado de **Presentación**, listo para subir como `PRESENTACION.md`.
