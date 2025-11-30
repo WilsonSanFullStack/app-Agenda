@@ -79,13 +79,8 @@ const calcularInteresQuincenaAnterior = (quincenaActual, cierreAnterior) => {
   }
 
   // Calcular 10% de interés sobre la deuda
-  const interes = Math.abs(rojoAnterior) * 0.10;
+  const interes = Math.abs(rojoAnterior) * 0.05;
   const rojoTotal = rojoAnterior - interes; // Se resta porque rojoAnterior es negativo
-
-  console.log(`💰 CÁLCULO DE INTERÉS:`);
-  console.log(`   Rojo anterior: ${rojoAnterior}`);
-  console.log(`   Interés (10%): ${interes}`);
-  console.log(`   Rojo total con interés: ${rojoTotal}`);
 
   return {
     tieneInteres: true,

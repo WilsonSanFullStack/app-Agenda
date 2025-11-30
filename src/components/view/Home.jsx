@@ -743,7 +743,7 @@ export const Home = ({ setError }) => {
             {/* intereses */}
             {qData?.interes?.interes > 0 && (
               <div className="bg-slate-800 p-2 rounded-lg border border-slate-700 text-center">
-                <p className="text-slate-400">INTERES 10%</p>
+                <p className="text-slate-400">INTERES 5%</p>
                 <p className="font-bold text-red-300">
                   {Intl.NumberFormat("es-CO", {
                     style: "currency",

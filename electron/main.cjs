@@ -5,7 +5,10 @@ let mainWindow;
 
 // ===== CARGAR MÓDULOS =====
 async function loadModules() {
-  require(path.join(__dirname, "db.cjs"));
+  const { sequelize } = require(path.join(__dirname, "db.cjs"));
+
+  await sequelize.sync({ force: false });
+  // require(path.join(__dirname, "db.cjs"));
   require(path.join(__dirname, "ipcMain", "ipcMain.cjs"));
 }
 
@@ -84,6 +87,7 @@ function createMainWindow() {
 // ===== APP READY =====
 app.whenReady().then(async () => {
   await loadModules();
+  
   createMainWindow();
 });
 
