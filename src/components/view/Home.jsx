@@ -62,7 +62,7 @@ export const Home = ({ setError }) => {
       if (pago.id !== "") {
         const res = await window.Electron.getDataQ(pago);
         // 🔧 Proteger qData - si no es objeto, usar objeto vacío
-        setQData(res && typeof res === 'object' ? res : {});
+        setQData(res && typeof res === "object" ? res : {});
       } else {
         setQData({}); // 🔧 Objeto vacío si no hay pago.id
       }
@@ -85,7 +85,11 @@ export const Home = ({ setError }) => {
 
   const handlePago = () => {
     // 🔧 Verificar que moneda y moneda.pago existan
-    if (moneda?.pago?.usd > 0 && moneda?.pago?.euro > 0 && moneda?.pago?.gbp > 0) {
+    if (
+      moneda?.pago?.usd > 0 &&
+      moneda?.pago?.euro > 0 &&
+      moneda?.pago?.gbp > 0
+    ) {
       const y = pago.pago;
       setPago({ ...pago, pago: !y });
     } else {
@@ -109,7 +113,9 @@ export const Home = ({ setError }) => {
         setError("Error al cerrar la quincena: " + error);
       }
     } else {
-      setError("Debe estar en modo pago y tener una quincena seleccionada para poder cerrar la quincena.");
+      setError(
+        "Debe estar en modo pago y tener una quincena seleccionada para poder cerrar la quincena."
+      );
     }
   };
 
@@ -172,8 +178,9 @@ export const Home = ({ setError }) => {
   useEffect(() => {
     reloadData();
   }, [yearS, pago.id, reloadData]);
+  // console.log("qData", qData);
   return (
-    <div key={reloadKey} className="min-h-screen pt-12 bg-slate-900">
+    <div key={reloadKey} className="min-h-screen pt-10 bg-slate-900 px-20 p-2">
       {/* Cabecera compacta */}
       <YearQuincenaPagoCierreCabecera
         key={reloadKey}
@@ -418,7 +425,7 @@ export const Home = ({ setError }) => {
 
       {/* Dias como cards compactas */}
       {qData?.dias && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 pb-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 pb-2 mx-auto px-3">
           {qData?.dias?.map((dia) => (
             <motion.div
               key={dia?.name}
@@ -434,65 +441,75 @@ export const Home = ({ setError }) => {
               {/* totales de los dias */}
               <div className="grid grid-cols-3 gap-1 text-[11px] text-slate-300 bg-slate-900 rounded-lg p-2 mb-2">
                 {/* Coins */}
-                        {dia.totalesDia.coins > 0 && (
-                          <span>Coins: {dia.totalesDia.coins}</span>
-                        )}
+                {dia.totalesDia.coins > 0 && (
+                  <span>Coins: {dia.totalesDia.coins}</span>
+                )}
                 {/* USD */}
-                        {dia.totalesDia.usd > 0 && (
-                          <span>
-                            USD:{" "}
-                            {Intl.NumberFormat("en-US", {
-                              style: "currency",
-                              currency: "USD",
-                              maximumFractionDigits: 2,
-                            }).format(dia.totalesDia.usd)}
-                          </span>
-                        )}
-                        {/* EURO */}
-                        {dia.totalesDia.euro > 0 && (
-                          <span>
-                            EUR:{" "}
-                            {Intl.NumberFormat("es-EU", {
-                              style: "currency",
-                              currency: "EUR",
-                              maximumFractionDigits: 2,
-                            }).format(dia.totalesDia.euro)}
-                          </span>
-                        )}
-                        {/* GBP */}
-                        {dia.totalesDia.gbp > 0 && (
-                          <span>
-                            GBP:{" "}
-                            {Intl.NumberFormat("en-GB", {
-                              style: "currency",
-                              currency: "GBP",
-                              maximumFractionDigits: 2,
-                            }).format(dia.totalesDia.gbp)}
-                          </span>
-                        )}
-                        {/* Pesos */}
-                        {dia.totalesDia.cop > 0 && (
-                            <span>
-                              Ganancia:{" "}
-                              {Intl.NumberFormat("es-CO", {
-                                style: "currency",
-                                currency: "COP",
-                                maximumFractionDigits: 2,
-                              }).format(dia.totalesDia.cop)}
-                            </span>
-                          )}
-                        {/* adelantos */}
-                        {dia.totalesDia.adelantos > 0 && (
-                            <span>
-                              Prestamos:{" "}
-                              {Intl.NumberFormat("es-CO", {
-                                style: "currency",
-                                currency: "COP",
-                                maximumFractionDigits: 2,
-                              }).format(dia.totalesDia.adelantos)}
-                            </span>
-                          )}
-                      </div>
+                {dia.totalesDia.usd > 0 && (
+                  <span>
+                    USD:{" "}
+                    {Intl.NumberFormat("en-US", {
+                      style: "currency",
+                      currency: "USD",
+                      maximumFractionDigits: 2,
+                    }).format(dia.totalesDia.usd)}
+                  </span>
+                )}
+                {/* EURO */}
+                {dia.totalesDia.euro > 0 && (
+                  <span>
+                    EUR:{" "}
+                    {Intl.NumberFormat("es-EU", {
+                      style: "currency",
+                      currency: "EUR",
+                      maximumFractionDigits: 2,
+                    }).format(dia.totalesDia.euro)}
+                  </span>
+                )}
+                {/* GBP */}
+                {dia.totalesDia.gbp > 0 && (
+                  <span>
+                    GBP:{" "}
+                    {Intl.NumberFormat("en-GB", {
+                      style: "currency",
+                      currency: "GBP",
+                      maximumFractionDigits: 2,
+                    }).format(dia.totalesDia.gbp)}
+                  </span>
+                )}
+                {/* Pesos */}
+                {dia.totalesDia.cop > 0 && (
+                  <span>
+                    Ganancia:{" "}
+                    {Intl.NumberFormat("es-CO", {
+                      style: "currency",
+                      currency: "COP",
+                      maximumFractionDigits: 2,
+                    }).format(dia.totalesDia.cop)}
+                  </span>
+                )}
+                {/* adelantos */}
+                {dia.totalesDia.adelantos > 0 && (
+                  <span>
+                    Prestamos:{" "}
+                    {Intl.NumberFormat("es-CO", {
+                      style: "currency",
+                      currency: "COP",
+                      maximumFractionDigits: 2,
+                    }).format(dia.totalesDia.adelantos)}
+                  </span>
+                )}
+                {/* creditos */}
+                {dia.totalesDia.creditos > 0 && (
+                  <span>
+                    Creditos:{" "}
+                    {Intl.NumberFormat("es-IN", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }).format(dia?.totalesDia?.creditos)}
+                  </span>
+                )}
+              </div>
 
               {/* Recorremos las páginas */}
               <div className="space-y-2">
@@ -585,15 +602,15 @@ export const Home = ({ setError }) => {
 
                         {/* Pesos */}
                         {pagina.pesosTotal > 0 && (
-                            <span>
-                              COP:{" "}
-                              {Intl.NumberFormat("es-CO", {
-                                style: "currency",
-                                currency: "COP",
-                                maximumFractionDigits: 2,
-                              }).format(pagina.pesosTotal)}
-                            </span>
-                          )}
+                          <span>
+                            COP:{" "}
+                            {Intl.NumberFormat("es-CO", {
+                              style: "currency",
+                              currency: "COP",
+                              maximumFractionDigits: 2,
+                            }).format(pagina.pesosTotal)}
+                          </span>
+                        )}
                         {pagina.pesosDia > 0 && (
                           <span>
                             COP día:{" "}
@@ -637,9 +654,7 @@ export const Home = ({ setError }) => {
                           </span>
                         )}
                       </div>
-                      
                     </div>
-                    
                   );
                 })}
               </div>
@@ -651,7 +666,7 @@ export const Home = ({ setError }) => {
       {/* Totales compactos */}
       {qData.totales && (
         <motion.div
-          className="bg-slate-900 rounded-xl px-1 pb-2 w-full max-w-6xl mx-auto shadow"
+          className="bg-slate-800 rounded-xl px-1 pb-2 w-full max-w-6xl mx-auto shadow"
           initial={{ opacity: 0, y: -5 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
@@ -660,7 +675,7 @@ export const Home = ({ setError }) => {
             TOTAL QUINCENA
           </h2>
 
-          <section className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 text-xs text-slate-200">
+          <section className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2 text-xs text-slate-200">
             {/* coins */}
             {qData.totales.coins > 0 && (
               <div className="bg-slate-800 p-2 rounded-lg border border-slate-700 text-center">
@@ -673,7 +688,7 @@ export const Home = ({ setError }) => {
 
             {/* usd */}
             {qData.totales.usd > 0 && (
-              <div className="bg-slate-800 p-2 rounded-lg border border-slate-700 text-center">
+              <div className="bg-slate-800 p-2 rounded-lg border border-slate-700 text-center text-emerald-300">
                 <p className="text-slate-400">USD</p>
                 <p className="font-bold">
                   {Intl.NumberFormat("en-US", {
@@ -687,7 +702,7 @@ export const Home = ({ setError }) => {
 
             {/* euro */}
             {qData.totales.euro > 0 && (
-              <div className="bg-slate-800 p-2 rounded-lg border border-slate-700 text-center">
+              <div className="bg-slate-800 p-2 rounded-lg border border-slate-700 text-center text-sky-300">
                 <p className="text-slate-400">EURO</p>
                 <p className="font-bold">
                   {Intl.NumberFormat("es-EU", {
@@ -701,7 +716,7 @@ export const Home = ({ setError }) => {
 
             {/* gbp */}
             {qData.totales.gbp > 0 && (
-              <div className="bg-slate-800 p-2 rounded-lg border border-slate-700 text-center">
+              <div className="bg-slate-800 p-2 rounded-lg border border-slate-700 text-center text-indigo-400">
                 <p className="text-slate-400">GBP</p>
                 <p className="font-bold">
                   {Intl.NumberFormat("en-GB", {
@@ -713,11 +728,24 @@ export const Home = ({ setError }) => {
               </div>
             )}
 
+            {/* Creditos */}
+            {qData.totales.creditos > 0 && (
+              <div className="bg-slate-800 p-2 rounded-lg border border-slate-700 text-center ">
+                <p className="text-slate-400">CREDITOS</p>
+                <p className="font-bold">
+                  {Intl.NumberFormat("es-IN", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }).format(qData.totales.creditos)}
+                </p>
+              </div>
+            )}
+
             {/* cop */}
             {qData.totales.cop > 0 && (
-              <div className="bg-slate-800 p-2 rounded-lg border border-slate-700 text-center">
+              <div className="bg-slate-800 p-2 rounded-lg border border-slate-700 text-center text-blue-500">
                 <p className="text-slate-400">PESOS</p>
-                <p className="font-bold text-yellow-300">
+                <p className="font-bold">
                   {Intl.NumberFormat("es-CO", {
                     style: "currency",
                     currency: "COP",
@@ -731,7 +759,7 @@ export const Home = ({ setError }) => {
             {qData.totales.adelantos > 0 && (
               <div className="bg-slate-800 p-2 rounded-lg border border-slate-700 text-center">
                 <p className="text-slate-400">PRÉSTAMOS</p>
-                <p className="font-bold text-red-300">
+                <p className="font-bold text-red-600">
                   {Intl.NumberFormat("es-CO", {
                     style: "currency",
                     currency: "COP",
@@ -744,7 +772,7 @@ export const Home = ({ setError }) => {
             {qData?.interes?.interes > 0 && (
               <div className="bg-slate-800 p-2 rounded-lg border border-slate-700 text-center">
                 <p className="text-slate-400">INTERES 5%</p>
-                <p className="font-bold text-red-300">
+                <p className="font-bold text-red-600">
                   {Intl.NumberFormat("es-CO", {
                     style: "currency",
                     currency: "COP",
@@ -757,7 +785,7 @@ export const Home = ({ setError }) => {
             {qData?.interes?.rojoAnterior < 0 && (
               <div className="bg-slate-800 p-2 rounded-lg border border-slate-700 text-center">
                 <p className="text-slate-400">DEUDA</p>
-                <p className="font-bold text-red-300">
+                <p className="font-bold text-red-600">
                   {Intl.NumberFormat("es-CO", {
                     style: "currency",
                     currency: "COP",
@@ -770,7 +798,7 @@ export const Home = ({ setError }) => {
             {qData?.interes?.rojoConInteres < 0 && (
               <div className="bg-slate-800 p-2 rounded-lg border border-slate-700 text-center">
                 <p className="text-slate-400">DEUDA + INTERES</p>
-                <p className="font-bold text-red-300">
+                <p className="font-bold text-red-600">
                   {Intl.NumberFormat("es-CO", {
                     style: "currency",
                     currency: "COP",

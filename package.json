@@ -61,7 +61,7 @@
     }
   },
   "scripts": {
-    "dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electronmon .\"",
+    "dev": "vite && electronmon .",
     "build": "vite build",
     "build:electron": "vite build && electron-builder",
     "electron": "electron .",

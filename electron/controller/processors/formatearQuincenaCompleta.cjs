@@ -87,7 +87,7 @@ const crearEstructuraBase = (quincena, porcentaje, isPago, monedasCompletas) => 
     isPago: isPago,
     totales: {
       coins: 0, usd: 0, euro: 0, gbp: 0, cop: 0, 
-      adelantos: 0, worked: 0, rojo: 0
+      adelantos: 0, worked: 0, rojo: 0, creditos: 0
     },
     promedios: {
       mejorPageCreditos: { name: "", coins: 0, creditos: 0 },
@@ -105,13 +105,14 @@ const crearEstructuraBase = (quincena, porcentaje, isPago, monedasCompletas) => 
 
 const calcularTotalesAcumulados = (qfLimpio) => {
   const totales = {
-    coins: 0, usd: 0, euro: 0, gbp: 0, cop: 0, adelantos: 0
+    coins: 0, usd: 0, euro: 0, gbp: 0, cop: 0, adelantos: 0, creditos: 0
   };
   
   const totalesPorDia = [];
 
   for (const dia of qfLimpio) {
     const totalesDia = calcularTotalesDia(dia);
+    totalesDia.creditos = totalesDia.usd+totalesDia.euro+totalesDia.gbp;
     totalesPorDia.push(totalesDia);
     
     // Acumular totales
@@ -121,6 +122,7 @@ const calcularTotalesAcumulados = (qfLimpio) => {
     totales.gbp += totalesDia.gbp;
     totales.cop += totalesDia.cop;
     totales.adelantos += totalesDia.adelantos;
+    totales.creditos += totalesDia.creditos
   }
 
   return { totales, totalesPorDia };
