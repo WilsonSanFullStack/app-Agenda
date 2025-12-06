@@ -1,7 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import notebook from "../../assets/notebook.png";
 import { useNavigate } from "react-router-dom";
-import { BsZoomIn, BsZoomOut, BsXCircle, BsArrowClockwise, BsArrowCounterclockwise, BsSquare, BsCheck2Square } from "react-icons/bs";
+import {
+  BsZoomIn,
+  BsZoomOut,
+  BsXCircle,
+  BsArrowClockwise,
+  BsArrowCounterclockwise,
+  BsSquare,
+  BsCheck2Square,
+} from "react-icons/bs";
 import { motion, AnimatePresence } from "framer-motion";
 
 export const Navbar = () => {
@@ -9,6 +17,17 @@ export const Navbar = () => {
   const [openMenu, setOpenMenu] = useState(null);
   const [isMaximized, setIsMaximized] = useState(false);
   const menuRef = useRef(null);
+
+  // 🔧 FUNCIÓN PARA ABRIR ENLACES EXTERNOS EN EL NAVEGADOR DEL SISTEMA
+  const openInBrowser = (url) => {
+    if (window.Electron?.openExternal) {
+      window.Electron.openExternal(url);
+    } else if (window.electron?.shell?.openExternal) {
+      window.electron.shell.openExternal(url);
+    } else {
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
+  };
 
   // 🔧 OPCIONES DEL MENÚ CON PROTECCIÓN
   const optionMenu = {
@@ -53,6 +72,27 @@ export const Navbar = () => {
           }
         },
       },
+      {
+        name: "Portafolio",
+        action: () =>
+          window.open(
+            "https://wilsonsanchez.vercel.app/",
+            "_blank",
+            "noopener,noreferrer"
+          ),
+        external: true,
+      },
+    ],
+    Ayuda: [
+      {
+        name: "Avisos y Contacto",
+        path: "/", // 🔧 Ahora apunta a la ruta raíz donde está el Programador
+      },
+      {
+      name: "Soporte WhatsApp",
+      action: () => window.open(`https://wa.me/573156226982?text=${encodeURIComponent('Hola Wilson, necesito ayuda con App Agenda')}`, '_blank', 'noopener,noreferrer'),
+      external: true,
+    },
     ],
   };
 
@@ -106,8 +146,8 @@ export const Navbar = () => {
 
     return () => {
       if (window.Electron?.removeAllListeners) {
-        window.Electron.removeAllListeners('window:maximized');
-        window.Electron.removeAllListeners('window:unmaximized');
+        window.Electron.removeAllListeners("window:maximized");
+        window.Electron.removeAllListeners("window:unmaximized");
       }
     };
   }, []);
@@ -126,54 +166,67 @@ export const Navbar = () => {
     };
   }, []);
 
-  // 🔧 Cerrar menú al navegar
-  const handleNavigation = (path, action) => {
+  // 🔧 Cerrar menú al navegar o ejecutar acción
+  const handleMenuAction = (option) => {
     setOpenMenu(null);
-    
-    if (path) {
-      navigate(path);
-    } else if (action && typeof action === 'function') {
-      action();
+
+    if (option.external && option.action) {
+      option.action();
+    } else if (option.path) {
+      navigate(option.path);
+    } else if (option.action && typeof option.action === "function") {
+      option.action();
     }
   };
 
-  // 🔧 MANEJADOR SEGURO PARA LOGO
+  // 🔧 MANEJADOR PARA LOGO Y TEXTO "App Agenda" - DIRIGE A /home
   const handleLogoClick = () => {
-    navigate("/");
+    navigate("/home");
+  };
+
+  // 🔧 ABRIR ENLACE EXTERNO DESDE LOGO (clic derecho)
+  const handleLogoContextMenu = (e) => {
+    e.preventDefault();
+    openInBrowser("https://wilsonsanchez.vercel.app/");
   };
 
   return (
-    // 🔧 AGREGAR -webkit-app-region: drag PARA PERMITIR ARRASTRAR LA VENTANA
-    <nav 
+    <nav
       className="flex justify-between items-center bg-slate-900 shadow-md px-3 py-1 rounded-md select-none"
-      style={{ WebkitAppRegion: 'drag' }} // 🔧 IMPORTANTE: Permite arrastrar la ventana
+      style={{ WebkitAppRegion: "drag" }}
     >
-      {/* Logo - No drag para permitir clicks */}
-      <div 
-        className="flex items-center space-x-2"
-        style={{ WebkitAppRegion: 'no-drag' }} // 🔧 IMPORTANTE: Permite clicks
+      {/* Logo y Texto - Ambos dirigen a /home */}
+      <div
+        className="flex items-center space-x-2 cursor-pointer"
+        style={{ WebkitAppRegion: "no-drag" }}
+        onClick={handleLogoClick}
+        onContextMenu={handleLogoContextMenu}
+        title="Clic para ir a Inicio | Clic derecho para Portafolio"
       >
         <motion.img
           src={notebook}
           alt="logo"
-          className="cursor-pointer noMover"
-          onClick={handleLogoClick}
+          className="noMover"
           width={28}
           height={28}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}
           transition={{ type: "spring", stiffness: 400, damping: 17 }}
         />
-        <h1 className="text-white font-bold tracking-wide text-sm">
+        <motion.h1
+          className="text-white font-bold tracking-wide text-sm"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
           App Agenda
-        </h1>
+        </motion.h1>
       </div>
 
-      {/* Menú - No drag para permitir clicks */}
-      <div 
-        className="flex space-x-4 relative" 
+      {/* Menú */}
+      <div
+        className="flex space-x-4 relative"
         ref={menuRef}
-        style={{ WebkitAppRegion: 'no-drag' }} // 🔧 IMPORTANTE: Permite clicks
+        style={{ WebkitAppRegion: "no-drag" }}
       >
         {Object.keys(optionMenu).map((menu) => (
           <div key={menu} className="relative">
@@ -197,28 +250,59 @@ export const Navbar = () => {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -10, scale: 0.95 }}
                   transition={{ duration: 0.15, ease: "easeOut" }}
-                  className="absolute left-0 mt-1 w-48 bg-slate-950 shadow-xl rounded-md border border-slate-600 z-50 backdrop-blur-sm"
+                  className="absolute left-0 mt-1 w-56 bg-slate-950 shadow-xl rounded-md border border-slate-600 z-50 backdrop-blur-sm"
                 >
                   <ul className="divide-y divide-slate-700">
-                    {Array.isArray(optionMenu[menu]) && optionMenu[menu].map((option, index) => (
-                      <motion.li
-                        key={option.name || index}
-                        className="px-4 py-2 text-sm text-white hover:bg-slate-700 cursor-pointer transition-colors first:rounded-t-md last:rounded-b-md flex items-center gap-2"
-                        onClick={() => handleNavigation(option.path, option.action)}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                        whileHover={{ 
-                          backgroundColor: "rgba(51, 65, 85, 0.8)",
-                          x: 2
-                        }}
-                      >
-                        {option.name === "Recargar" && <BsArrowClockwise className="text-blue-400" />}
-                        {option.name === "Recargar Forzado" && <BsArrowCounterclockwise className="text-orange-400" />}
-                        {option.name === "Abrir Consola" && <span className="text-green-400">⚙️</span>}
-                        {option.name}
-                      </motion.li>
-                    ))}
+                    {Array.isArray(optionMenu[menu]) &&
+                      optionMenu[menu].map((option, index) => (
+                        <motion.li
+                          key={option.name || index}
+                          className={`px-4 py-2 text-sm hover:bg-slate-700 cursor-pointer transition-colors first:rounded-t-md last:rounded-b-md flex items-center justify-between group ${
+                            option.external
+                              ? "text-cyan-300 hover:text-cyan-200"
+                              : "text-white hover:text-white"
+                          }`}
+                          onClick={() => handleMenuAction(option)}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                          whileHover={{
+                            backgroundColor: option.external
+                              ? "rgba(6, 182, 212, 0.2)"
+                              : "rgba(51, 65, 85, 0.8)",
+                            x: 2,
+                          }}
+                          title={
+                            option.external ? "Abrir en navegador externo" : ""
+                          }
+                        >
+                          <div className="flex items-center gap-2">
+                            {/* Iconos para cada opción */}
+                            {option.name === "Portafolio" && (
+                              <span className="text-yellow-300">🌐</span>
+                            )}
+                            {option.name === "Avisos y Contacto" && (
+                              <span className="text-purple-300">⚠️</span>
+                            )}
+                            {option.name === "Documentación" && (
+                              <span className="text-blue-300">📚</span>
+                            )}
+                            {option.name === "Reportar Problema" && (
+                              <span className="text-red-300">🐛</span>
+                            )}
+                            {option.name === "Soporte WhatsApp" && (
+                              <span className="text-green-300">💬</span>
+                            )}
+                            {option.name}
+                          </div>
+
+                          {option.external && (
+                            <span className="text-xs opacity-70 group-hover:opacity-100">
+                              ↗
+                            </span>
+                          )}
+                        </motion.li>
+                      ))}
                   </ul>
                 </motion.div>
               )}
@@ -227,12 +311,8 @@ export const Navbar = () => {
         ))}
       </div>
 
-      {/* Botones de ventana - No drag para permitir clicks */}
-      <div 
-        className="flex space-x-1"
-        style={{ WebkitAppRegion: 'no-drag' }} // 🔧 IMPORTANTE: Permite clicks
-      >
-        {/* Botones de recarga */}
+      {/* Botones de ventana */}
+      <div className="flex space-x-1" style={{ WebkitAppRegion: "no-drag" }}>
         <motion.button
           onClick={handleReload}
           className="p-1 rounded-md hover:bg-slate-700 transition"
@@ -242,7 +322,7 @@ export const Navbar = () => {
         >
           <BsArrowClockwise className="text-lg text-blue-400" />
         </motion.button>
-        
+
         <motion.button
           onClick={handleForceReload}
           className="p-1 rounded-md hover:bg-slate-700 transition"
@@ -253,10 +333,8 @@ export const Navbar = () => {
           <BsArrowCounterclockwise className="text-lg text-orange-400" />
         </motion.button>
 
-        {/* Separador visual */}
         <div className="w-px bg-slate-600 mx-1 my-1"></div>
 
-        {/* Botones de control de ventana */}
         <motion.button
           onClick={handleMinimize}
           className="p-1 rounded-md hover:bg-slate-700 transition"
@@ -266,7 +344,7 @@ export const Navbar = () => {
         >
           <BsZoomOut className="text-lg text-yellow-400" />
         </motion.button>
-        
+
         <motion.button
           onClick={handleMaximize}
           className="p-1 rounded-md hover:bg-slate-700 transition"
@@ -280,7 +358,7 @@ export const Navbar = () => {
             <BsSquare className="text-lg text-green-400" />
           )}
         </motion.button>
-        
+
         <motion.button
           onClick={handleClose}
           className="p-1 rounded-md hover:bg-red-600 transition"

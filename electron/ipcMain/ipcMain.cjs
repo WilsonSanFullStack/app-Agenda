@@ -74,9 +74,7 @@ if (arancelesController) {
     arancelesController.postAranceles(data)
   );
 
-  ipcMain.handle("get-aranceles", () =>
-    arancelesController.getAranceles()
-  );
+  ipcMain.handle("get-aranceles", () => arancelesController.getAranceles());
 
   ipcMain.handle("update-aranceles", (e, data) =>
     arancelesController.updateAranceles(data)
@@ -91,9 +89,7 @@ if (arancelesController) {
 // GET Q DATA
 // -------------------------------
 if (getQDataController) {
-  ipcMain.handle("get-data-q", (e, data) =>
-    getQDataController.getDataQ(data)
-  );
+  ipcMain.handle("get-data-q", (e, data) => getQDataController.getDataQ(data));
 }
 
 // -------------------------------

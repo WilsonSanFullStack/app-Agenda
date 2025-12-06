@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require("electron");
+const { app, BrowserWindow, ipcMain, shell } = require("electron");
 const path = require("path");
 
 let mainWindow;
@@ -42,6 +42,32 @@ function setupWindowHandlers() {
   ipcMain.on("open-devtools", () => {
     mainWindow?.webContents.openDevTools();
   });
+  // 🔧 Manejar la apertura de enlaces externos
+// 🔧 SOLUCIÓN: Manejar TODOS los enlaces externos automáticamente
+mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+  // Si es un enlace externo, ábrelo en el navegador del sistema
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    // Usa shell.openExternal para abrir en el navegador predeterminado
+    shell.openExternal(url).catch(err => {
+      console.error('Error al abrir URL externa:', err);
+    });
+    return { action: 'deny' }; // No permitas que Electron abra una ventana
+  }
+  return { action: 'allow' }; // Permite ventanas para otras URLs
+});
+
+// 🔧 También manejar navegación dentro de la misma ventana
+mainWindow.webContents.on('will-navigate', (event, url) => {
+  const parsedUrl = new URL(url);
+  
+  // Si la URL es externa (http/https), abrir en navegador
+  if (parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:') {
+    event.preventDefault();
+    shell.openExternal(url).catch(err => {
+      console.error('Error al abrir URL externa:', err);
+    });
+  }
+});
 }
 
 // ===== CARGAR FRONTEND =====
@@ -58,7 +84,7 @@ function loadWindowContent() {
 function createMainWindow() {
   mainWindow = new BrowserWindow({
     width: 1280,
-    height: 720,
+    height: 800,
     minWidth: 800,
     minHeight: 600,
     frame: false,
@@ -79,6 +105,16 @@ function createMainWindow() {
       mainWindow.webContents.openDevTools();
     }
   });
+
+  // Manejar enlaces de navegación externa
+mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+  // Abrir enlaces http/https en el navegador del sistema
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    shell.openExternal(url);
+    return { action: 'deny' }; // Evitar que Electron abra una nueva ventana
+  }
+  return { action: 'allow' };
+});
 
   loadWindowContent();
   setupWindowHandlers();

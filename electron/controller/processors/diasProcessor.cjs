@@ -28,9 +28,6 @@ const procesarDias = (dias, paginas, tasas, nombreQuincena, cierre = null) => {
     };
     if (!qf.includes(df)) qf.push(df);
 
-    //actualizar worked
-    if (dia.worked) df.worked = true;
-
     // Buscar página
     const pag = paginas.find((p) => p.name === dia.page);
     if (!pag) continue;
@@ -44,6 +41,18 @@ const procesarDias = (dias, paginas, tasas, nombreQuincena, cierre = null) => {
     // Aplicar descuentos
     const diaConDescuento = aplicarDescuento(dia, pag);
 
+     // Verificar si hay créditos en este día (USD, EUR, GBP > 0.01)
+    // Solo marcar como worked si hay créditos, no solo prestamos/adelantos
+    const tieneCreditos = 
+      (diaConDescuento.usd && Math.abs(diaConDescuento.usd) >= 0.01) ||
+      (diaConDescuento.euro && Math.abs(diaConDescuento.euro) >= 0.01) ||
+      (diaConDescuento.gbp && Math.abs(diaConDescuento.gbp) >= 0.01) ||
+      (diaConDescuento.gbpParcial && Math.abs(diaConDescuento.gbpParcial) >= 0.01);
+    
+    // Actualizar worked solo si hay créditos
+    if (tieneCreditos) {
+      df.worked = true;
+    }
     //procesar coins
     if (pag.coins) {
       df = procesarCoinsMensual(

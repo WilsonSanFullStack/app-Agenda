@@ -1,7 +1,7 @@
 {
   "name": "appagenda",
   "private": true,
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Aplicación de estadísticas y gestión de quincenas",
   "author": "Wilson Sanchez <harveysanch@gmail.com>",
   "type": "module",
@@ -61,7 +61,7 @@
     }
   },
   "scripts": {
-    "dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electronmon .\"",
+    "dev": "vite && electronmon .",
     "build": "vite build",
     "build:electron": "vite build && electron-builder",
     "electron": "electron .",
