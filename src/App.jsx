@@ -13,6 +13,7 @@ import { CreateMoneda } from "./components/utils/CreateMoneda.jsx";
 import { Arancel } from "./components/view/Arancel.jsx";
 import { CreateAranceles } from "./components/utils/CreateAranceles.jsx";
 import { Dias } from "./components/view/Dias.jsx";
+import Programador from "./components/plugin/Programador.jsx";
 //! import { Moneda } from "./components/view/Moneda.jsx";
 
 function App() {
@@ -31,7 +32,8 @@ function App() {
       </div>
       <ErrorAlert message={error} onClose={() => setError("")} />
       <Routes>
-        <Route path="/" element={<Home setError={setError}/>} />
+        <Route path="/" element={<Programador setError={setError}/>} />
+        <Route path="/home" element={<Home setError={setError}/>} />
         <Route path="/register/quincena" element={<Quincena setError={setError}/>} />
         <Route path="/register/dia" element={<CreateDia setError={setError}/>} />
         <Route path="/register/pagina" element={<CreatePage setError={setError}/>} />

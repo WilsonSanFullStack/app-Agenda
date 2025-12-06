@@ -107,6 +107,10 @@ contextBridge.exposeInMainWorld("Electron", {
   removeAllListeners: (channel) => {
     ipcRenderer.removeAllListeners(channel);
   },
+  // 🔧 CORRECCIÓN: Enviar URL a través de IPC para que main.js la abra
+  openExternal: (url) => {
+    ipcRenderer.send('open-external-url', url);
+  },
 
   // =============================================
   // DIAGNÓSTICO
