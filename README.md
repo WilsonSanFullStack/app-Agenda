@@ -110,7 +110,7 @@ Es una herramienta pensada para mejorar la organización, la transparencia y la 
 
 Puedes descargar la aplicación desde el siguiente enlace:
 
-[**Descargar App Agenda v2**](https://drive.google.com/file/d/1DpRvXI-4QuOsPLi7J8qvvY76383ZPaIn/view?usp=sharing)
+[**Descargar App Agenda v2.0.1**](https://drive.google.com/file/d/1RdO5PFrXpI1UREGU51u7dp0RBZR76DB4/view?usp=sharing)
 
 ---
 
