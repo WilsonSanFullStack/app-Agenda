@@ -1,7 +1,7 @@
 {
   "name": "appagenda",
   "private": true,
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Aplicación de estadísticas y gestión de quincenas",
   "author": "Wilson Sanchez <harveysanch@gmail.com>",
   "type": "module",
