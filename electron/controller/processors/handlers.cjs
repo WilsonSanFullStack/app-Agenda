@@ -280,7 +280,14 @@ const calcularTotalesDia = (dia) => {
 
   for (const [pagina, valores] of Object.entries(dia)) {
     if (pagina === "name" || pagina === "worked") continue;
-    if (valores?.mostrar === false) continue;
+    
+    // 🔧 MODIFICACIÓN: Solo saltar si mostrar es EXPLÍCITAMENTE false
+    // En lugar de: if (valores?.mostrar === false) continue;
+    if (valores?.mostrar === false) {
+      // 🔧 Pero si tiene tope alcanzado, debemos incluir los créditos
+      // Necesitamos más contexto aquí - lo manejaremos en diasProcessor
+      continue;
+    }
 
     // Coins
     totales.coins += valores?.coinsDia || valores?.coinsTotal || 0;
@@ -306,6 +313,26 @@ const calcularTotalesDia = (dia) => {
   }
 
   return totales;
+};
+
+// 🔧 Función para calcular el TOTAL de créditos de una página
+const calcularTotalPagina = (valoresPagina) => {
+  if (!valoresPagina) return 0;
+  
+  // Usamos los valores *Total que ya están acumulados
+  // No sumamos usdDia + euroDia, porque esos son incrementos diarios
+  return (
+    (valoresPagina.usdTotal || 0) +
+    (valoresPagina.euroTotal || 0) +
+    (valoresPagina.gbp || valoresPagina.gbpQuincena || 0) +
+    (valoresPagina.gbpParcial || valoresPagina.gbpParcialQuincena || 0) +
+    (valoresPagina.coinsTotal || 0)
+  );
+};
+
+// Y modifica calcularCreditosPagina para usar la nueva lógica:
+const calcularCreditosPagina = (valoresPagina) => {
+  return calcularTotalPagina(valoresPagina);
 };
 
 // Encontrar mejor página
@@ -392,6 +419,7 @@ const calcularPromedios = (totales, diasTrabajados) => {
   };
 };
 
+
 module.exports = {
   procesarPaginaMensual,
   procesarCoinsMensual,
@@ -400,4 +428,5 @@ module.exports = {
   encontrarMejorDia,
   calcularPromedios,
   calcularTotalesDia,
+  calcularCreditosPagina
 };
