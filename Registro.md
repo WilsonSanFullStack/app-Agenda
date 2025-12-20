@@ -33,6 +33,7 @@ Interés acumulado
 Total de deuda + interés
 
 ## Versión 2.0.0 - 28 noviembre 2025
+
 - Lanzamiento Inicial:
 
 Primera versión estable puesta en producción
