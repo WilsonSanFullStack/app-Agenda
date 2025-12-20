@@ -15,7 +15,8 @@ const procesarQuincena = (quincena, paginas, tasas, pago = false, cerrado = fals
     qf = procesarDias(dias, paginas, tasas, nombreQuincena, quincena.cierre);
 
     //2. limpiar adultwork
-    const qfLimpio = limpiarAdultwork(qf, pago || cerrado)
+   console.log( "2. limpiar adultwork")
+    const qfLimpio = limpiarAdultwork(qf, pago, cerrado, paginas)
 
     //formatear quincena completa con totales y promedios
     const quincenaFormateada = formatearQuincenaCompleta(

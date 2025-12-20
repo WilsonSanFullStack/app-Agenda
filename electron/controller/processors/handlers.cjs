@@ -28,6 +28,7 @@ const procesarPaginaMensual = (
   const ultimosValoresAnteriores = ajustarQuincenaAnterior
     ? obtenerUltimosValoresQuincenaAnterior(cierre, dia.page)
     : null;
+    // console.log("ultimosValoresAnteriores", ultimosValoresAnteriores)
   switch (moneda) {
     case "USD":
       return procesarUSDMensual(
@@ -78,14 +79,13 @@ const procesarUSDMensual = (
   ultimosValores
 ) => {
   const valorBase = dia.usd || 0;
-
   // SOLUCIÓN: Solo crear propiedades *Ajustado si hay ultimosValores
   if (ultimosValores) {
     pageData.usdTotal = valorBase;
     const valorAjustado = valorBase - (ultimosValores.datos.usdTotal || 0);
     pageData.usdQuincena = valorAjustado;
     pageData.pesosTotal = valorAjustado * porcentaje * usd;
-
+    
     if (anterior?.[dia.page]?.usdTotal !== undefined) {
       pageData.usdDia = valorBase - anterior[dia.page].usdTotal;
       pageData.pesosDia = pageData.usdDia * porcentaje * usd;
@@ -98,13 +98,13 @@ const procesarUSDMensual = (
     // Comportamiento normal para páginas no mensuales
     pageData.usdTotal = valorBase;
     pageData.pesosTotal = valorBase * porcentaje * usd;
-
+    
     if (anterior?.[dia.page]?.usdTotal !== undefined) {
       pageData.usdDia = valorBase - anterior[dia.page].usdTotal;
       pageData.pesosDia = pageData.usdDia * porcentaje * usd;
     }
   }
-
+  
   return pageData;
 };
 
@@ -118,13 +118,13 @@ const procesarEUROMensual = (
   ultimosValores
 ) => {
   const valorBase = dia.euro || 0;
-
+  
   if (ultimosValores) {
     pageData.euroTotal = valorBase;
     const valorAjustado = valorBase - (ultimosValores.datos.euroTotal || 0);
     pageData.euroQuincena = valorAjustado;
     pageData.pesosTotal = valorAjustado * porcentaje * euro;
-
+    
     if (anterior?.[dia.page]?.euroTotal !== undefined) {
       pageData.euroDia = valorBase - anterior[dia.page].euroTotal;
       pageData.pesosDia = pageData.euroDia * porcentaje * euro;
@@ -135,13 +135,13 @@ const procesarEUROMensual = (
   } else {
     pageData.euroTotal = valorBase;
     pageData.pesosTotal = valorBase * porcentaje * euro;
-
+    
     if (anterior?.[dia.page]?.euroTotal !== undefined) {
       pageData.euroDia = valorBase - anterior[dia.page].euroTotal;
       pageData.pesosDia = pageData.euroDia * porcentaje * euro;
     }
   }
-
+  
   return pageData;
 };
 
@@ -157,10 +157,10 @@ const procesarGBPMensual = (
   // Procesar GBP parcial
   if (dia.gbpParcial > 0) {
     const gbpParcialBase = dia.gbpParcial || 0;
-
+    
     if (ultimosValores?.datos.gbpParcial !== undefined) {
       const gbpParcialAjustado =
-        gbpParcialBase - ultimosValores.datos.gbpParcial;
+      gbpParcialBase - ultimosValores.datos.gbpParcial;
       pageData.gbpParcialQuincena = gbpParcialAjustado;
       pageData.pesosParcial = gbpParcialAjustado * porcentaje * gbp;
     } else {
@@ -168,10 +168,10 @@ const procesarGBPMensual = (
       pageData.pesosParcial = gbpParcialBase * porcentaje * gbp;
     }
   }
-
+  
   // Procesar GBP normal
   const gbpBase = dia.gbp || 0;
-
+  
   if (ultimosValores?.datos.gbp !== undefined) {
     const gbpAjustado = gbpBase - ultimosValores.datos.gbp;
     pageData.gbpQuincena = gbpAjustado;
@@ -186,7 +186,7 @@ const procesarGBPMensual = (
 //handler para pocersar las paginas en cop o adelantos o prestamos
 const procesarCOPMensual = (pageData, dia, anterior, ultimosValores) => {
   const adelantosBase = dia.adelantos || 0;
-
+  
   // Para COP, el ajuste es diferente - acumulamos desde cero en segunda quincena
   if (ultimosValores) {
     pageData.adelantosDia = adelantosBase;
@@ -195,40 +195,40 @@ const procesarCOPMensual = (pageData, dia, anterior, ultimosValores) => {
     pageData.adelantosDia = adelantosBase;
     pageData.adelantosTotal =
       anterior?.[dia.page]?.adelantosTotal !== undefined
-        ? adelantosBase + anterior[dia.page].adelantosTotal
-        : adelantosBase;
+      ? adelantosBase + anterior[dia.page].adelantosTotal
+      : adelantosBase;
   }
-
+  
   return pageData;
 };
 
 //aplica los porcentajes de descuento que tenga una pagina
 const aplicarDescuento = (dia, pag) => {
   if (!pag?.descuento) return dia;
-
+  
   const descuento = parseFloat(pag.descuento) || 0;
   const moneda = pag.moneda;
-
+  
   const nuevosDatos = { ...dia };
-
+  
   switch (moneda) {
     case MONEDAS.USD:
       nuevosDatos.usd = (nuevosDatos.usd || 0) * descuento;
       break;
-    case MONEDAS.EURO:
-      nuevosDatos.euro = (nuevosDatos.euro || 0) * descuento;
-      break;
-    case MONEDAS.GBP:
-      nuevosDatos.gbp = (nuevosDatos.gbp || 0) * descuento;
-      nuevosDatos.gbpParcial = (nuevosDatos.gbpParcial || 0) * descuento;
-      break;
-  }
-
-  return nuevosDatos;
-};
-
-//handler para pocesar los coins de una pagina
-const procesarCoinsMensual = (
+      case MONEDAS.EURO:
+        nuevosDatos.euro = (nuevosDatos.euro || 0) * descuento;
+        break;
+        case MONEDAS.GBP:
+          nuevosDatos.gbp = (nuevosDatos.gbp || 0) * descuento;
+          nuevosDatos.gbpParcial = (nuevosDatos.gbpParcial || 0) * descuento;
+          break;
+        }
+        
+        return nuevosDatos;
+      };
+      
+      //handler para pocesar los coins de una pagina
+      const procesarCoinsMensual = (
   df,
   dia,
   pag,
@@ -238,19 +238,24 @@ const procesarCoinsMensual = (
 ) => {
   const pageData = df[dia.page] || {};
   const ajustarQuincenaAnterior =
-    pag.mensual && esSegundaQuincena(nombreQuincenaActual);
+  pag.mensual && esSegundaQuincena(nombreQuincenaActual);
   const ultimosValoresAnteriores = ajustarQuincenaAnterior
-    ? obtenerUltimosValoresQuincenaAnterior(cierre, dia.page)
-    : null;
-
+  ? obtenerUltimosValoresQuincenaAnterior(cierre, dia.page)
+  : null;
+  // console.log("ultimosValoresAnteriores", ultimosValoresAnteriores)
+  
   const coinsBase = dia.coins || 0;
-
+  // console.log("dia", dia)
+  // console.log("coinsBase", coinsBase)
+  
   if (ultimosValoresAnteriores) {
     pageData.coinsTotal = coinsBase;
     const coinsAjustado =
-      coinsBase - (ultimosValoresAnteriores.datos.coinsTotal || 0);
+    coinsBase - (ultimosValoresAnteriores.datos.coinsTotal || 0);
+    // console.log("coinsAjustado", coinsAjustado)
+    // console.log("valorAjustado", valorAjustado)
     pageData.coinsQuincena = coinsAjustado;
-
+    
     if (anterior?.[dia.page]?.coinsTotal !== undefined) {
       pageData.coinsDia = coinsBase - anterior[dia.page].coinsTotal;
     } else {
@@ -258,12 +263,12 @@ const procesarCoinsMensual = (
     }
   } else {
     pageData.coinsTotal = coinsBase;
-
+    
     if (anterior?.[dia.page]?.coinsTotal !== undefined) {
       pageData.coinsDia = coinsBase - anterior[dia.page].coinsTotal;
     }
   }
-
+  
   return df;
 };
 
@@ -277,7 +282,7 @@ const calcularTotalesDia = (dia) => {
     cop: 0,
     adelantos: 0,
   };
-
+  
   for (const [pagina, valores] of Object.entries(dia)) {
     if (pagina === "name" || pagina === "worked") continue;
     
@@ -288,10 +293,10 @@ const calcularTotalesDia = (dia) => {
       // Necesitamos más contexto aquí - lo manejaremos en diasProcessor
       continue;
     }
-
+    
     // Coins
     totales.coins += valores?.coinsDia || valores?.coinsTotal || 0;
-
+    
     // USD
     totales.usd += valores?.usdDia || valores?.usdTotal || 0;
 

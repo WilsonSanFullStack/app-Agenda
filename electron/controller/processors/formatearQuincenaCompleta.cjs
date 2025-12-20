@@ -48,7 +48,7 @@ const formatearQuincenaCompleta = (quincena, qfLimpio, porcentaje, isPago, moned
       rojoAnterior: calculoInteres.rojoAnterior,
       interes: calculoInteres.interes,
       rojoConInteres: calculoInteres.rojoTotal,
-      descripcion: "Interés del 10% por deuda de quincena anterior"
+      descripcion: "Interés del 5% por deuda de quincena anterior"
     } : null,
     promedios: {
       mejorPageCreditos: mejorCreditos,

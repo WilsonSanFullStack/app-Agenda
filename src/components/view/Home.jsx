@@ -102,7 +102,7 @@ export const Home = ({ setError }) => {
   const handleCierre = async (currentQ) => {
     if (pago.pago && currentQ?.id) {
       try {
-        const res = await window.Electron.cerrarQ({ id: currentQ.id });
+        const res = await window.Electron.cerrarQ({ id: currentQ.id, pago: true });
         // 🔧 Verificar que la respuesta sea válida
         if (res && res.success) {
           setError(res.message || "Quincena cerrada exitosamente");
