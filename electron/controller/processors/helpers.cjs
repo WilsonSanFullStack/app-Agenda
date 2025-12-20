@@ -32,11 +32,15 @@ const obtenerUltimosValoresQuincenaAnterior = (cierre, paginaNombre) => {
   }
 
   const diasAnteriores = cierre?.data?.dias;
+  // console.log("diasAnteriores", diasAnteriores)
   
   // Buscar el último día que tenga datos para esta página
   for (let i = diasAnteriores.length - 1; i >= 0; i--) {
     const diaAnterior = diasAnteriores[i];
+    // console.log("diaAnterior", diaAnterior)
     if (diaAnterior[paginaNombre]) {
+      // console.log("diaAnterior.name", diaAnterior.name)
+      // console.log("diaAnterior[paginaNombre]", diaAnterior[paginaNombre])
       return {
         dia: diaAnterior.name,
         datos: diaAnterior[paginaNombre]
@@ -57,7 +61,7 @@ const esSegundaQuincena = (nombreQuincena) => {
 };
 //calcular el rojo
 const calcularInteresQuincenaAnterior = (quincenaActual, cierreAnterior) => {
-  if (!cierreAnterior?.data?.totales?.rojo) {
+  if (!cierreAnterior?.data?.interes?.rojoAnterior) {
     return {
       tieneInteres: false,
       rojoAnterior: 0,
@@ -66,7 +70,7 @@ const calcularInteresQuincenaAnterior = (quincenaActual, cierreAnterior) => {
     };
   }
 
-  const rojoAnterior = cierreAnterior.data.totales.rojo;
+  const rojoAnterior = cierreAnterior?.data?.interes?.rojoAnterior;
   
   // Solo aplicar interés si el rojo es negativo (deuda)
   if (rojoAnterior >= 0) {

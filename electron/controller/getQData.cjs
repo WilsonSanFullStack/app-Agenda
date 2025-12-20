@@ -6,7 +6,10 @@ const { procesarQuincena } = require(path.join(__dirname, "processors", "index.c
 const getDataQ = async (data) => {
   // console.log("data id quincena", data);
   try {
+    // const prueba = await getDb(data.id);
+    // console.log(prueba)
     const { success, quincena, aranceles, paginas } = await getDb(data.id);
+    // console.log(success, quincena, aranceles, paginas, "quincena?.cierre?.data?.intereses?.rojoAnterior", quincena?.cierre?.data?.intereses?.rojoAnterior)
     if (!success) {
       return {
         success: false,

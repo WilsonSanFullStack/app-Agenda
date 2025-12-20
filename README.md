@@ -107,10 +107,12 @@ Es una herramienta pensada para mejorar la organización, la transparencia y la 
 ---
 
 ## 📥 Descarga
+- Revisa los archivos **Errores** y **Registro** para ver cual es la ultima version 
+- Puedes descargar la aplicación desde el siguiente enlace:
 
-Puedes descargar la aplicación desde el siguiente enlace:
+- [**Descargar App Agenda v2.0.3**](https://drive.google.com/file/d/1z3tAyytBKYEzYx_lDtZ4qxd-iCGi1BG2/view?usp=sharing)
 
-[**Descargar App Agenda v2.0.1**](https://drive.google.com/file/d/1_8eAjOktX_knxJF7m5QuQxBViCr9J85h/view?usp=sharing)
+- [**Descargar App Agenda v2.0.2**](https://drive.google.com/file/d/1_8eAjOktX_knxJF7m5QuQxBViCr9J85h/view?usp=sharing)
 
 ---
 
