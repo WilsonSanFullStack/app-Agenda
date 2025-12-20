@@ -107,7 +107,7 @@ Es una herramienta pensada para mejorar la organización, la transparencia y la 
 ---
 
 ## 📥 Descarga
-- Revisa los archivos **Errores** y **Registro** para ver cual es la ultima version 
+- Revisa los archivos [**Errores**](https://github.com/WilsonSanFullStack/app-Agenda/blob/main/Errores.md) y [**Registro**](https://github.com/WilsonSanFullStack/app-Agenda/blob/main/Registro.md) para ver cual es la ultima version 
 - Puedes descargar la aplicación desde el siguiente enlace:
 
 - [**Descargar App Agenda v2.0.3**](https://drive.google.com/file/d/1z3tAyytBKYEzYx_lDtZ4qxd-iCGi1BG2/view?usp=sharing)
