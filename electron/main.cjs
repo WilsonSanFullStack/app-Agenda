@@ -56,7 +56,7 @@ mainWindow.webContents.setWindowOpenHandler(({ url }) => {
   return { action: 'allow' }; // Permite ventanas para otras URLs
 });
 
-// 🔧 También manejar navegación dentro de la misma ventana
+//TODO 🔧 También manejar navegación dentro de la misma ventana
 mainWindow.webContents.on('will-navigate', (event, url) => {
   const parsedUrl = new URL(url);
   

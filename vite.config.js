@@ -17,7 +17,7 @@ export default defineConfig({
     },
   },
   plugins: [
-    electron({ entry: "electron/main.cjs" }),
+    electron([{ entry: "electron/main.cjs" },{ entry: "electron/preload.cjs"}]),
     tailwindcss({
       config: {
         experimental: {
